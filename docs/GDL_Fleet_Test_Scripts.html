@@ -1,0 +1,1649 @@
+<title>GDL Fleet Test Scripts</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky contents rail beside one reading column; stacks under 940px. */
+:root{
+  --bg:#F6F5F2; --surface:#FFFFFF; --surface-2:#EFEEE9; --fg:#1A211F; --muted:#5C6865;
+  --border:#DCD9D1; --accent:#0E4C5C; --accent-fg:#FFFFFF; --accent-soft:#E3EDF0;
+  --ok:#2C6A4A; --ok-soft:#E4F0E9; --warn:#8A5300; --warn-soft:#F7EEDC;
+  --stop:#96302E; --stop-soft:#F7E6E5; --new:#4A3A86; --new-soft:#ECE8F7;
+  --code-bg:#F0EFEA;
+  --display:"Zilla Slab",Georgia,serif;
+  --body:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14191A; --surface:#1B2224; --surface-2:#222A2C; --fg:#E8EAE8; --muted:#9AA7A5;
+  --border:#2E383A; --accent:#5EB8CC; --accent-fg:#0B2126; --accent-soft:#15333B;
+  --ok:#68C295; --ok-soft:#172E25; --warn:#D9A441; --warn-soft:#30260F;
+  --stop:#E0807D; --stop-soft:#331D1D; --new:#A99BE4; --new-soft:#241F3B;
+  --code-bg:#1E2628; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#14191A; --surface:#1B2224; --surface-2:#222A2C; --fg:#E8EAE8; --muted:#9AA7A5;
+  --border:#2E383A; --accent:#5EB8CC; --accent-fg:#0B2126; --accent-soft:#15333B;
+  --ok:#68C295; --ok-soft:#172E25; --warn:#D9A441; --warn-soft:#30260F;
+  --stop:#E0807D; --stop-soft:#331D1D; --new:#A99BE4; --new-soft:#241F3B;
+  --code-bg:#1E2628; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.62;margin:0}
+.shell{max-width:1180px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0}
+.masthead{padding-block:44px 28px;border-bottom:3px solid var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+.masthead h1{font-family:var(--display);font-weight:700;font-size:clamp(2rem,5.5vw,3.1rem);line-height:1.08;margin:0 0 12px;text-wrap:balance;letter-spacing:-.01em}
+.masthead p{margin:0;max-width:62ch;color:var(--muted);font-size:1.03rem}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:20px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.meta b{color:var(--fg);font-weight:500}
+.grid{display:grid;grid-template-columns:238px minmax(0,1fr);gap:48px;align-items:start;padding-block:36px 72px}
+@media (max-width:940px){.grid{grid-template-columns:1fr;gap:0}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);font-size:13.2px;max-height:calc(100vh - 60px);overflow-y:auto;min-width:0}
+.toc h2{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:500}
+.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.toc a{display:flex;gap:9px;padding:4px 8px;border-radius:4px;color:var(--muted);text-decoration:none}
+.toc a:hover{color:var(--fg);background:var(--surface-2)}
+.toc a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.toc a .n{font-family:var(--mono);font-size:11px;color:var(--accent);flex:none;padding-top:2px}
+@media (max-width:940px){
+  .toc{position:static;max-height:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-block:24px}
+  .toc ol{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:2px}
+}
+main{min-width:0}
+section{scroll-margin-top:24px;margin-bottom:56px}
+h2.part{font-family:var(--display);font-weight:600;font-size:clamp(1.45rem,3.4vw,1.95rem);line-height:1.2;margin:0 0 6px;text-wrap:balance;display:flex;gap:14px;align-items:baseline}
+h2.part .num{font-family:var(--mono);font-size:.74em;color:var(--accent);font-weight:500;flex:none}
+.standfirst{color:var(--muted);margin:0 0 24px;max-width:68ch}
+h3{font-family:var(--display);font-weight:600;font-size:1.14rem;margin:32px 0 8px;text-wrap:balance}
+h4{font-family:var(--body);font-weight:600;font-size:.96rem;margin:22px 0 6px}
+p{margin:0 0 14px;max-width:70ch}
+ul{padding-left:20px;margin:0 0 14px;max-width:70ch}
+li{margin-bottom:6px}
+ol.steps{counter-reset:s;list-style:none;padding:0;margin:0 0 18px;display:flex;flex-direction:column;gap:12px;max-width:72ch}
+ol.steps>li{counter-increment:s;position:relative;padding-left:40px;margin:0}
+ol.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;width:25px;height:25px;border-radius:50%;
+  background:var(--accent);color:var(--accent-fg);font-family:var(--mono);font-size:12px;font-weight:500;
+  display:flex;align-items:center;justify-content:center}
+code,.f{font-family:var(--mono);font-size:.875em;background:var(--code-bg);padding:1px 5px;border-radius:3px;
+  border:1px solid var(--border);white-space:nowrap}
+.path{font-family:var(--mono);font-size:.875em;color:var(--accent);font-weight:500;white-space:nowrap}
+.tw{overflow-x:auto;margin:0 0 18px;border:1px solid var(--border);border-radius:7px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.4px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface-2);font-weight:600;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.call{border-left:3px solid var(--accent);background:var(--accent-soft);padding:13px 16px;border-radius:0 6px 6px 0;margin:0 0 18px;max-width:72ch}
+.call.warn{border-color:var(--warn);background:var(--warn-soft)}
+.call.rule{border-color:var(--ok);background:var(--ok-soft)}
+.call.stop{border-color:var(--stop);background:var(--stop-soft)}
+.call.new{border-color:var(--new);background:var(--new-soft)}
+.call p:last-child{margin-bottom:0}
+.call .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;display:block;margin-bottom:5px;color:var(--accent)}
+.call.warn .lbl{color:var(--warn)} .call.rule .lbl{color:var(--ok)}
+.call.stop .lbl{color:var(--stop)} .call.new .lbl{color:var(--new)}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:0 0 18px;font-family:var(--mono);font-size:12px}
+.flow .st{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 10px;white-space:nowrap}
+.flow .st.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.flow .st.bad{background:var(--stop-soft);border-color:var(--stop);color:var(--stop)}
+.flow .st.good{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.flow .ar{color:var(--muted);flex:none}
+.flow .ar small{font-family:var(--body);display:block;font-size:10px;line-height:1}
+.calc{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:16px 18px;margin:0 0 18px;
+  font-family:var(--mono);font-size:13px;overflow-x:auto}
+.calc .eq{color:var(--accent);font-weight:500}
+.calc .cm{color:var(--muted)}
+.err{font-family:var(--mono);font-size:12.5px;color:var(--stop);display:block;margin-bottom:4px}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:99px;
+  border:1px solid var(--border);background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.pill.who{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.pill.todo{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.pill.set{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.roles{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 18px}
+footer{border-top:1px solid var(--border);padding-block:24px 48px;color:var(--muted);font-size:13px}
+a{color:var(--accent)}
+@media (max-width:560px){body{font-size:14.5px}.grid{padding-block:24px 48px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+/* Test-script additions on top of the handbook's stylesheet. */
+.tc{border:1px solid var(--border);border-radius:7px;background:var(--surface);margin:0 0 14px;overflow:hidden}
+.tc>.hd{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;padding:9px 14px;background:var(--surface-2);border-bottom:1px solid var(--border)}
+.tc>.hd .id{font-family:var(--mono);font-size:11.5px;font-weight:500;color:var(--accent);flex:none}
+.tc>.hd .ti{font-weight:600;font-size:14px;flex:1 1 220px;min-width:0}
+.tc>.bd{padding:12px 14px}
+.tc .lab{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);display:block;margin:10px 0 4px}
+.tc .lab:first-child{margin-top:0}
+.tc ol{margin:0;padding-left:19px;font-size:13.6px}
+.tc ol li{margin-bottom:3px}
+.tc .exp{border-left:3px solid var(--ok);background:var(--ok-soft);padding:9px 12px;border-radius:0 5px 5px 0;font-size:13.6px}
+.tc .exp p{margin:0 0 6px;max-width:none}.tc .exp p:last-child{margin:0}
+.tc.neg .exp{border-left-color:var(--stop);background:var(--stop-soft)}
+.res{display:flex;gap:7px;align-items:center;margin-top:11px;padding-top:10px;border-top:1px dashed var(--border);font-family:var(--mono);font-size:10.5px;color:var(--muted);flex-wrap:wrap}
+.res .bx{display:inline-block;width:15px;height:15px;border:1.5px solid var(--border);border-radius:3px;background:var(--bg);vertical-align:-3px;margin-right:4px}
+.res .line{flex:1 1 150px;border-bottom:1px solid var(--border);min-height:16px}
+.blocked{opacity:.72}
+.suite{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin:34px 0 4px}
+.suite h3{margin:0;font-size:1.22rem}
+.suite .cnt{font-family:var(--mono);font-size:11px;color:var(--muted)}
+@media print{
+  .toc,.noprint{display:none!important}
+  .grid{grid-template-columns:1fr!important;padding:0!important}
+  body{background:#fff;font-size:10.5pt}
+  .tc{break-inside:avoid;page-break-inside:avoid}
+  section{break-before:page;page-break-before:always}
+  section:first-of-type{break-before:auto;page-break-before:auto}
+}
+</style>
+
+<div class="shell">
+  <header class="masthead">
+    <p class="eyebrow">GDL Fleet Extension &middot; ERPNext 16 &middot; UAT</p>
+    <h1>GDL Fleet Test Scripts</h1>
+    <p>Scripts for user acceptance testing of the fleet module. Each test names who
+    runs it, what to do, and exactly what should happen &mdash; including the tests that
+    are supposed to <i>fail</i>, which are the ones worth running most.</p>
+    <div class="meta">
+      <span><b>Tests</b> 120 across 14 suites &middot; 44 negative</span>
+      <span><b>Site</b> gdl-staging.localhost</span>
+      <span><b>Companion</b> GDL Fleet Handbook</span>
+      <span><b>Issued</b> 4 November 2026</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <nav class="toc">
+      <h2>Suites</h2>
+      <ol>
+        <li><a href="#how"><span class="n">&mdash;</span><span>How to use this</span></a></li>
+        <li><a href="#pre"><span class="n">&mdash;</span><span>Before you start</span></a></li>
+        <li><a href="#s1"><span class="n">1</span><span>Setup &amp; configuration</span></a></li>
+        <li><a href="#s2"><span class="n">2</span><span>Vehicle master</span></a></li>
+        <li><a href="#s3"><span class="n">3</span><span>Drivers &amp; assignment</span></a></li>
+        <li><a href="#s4"><span class="n">4</span><span>Daily KM</span></a></li>
+        <li><a href="#s5"><span class="n">5</span><span>Requests &amp; the location MTO</span></a></li>
+        <li><a href="#s6"><span class="n">6</span><span>Movement order</span></a></li>
+        <li><a href="#s7"><span class="n">7</span><span>Service &amp; maintenance</span></a></li>
+        <li><a href="#s8"><span class="n">8</span><span>Service bills &amp; purchasing</span></a></li>
+        <li><a href="#s9"><span class="n">9</span><span>Insurance &amp; renewals</span></a></li>
+        <li><a href="#s10"><span class="n">10</span><span>POL &amp; the coupon balance</span></a></li>
+        <li><a href="#s11"><span class="n">11</span><span>Mileage deviation</span></a></li>
+        <li><a href="#s12"><span class="n">12</span><span>Parts &amp; tyres</span></a></li>
+        <li><a href="#s13"><span class="n">13</span><span>Reports &amp; dashboard</span></a></li>
+        <li><a href="#s14"><span class="n">14</span><span>Permissions &amp; security</span></a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+<section id="how">
+  <h2 class="part"><span class="num">&mdash;</span>How to use this</h2>
+  <p class="standfirst">Read this page once before the first test. It will save arguments later.</p>
+
+  <h3>Every test has the same shape</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Part</th><th>What it means</th></tr></thead>
+    <tbody>
+      <tr><td><b>ID</b></td><td><code>FL-05-03</code> &mdash; suite 5, test 3. Quote it when raising a defect.</td></tr>
+      <tr><td><b>Run as</b></td><td>Log in as this user. Testing as Administrator proves nothing about permissions, because Administrator bypasses them.</td></tr>
+      <tr><td><b>Steps</b></td><td>Do these in order. If a step fails, stop and record where.</td></tr>
+      <tr><td><b>Expected</b></td><td>Green means it should succeed. <span class="pill" style="border-color:var(--stop);color:var(--stop)">Red means it should be refused</span> &mdash; and the test <b>fails if the system lets you through</b>.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call warn"><span class="lbl">Half these tests are meant to fail</span>
+  <p>A negative test passes when the system <b>stops</b> you. If you can double-book a
+  vehicle, approve another site's request, or submit a fuel claim with no bill
+  attached, that is a <b>defect</b>, however convenient it feels at the time.</p>
+  <p>When the system refuses you, read the message. It should name the record it is
+  protecting and tell you what to do. A refusal with an unhelpful message is worth
+  raising even though the block itself worked.</p></div>
+
+  <h3>Recording a result</h3>
+  <p>Each test ends with a result line. Tick one, initial it, and write the date. If
+  you tick <b>Fail</b>, write what actually happened &mdash; "rejected" on its own cannot be
+  investigated. Screenshot anything surprising.</p>
+  <p><b>Blocked</b> means you could not run it, usually because a prerequisite is
+  missing. That is not a defect in the module; it belongs on the prerequisite list.</p>
+
+  <div class="call"><span class="lbl">One trap worth knowing before you start</span>
+  <p><b>Submit, don't just save.</b> In ERPNext a saved record is a draft and counts
+  for nothing &mdash; it will not appear in reports, will not block a double booking, and
+  will not carry a balance forward. Several tests look broken until you notice the
+  record was never submitted.</p></div>
+</section>
+
+<section id="pre">
+  <h2 class="part"><span class="num">&mdash;</span>Before you start</h2>
+  <p class="standfirst">What must exist before testing, and what is missing from staging today.</p>
+
+  <h3>Already in place</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Item</th><th class="n">Count</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Vehicles</td><td class="n">14</td><td>Across 7 sites, each with its minimum KM/L from the blueprint chart.</td></tr>
+      <tr><td>Sites (Locations)</td><td class="n">10</td><td>GDL's own: Head Office, Jamjee, Dochula, Dagapela, Gedu, Samcholing, Jigmeling, plus Motanga, GMC, Service Location.</td></tr>
+      <tr><td>Location managers</td><td class="n">7</td><td>One requester and one MTO per site; Head Office is the final MTO.</td></tr>
+      <tr><td>Vehicle types</td><td class="n">4</td><td>Bus, Car, Pickup, SUV.</td></tr>
+      <tr><td>Maintenance rules</td><td class="n">12</td><td>Engine Oil 7,500 km / 6 months through to Other Repair.</td></tr>
+      <tr><td>Reports</td><td class="n">18</td><td>Plus 5 dashboard figures and 5 charts.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call stop"><span class="lbl">Missing &mdash; these block whole suites</span>
+  <p>None of these is a defect. They are data and decisions that belong to GDL, and
+  each one has to exist before the suite beside it can run.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Missing</th><th>Blocks</th><th>Who provides it</th></tr></thead>
+    <tbody>
+      <tr><td><b>Drivers</b> (0 on staging)</td><td>Suites 3, 4, 6, 10, 12</td><td>GDL &mdash; real names and licence numbers.</td></tr>
+      <tr><td><b>Employees</b> (0)</td><td>Linking drivers to staff records; requester details</td><td>GDL / HR module.</td></tr>
+      <tr><td><b>BOD and STCBL suppliers</b></td><td>Suite 10 fuel claims</td><td>GDL &mdash; then name them in settings.</td></tr>
+      <tr><td><b>Bill Approver Role</b></td><td>Suite 8 entirely &mdash; nobody can approve a bill</td><td>GDL decision.</td></tr>
+      <tr><td><b>Purchasing Company, Maintenance Service Item</b></td><td>Suite 8 purchasing documents</td><td>GDL decision.</td></tr>
+      <tr><td><b>Asset Maintenance Team</b></td><td>Preventive maintenance plans</td><td>GDL &mdash; workshop staff.</td></tr>
+      <tr><td><b>Stock items and opening stock</b></td><td>Suite 12 parts and tyres</td><td>GDL stores.</td></tr>
+      <tr><td><b>Passwords for the 14 fleet users</b></td><td>Every test that must run as a named user</td><td>Administrator sets them.</td></tr>
+    </tbody>
+  </table></div></div>
+
+  <h3>Setting a password so you can test as a real user</h3>
+  <p>The fourteen fleet users exist but have no passwords. From the bench terminal:</p>
+  <div class="calc">bench --site gdl-staging.localhost set-password Administrator jamjee.mto@gdl.test</div>
+  <p>Do the same for <code>jamjee.user@gdl.test</code>, <code>dochula.mto@gdl.test</code> and
+  <code>headoffice.mto@gdl.test</code> &mdash; those four cover every permission test in
+  Suite&nbsp;5 and Suite&nbsp;14.</p>
+
+  <div class="call"><span class="lbl">Two things staging will not do</span>
+  <p><b>No email leaves the site</b> and <b>the scheduler is paused.</b> Both are
+  deliberate &mdash; staging came from a real database and must not contact real people.
+  So reminder emails will not arrive during testing. Suite&nbsp;9 tests the renewal
+  <i>status</i> and the <i>configuration</i> of the alerts instead, which is what can
+  honestly be verified here.</p></div>
+</section>
+
+<section id="s1">
+  <h2 class="part"><span class="num">01</span>Setup &amp; configuration</h2>
+  <p class="standfirst">Nothing in this module hard-codes a threshold. These tests prove that, and prove the settings form refuses a configuration that cannot work.</p>
+  <div class="suite"><span class="cnt">9 test(s)</span></div>
+<div class="tc" id="FL-01-01">
+  <div class="hd"><span class="id">FL-01-01</span><span class="ti">Every threshold is configuration, not code</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Setup &rsaquo; GDL Fleet Settings</span>.</li><li>Read down the form.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Mileage tolerance (10%), tyre target (20,000 km) and tolerance (20%), booking lead time (24 h), abnormal daily KM (500) and all four renewal reminders are editable fields, not fixed text.</p><p>Changing any of them takes effect without a code change or a restart.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-01-02">
+  <div class="hd"><span class="id">FL-01-02</span><span class="ti">Renewal ladder reads 14 / 3 / expiry</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open GDL Fleet Settings, Renewal Alerts section.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>First reminder <b>14</b>, second <b>3</b>, third <b>0</b>, final <b>0</b>.</p><p>0 means that rung is switched off &mdash; this is GDL's stated schedule of 14 days, 3 days and the expiry day.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-01-03">
+  <div class="hd"><span class="id">FL-01-03</span><span class="ti">A switched-off reminder stays off after a migrate</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <p style="margin:0 0 10px;font-size:13.4px;color:var(--muted)">This failed before and was fixed &mdash; worth re-checking after any upgrade.</p>
+    <span class="lab">Steps</span>
+    <ol><li>Note that Third and Final reminders are 0.</li><li>Ask IT to run <code>bench migrate</code>.</li><li>Re-open the settings.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Both are still <b>0</b>.</p><p>They do not revert to 7 and 3. A reminder you switched off stays off.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-01-04">
+  <div class="hd"><span class="id">FL-01-04</span><span class="ti">Twelve maintenance rules are loaded</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open GDL Fleet Settings, Preventive Maintenance section.</li><li>Read the Maintenance Rules table.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Twelve rows, matching the blueprint chart: Engine Oil and Engine Oil Filter 7,500 km / 6 months; Fuel Filter and Air Filter 10,000 / 12; Tyre 20,000 / 24; Brake Pads 30,000 / 24; Brake Fluid, Gear Oil and Coolant 40,000 / 24; Battery 36 months; General Inspection 6 months; Other Repair no interval.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-01-05">
+  <div class="hd"><span class="id">FL-01-05</span><span class="ti">A group account cannot be a fuel account</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open GDL Fleet Settings, POL Accounting.</li><li>In Fuel Expense Account by Company, set the account to a <b>group</b> account.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused. The message says the account is a group and nothing can be posted to it.</p><p><b>Fails if the save succeeds</b> &mdash; the error would then surface later, when somebody tries to raise a real fuel invoice.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-01-06">
+  <div class="hd"><span class="id">FL-01-06</span><span class="ti">An account from another company is refused</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>On the same table, set a row's Company to one company and its account to an account belonging to a different one.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, naming both companies.</p><p>This is the check that prevents the <i>Invalid Account</i> error GDL hit before.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-01-07">
+  <div class="hd"><span class="id">FL-01-07</span><span class="ti">Location managers: one MTO per site</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open GDL Fleet Settings, Approvals and Location Managers.</li><li>Add a second row for a site that already has one.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused: the site is listed twice and a site has one MTO.</p><p>Without this, &ldquo;who approves here&rdquo; would be ambiguous.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-01-08">
+  <div class="hd"><span class="id">FL-01-08</span><span class="ti">Only one Head Office MTO</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Tick <b>Head Office</b> on a second row as well.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused: there is one final MTO.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-01-09">
+  <div class="hd"><span class="id">FL-01-09</span><span class="ti">A disabled user cannot be an MTO</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Disable a user who is named as an MTO.</li><li>Re-save GDL Fleet Settings.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, naming the disabled user.</p><p>A disabled approver would silently stall every request for that site.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s2">
+  <h2 class="part"><span class="num">02</span>Vehicle master</h2>
+  <p class="standfirst">The permanent record. These tests cover what the blueprint lists as mandatory, and the guards that keep a vehicle's identity stable.</p>
+  <div class="suite"><span class="cnt">8 test(s)</span></div>
+<div class="tc" id="FL-02-01">
+  <div class="hd"><span class="id">FL-02-01</span><span class="ti">All 14 blueprint vehicles are registered</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Vehicle Master &rsaquo; Vehicle</span>.</li><li>Group or sort by Site.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Fourteen vehicles: Head Office 3, Jamjee 3, Dochula 2, Dagapela 2, Samcholing 2, Gedu 1, Jigmeling 1.</p><p>Registration numbers match the blueprint mileage chart exactly, e.g. <code>BG-1-A2397</code>, <code>BG-1A-3780</code>.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-02-02">
+  <div class="hd"><span class="id">FL-02-02</span><span class="ti">Each vehicle carries its minimum KM/L</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open any vehicle and read <span class='f'>Minimum Required Mileage (KM/L)</span>.</li><li>Spot-check three against the blueprint chart.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Hilux 8.00, Fortuner 9.00, Jigmeling Bolero 12.00, Gedu Hiace 7.45.</p><p>The BYD EV reads <b>0</b> &mdash; correct, because km per litre does not apply to an electric vehicle.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-02-03">
+  <div class="hd"><span class="id">FL-02-03</span><span class="ti">A new vehicle can be registered</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Click Add Vehicle.</li><li>Enter a registration number, make, model, vehicle type, ownership type, fuel type, UOM and site.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Saved, and a <span class='f'>Vehicle ID</span> such as <code>GDL-VEH-000xx</code> is allotted automatically.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-02-04">
+  <div class="hd"><span class="id">FL-02-04</span><span class="ti">The Vehicle ID never changes</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open the vehicle you just created.</li><li>Try to edit <span class='f'>Vehicle ID</span>.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, or the field is not editable.</p><p>The ID is the permanent handle other records point at.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-02-05">
+  <div class="hd"><span class="id">FL-02-05</span><span class="ti">A future manufacturing year is refused</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Set <span class='f'>Manufacturing Year</span> to 2099.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused. A vehicle cannot be made in the future.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-02-06">
+  <div class="hd"><span class="id">FL-02-06</span><span class="ti">Opening odometer cannot exceed the current reading</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>On a vehicle with a current odometer, set <span class='f'>Opening Odometer</span> higher than it.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, quoting both figures.</p><p>Otherwise distance travelled would compute as negative.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-02-07">
+  <div class="hd"><span class="id">FL-02-07</span><span class="ti">Vehicle status is maintained, not typed</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open a vehicle and look at <span class='f'>Vehicle Status</span>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Read-only, showing Active.</p><p>Status follows what the system knows, so a record and reality cannot disagree.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-02-08">
+  <div class="hd"><span class="id">FL-02-08</span><span class="ti">Documents can be attached to a vehicle</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open a vehicle, go to Vehicle Documents.</li><li>Add a row, choose a document type, attach a file.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Saved. The blueprint asks for registration certificate, insurance and inspection documents to live on the vehicle.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s3">
+  <h2 class="part"><span class="num">03</span>Drivers &amp; assignment</h2>
+  <p class="standfirst">A dated history of who drove what, kept rather than overwritten. Every test here needs at least two Driver records to exist first.</p>
+  <div class="suite"><span class="cnt">7 test(s)</span></div>
+<div class="tc blocked" id="FL-03-01">
+  <div class="hd"><span class="id">FL-03-01</span><span class="ti">Create a driver and link their staff record</span><span class="pill who">Fleet Administrator</span>
+<span class="pill todo">blocked: no drivers on staging</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Vehicle Master &rsaquo; Driver</span> and create a driver with a licence number and expiry.</li><li>Set <span class='f'>Employee</span> to their staff record.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Saved. This single link is what lets every fleet document show who the driver actually is.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-03-02">
+  <div class="hd"><span class="id">FL-03-02</span><span class="ti">Assigning a driver fills in their details</span><span class="pill who">Fleet Administrator</span>
+<span class="pill todo">blocked: no drivers on staging</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Driver Assignment</span>.</li><li>Choose a vehicle and the driver.</li><li>Set assignment type Primary and a From Date.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Employee, Location and Licence No. fill in by themselves from the driver record.</p><p>The vehicle's assigned driver updates to match.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg blocked" id="FL-03-03">
+  <div class="hd"><span class="id">FL-03-03</span><span class="ti">Two primary drivers on one vehicle are refused</span><span class="pill who">Fleet Administrator</span>
+<span class="pill todo">blocked: no drivers on staging</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>With one Primary assignment active, create a second Primary for the same vehicle with overlapping dates.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused: the vehicle already has a primary driver for an overlapping period, naming the clash.</p><p><b>Fails if it saves</b> &mdash; two primary drivers makes accountability for a penalty or accident untraceable.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-03-04">
+  <div class="hd"><span class="id">FL-03-04</span><span class="ti">A relief driver may overlap a primary</span><span class="pill who">Fleet Administrator</span>
+<span class="pill todo">blocked: no drivers on staging</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Create a <b>Relief</b> assignment overlapping the Primary one.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Accepted. Temporary and Relief are allowed to overlap &mdash; that is what they are for.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg blocked" id="FL-03-05">
+  <div class="hd"><span class="id">FL-03-05</span><span class="ti">From Date after To Date is refused</span><span class="pill who">Fleet Administrator</span>
+<span class="pill todo">blocked: no drivers on staging</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Set From Date later than To Date.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-03-06">
+  <div class="hd"><span class="id">FL-03-06</span><span class="ti">Handing over keeps the history</span><span class="pill who">Fleet Administrator</span>
+<span class="pill todo">blocked: no drivers on staging</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Set a To Date on the current Primary assignment.</li><li>Create a new Primary starting the next day with a different driver.</li><li>Run <b>Driver Assignment History</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Both assignments appear with their effective periods.</p><p>Nothing is overwritten &mdash; the blueprint requires historical assignments to be preserved.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-03-07">
+  <div class="hd"><span class="id">FL-03-07</span><span class="ti">A changed driver record corrects open drafts</span><span class="pill who">Fleet Administrator</span>
+<span class="pill todo">blocked: no drivers on staging</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Change a driver's Employee link.</li><li>Open a <b>draft</b> document naming that driver and save it.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The driver's employee updates on the draft.</p><p>Submitted documents keep the value they were approved with, which is correct.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s4">
+  <h2 class="part"><span class="num">04</span>Daily KM</h2>
+  <p class="standfirst">One record per vehicle per day. Odometer accuracy underpins mileage, service due dates and tyre life, so the guards here matter more than they look.</p>
+  <div class="suite"><span class="cnt">6 test(s)</span></div>
+<div class="tc" id="FL-04-01">
+  <div class="hd"><span class="id">FL-04-01</span><span class="ti">Record a day's running</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Operations &rsaquo; Daily KM / Vehicle Log</span>.</li><li>Choose a vehicle. Note that <span class='f'>Opening Odometer</span> fills in by itself.</li><li>Set the date, enter a closing odometer, enter Place to Travel.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><span class='f'>Distance Travelled</span> calculates itself as closing minus opening.</p><p>The vehicle's current odometer moves to the closing reading.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-04-02">
+  <div class="hd"><span class="id">FL-04-02</span><span class="ti">A second log for the same vehicle and day is refused</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Create another log for the same vehicle and the same date.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused. Edit the existing log instead.</p><p>Two logs for one day would double-count the distance.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-04-03">
+  <div class="hd"><span class="id">FL-04-03</span><span class="ti">A closing reading below the opening is refused</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Enter a closing odometer lower than the opening.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused. Distance cannot be negative.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-04-04">
+  <div class="hd"><span class="id">FL-04-04</span><span class="ti">Unusually high mileage warns but does not block</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Enter a closing reading more than 500 km above the opening.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>A warning appears asking you to re-check the reading.</p><p>It <b>lets you proceed</b> &mdash; a long trip is legitimate. The threshold is configurable.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-04-05">
+  <div class="hd"><span class="id">FL-04-05</span><span class="ti">Cancelling a log recalculates rather than subtracts</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Submit two logs on consecutive days.</li><li>Cancel the <b>earlier</b> one.</li><li>Check the vehicle's odometer.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The odometer still reflects the latest remaining reading.</p><p>It is <b>not</b> dragged backwards by subtracting the cancelled distance. This was a defect in the standard module and is corrected here.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-04-06">
+  <div class="hd"><span class="id">FL-04-06</span><span class="ti">A log can be tied to a movement order</span><span class="pill who">Fleet Driver</span>
+<span class="pill todo">blocked: no drivers on staging</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Create a log and set <span class='f'>Movement Order</span>.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The driver is taken from the order.</p><p>A log attached to an order is treated separately, so two distinct movements in one day can both be recorded.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s5">
+  <h2 class="part"><span class="num">05</span>Requests &amp; the location MTO</h2>
+  <p class="standfirst">The heart of the change GDL asked for: a user applies, the manager for that site approves. These are the most important tests in the document.</p>
+  <div class="suite"><span class="cnt">12 test(s)</span></div>
+<div class="tc" id="FL-05-01">
+  <div class="hd"><span class="id">FL-05-01</span><span class="ti">Raise a vehicle request</span><span class="pill who">jamjee.user@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Movement &rsaquo; Movement Order Request</span>.</li><li>Set purpose, usage, priority, required vehicle type, dates and times, pickup and destination.</li><li>Name two people in <b>Passengers / Officials</b>.</li><li>Click <b>Submit for Review</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Accepted, numbered <code>MOR-2026-000xx</code>, state <b>Pending Review</b>.</p><p><b>This is the test that caught a live defect</b>: the guard that stops you approving your own document was wrongly applied to submitting too, so no user could raise a request at all.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-05-02">
+  <div class="hd"><span class="id">FL-05-02</span><span class="ti">The requester cannot allocate a vehicle</span><span class="pill who">jamjee.user@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>On a new request, try to set <span class='f'>Assigned Vehicle</span> and <span class='f'>Assigned Driver</span>.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The fields are not editable, or the values are dropped on save.</p><p>If a requester could pick their own vehicle, checking availability would mean nothing.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-05-03">
+  <div class="hd"><span class="id">FL-05-03</span><span class="ti">The wrong site's MTO cannot accept</span><span class="pill who">dochula.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open the Jamjee request raised in FL-05-01.</li><li>Try to Accept it.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused: <i>&ldquo;This vehicle request is approved by the manager for <b>Jamjee</b>&rdquo;</i>, naming the Jamjee MTO and the head office MTO.</p><p><b>Fails if it is accepted</b> &mdash; that would make naming a manager per site pointless.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-05-04">
+  <div class="hd"><span class="id">FL-05-04</span><span class="ti">The site's own MTO allocates and accepts</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open the same request.</li><li>Click <b>Check Availability</b>.</li><li>Set the assigned vehicle and driver.</li><li>Add approver remarks and click <b>Accept</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Allocation saves &mdash; the MTO <b>can</b> write these fields where the requester cannot.</p><p>State becomes <b>Accepted</b>. <span class='f'>Assigned By</span> and <span class='f'>Assigned On</span> record who acted and when.</p><p><b>This also caught a live defect</b>: only Fleet Administrator could allocate, so the MTO's choice was silently dropped and the order was raised with no vehicle.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-05-05">
+  <div class="hd"><span class="id">FL-05-05</span><span class="ti">Check Availability excludes a booked vehicle</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>With one vehicle committed to an approved order over a window, raise another request for the same window.</li><li>Click <b>Check Availability</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The committed vehicle is not offered.</p><p>A vehicle Under Maintenance, Unavailable or Disposed is also excluded.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-05-06">
+  <div class="hd"><span class="id">FL-05-06</span><span class="ti">The head office MTO may approve any site</span><span class="pill who">headoffice.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Raise a request at Dochula.</li><li>Log in as the head office MTO and Accept it.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Accepted.</p><p>This is the final authority and the cover when a site's own MTO is away &mdash; a <b>wider permission</b>, not an extra step.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-05-07">
+  <div class="hd"><span class="id">FL-05-07</span><span class="ti">Approval is one step, not two</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Take a request from Draft to Accepted.</li><li>Count the approvals required.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Exactly <b>one</b>. The head office MTO being allowed to approve does not mean the head office has to.</p><p><b>Fails if the request waits for a second approval</b> &mdash; that would be the chain GDL asked us to remove.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-05-08">
+  <div class="hd"><span class="id">FL-05-08</span><span class="ti">An MTO cannot accept their own request</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Raise a request as the Jamjee MTO.</li><li>Try to Accept it yourself.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused: self-approval is not allowed.</p><p>The head office MTO covers this case. The <i>decision</i> still needs a second pair of eyes even though submitting does not.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-05-09">
+  <div class="hd"><span class="id">FL-05-09</span><span class="ti">Short notice demands a reason</span><span class="pill who">jamjee.user@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Raise a request for travel within the next 24 hours.</li><li>Submit without a short-notice reason.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused until <span class='f'>Short-Notice Reason</span> is filled in.</p><p><span class='f'>Lead Time Given</span> records the notice actually given, so the approver can judge it.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-05-10">
+  <div class="hd"><span class="id">FL-05-10</span><span class="ti">Emergency bypasses the lead time</span><span class="pill who">jamjee.user@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Raise a request within 24 hours with <span class='f'>Priority</span> set to <b>Emergency</b>.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Accepted with no reason required. An emergency may be booked at any notice.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-05-11">
+  <div class="hd"><span class="id">FL-05-11</span><span class="ti">Allocation priority orders the queue</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Raise two requests of differing priority for the same window.</li><li>Run <b>Movement Request Status</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><span class='f'>Allocation Priority</span> is lower (served first) for the more urgent one.</p><p>Of two equally urgent requests, the one booked further ahead wins.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-05-12">
+  <div class="hd"><span class="id">FL-05-12</span><span class="ti">A rejection reaches the requester with a reason</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Reject a request, giving a reason.</li><li>Log in as the requester and open it.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>State <b>Rejected</b>, and the reason is visible to the requester.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s6">
+  <h2 class="part"><span class="num">06</span>Movement order</h2>
+  <p class="standfirst">The approved authority to travel. Created by the MTO from an accepted request, approved in one step, then dispatched.</p>
+  <div class="suite"><span class="cnt">10 test(s)</span></div>
+<div class="tc" id="FL-06-01">
+  <div class="hd"><span class="id">FL-06-01</span><span class="ti">Create an order from an accepted request</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open the accepted request and click <b>Create Movement Order</b>.</li><li>Review what carried across.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Vehicle, driver, dates, destination, purpose, department, site and vehicle type all carry over.</p><p><b>The named passengers carry over too</b> &mdash; nobody retypes them.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-06-02">
+  <div class="hd"><span class="id">FL-06-02</span><span class="ti">One order per request</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Try to create a second order from the same request.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, naming the order that already exists.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-06-03">
+  <div class="hd"><span class="id">FL-06-03</span><span class="ti">A request that is not accepted cannot become an order</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open a request still at Pending Review and try to create an order.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused. Only an accepted request may become an order.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-06-04">
+  <div class="hd"><span class="id">FL-06-04</span><span class="ti">The chain is two steps</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>On the order click <b>Submit for Approval</b>, then <b>Approve</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Draft &rarr; Pending Approval &rarr; Approved. <b>No</b> Validation, Review, MTO/CEO or FAS stage.</p><p>Approved carries the order to submitted status, from where it can be dispatched.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-06-05">
+  <div class="hd"><span class="id">FL-06-05</span><span class="ti">Double booking is refused</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>With one approved order running over a window, raise and approve a second order for the <b>same vehicle</b> over an overlapping window.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, naming the order that clashes.</p><p><b>Fails if both approve</b> &mdash; two drivers would arrive for one vehicle.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-06-06">
+  <div class="hd"><span class="id">FL-06-06</span><span class="ti">Widening the dates of an approved order re-checks the clash</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Edit an approved order and extend its expected return into another order's window.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused. The checks run again on edit, so a clash cannot be slipped through after approval.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-06-07">
+  <div class="hd"><span class="id">FL-06-07</span><span class="ti">An unavailable vehicle cannot be dispatched</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Set a vehicle to Under Maintenance.</li><li>Try to approve an order for it.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, naming the vehicle's status.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-06-08">
+  <div class="hd"><span class="id">FL-06-08</span><span class="ti">Rejection stays editable and can be resubmitted</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Reject an order.</li><li>Open it, correct something, click <b>Resubmit</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Rejected leaves the order <b>editable</b> (draft status), so nothing is retyped.</p><p>Resubmit returns it to Pending Approval.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-06-09">
+  <div class="hd"><span class="id">FL-06-09</span><span class="ti">Dispatch then complete</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>On an approved order click <b>Dispatch</b>, then <b>Complete</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>States move Approved &rarr; Dispatched &rarr; Completed.</p><p>An administrator who raised the order can still do both &mdash; these are operational steps, not approvals.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-06-10">
+  <div class="hd"><span class="id">FL-06-10</span><span class="ti">A cancelled order keeps its record</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Cancel an approved order.</li><li>Search for it.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>State <b>Cancelled</b> and the record still exists.</p><p>Nothing is deleted &mdash; the history has to survive.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s7">
+  <h2 class="part"><span class="num">07</span>Service &amp; maintenance</h2>
+  <p class="standfirst">Planned servicing and unplanned repairs, both against the vehicle and its odometer. GDL asked for one simple flow, so a service is recorded on a single form with nothing to set up first.</p>
+  <div class="suite"><span class="cnt">8 test(s)</span></div>
+<div class="tc" id="FL-07-01">
+  <div class="hd"><span class="id">FL-07-01</span><span class="ti">Record a service on one form</span><span class="pill who">Fleet Maintenance User</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Service &amp; Maintenance &rsaquo; Asset Maintenance Log</span>.</li><li>Set vehicle, location, service date and odometer at service.</li><li>Add rows to <b>Maintenance Items</b> &mdash; item, quantity, part/brand, cost.</li><li>Enter labour cost.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Parts cost and total add themselves up.</p><p>No schedule or plan has to exist first &mdash; this is the simple flow.</p><p><span class='f'>Next Service Date</span> and <span class='f'>Next Service KM</span> are worked out from the maintenance rules.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-07-02">
+  <div class="hd"><span class="id">FL-07-02</span><span class="ti">Several jobs in one visit</span><span class="pill who">Fleet Maintenance User</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>On one log, add engine oil, oil filter and air filter as three rows.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>All three are recorded against one visit and one odometer reading.</p><p>The blueprint requires multiple maintenance items in a single visit.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-07-03">
+  <div class="hd"><span class="id">FL-07-03</span><span class="ti">A negative odometer is refused</span><span class="pill who">Fleet Maintenance User</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Enter a negative odometer.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-07-04">
+  <div class="hd"><span class="id">FL-07-04</span><span class="ti">An odometer below the last reading is refused</span><span class="pill who">Fleet Maintenance User</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Enter an odometer lower than the vehicle's current reading.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, quoting the previous reading.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-07-05">
+  <div class="hd"><span class="id">FL-07-05</span><span class="ti">Service Due lists what is approaching</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run <b>Service Due</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Items due by date or by kilometres, whichever falls first, with overdue ones highlighted.</p><p>The notice window is 14 days / 500 km, both configurable.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-07-06">
+  <div class="hd"><span class="id">FL-07-06</span><span class="ti">Service History shows the whole life</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run <b>Service History</b> for a vehicle.</li><li><b>Check the filters appear at the top.</b></li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Every service and repair with odometer, items, provider and cost.</p><p><b>The filter panel renders</b> &mdash; it did not before, because the report registered its filters under the wrong name. A blank filter area is a regression.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-07-07">
+  <div class="hd"><span class="id">FL-07-07</span><span class="ti">Record a breakdown repair</span><span class="pill who">Fleet Maintenance User</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Asset Repair</span>.</li><li>Set the failure date, maintenance category Corrective, and the parts consumed.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Recorded, with downtime and a cost derived from the parts and invoices.</p><p><b>Note:</b> Asset Repair requires the vehicle to be linked to a fixed-Asset record. If GDL's vehicles are not Assets, record breakdowns on the maintenance log with category Corrective instead.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-07-08">
+  <div class="hd"><span class="id">FL-07-08</span><span class="ti">Raise a preventive maintenance plan</span><span class="pill who">Fleet Maintenance User</span>
+<span class="pill todo">blocked: no maintenance team</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Create an Asset Maintenance plan for a vehicle with tasks from the rules.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Tasks scheduled at the configured intervals.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s8">
+  <h2 class="part"><span class="num">08</span>Service bills &amp; purchasing</h2>
+  <p class="standfirst">A workshop bill from the driver's hand to the ledger. Every test here is blocked until Bill Approver Role is set &mdash; that is the first thing to fix.</p>
+  <div class="suite"><span class="cnt">9 test(s)</span></div>
+<div class="tc" id="FL-08-01">
+  <div class="hd"><span class="id">FL-08-01</span><span class="ti">Submit a service bill</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open the maintenance log for a visit.</li><li>In <b>Service Bill</b> set service provider, bill number, bill date, parts and labour cost.</li><li>Attach a scan of the bill.</li><li>Click <b>Submit Bill</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Status <b>Pending Approval</b>.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-08-02">
+  <div class="hd"><span class="id">FL-08-02</span><span class="ti">An incomplete bill is refused, naming what is missing</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Leave the bill number blank and try to submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused: <i>&ldquo;The bill cannot be submitted yet. Still needed: &hellip;&rdquo;</i> listing each missing item.</p><p>Nothing is half-submitted.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-08-03">
+  <div class="hd"><span class="id">FL-08-03</span><span class="ti">A bill with no attachment is refused</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Fill everything but leave <span class='f'>Bill Attachment</span> empty.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused. The scan of the workshop's invoice is mandatory.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-08-04">
+  <div class="hd"><span class="id">FL-08-04</span><span class="ti">The same bill cannot be paid twice</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Submit a bill.</li><li>On a different maintenance log, submit the <b>same bill number</b> against the <b>same supplier</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, naming the invoice that already carries it.</p><p>This is the guard against a workshop presenting one bill twice.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-08-05">
+  <div class="hd"><span class="id">FL-08-05</span><span class="ti">Nobody can approve while the role is blank</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Try to approve a submitted bill.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused: <i>&ldquo;You are not allowed to approve service bills. The approver role is not configured.&rdquo;</i></p><p>Correct behaviour, but it blocks the whole suite. Set <span class='f'>Bill Approver Role</span> first.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-08-06">
+  <div class="hd"><span class="id">FL-08-06</span><span class="ti">Approval raises the purchasing document</span><span class="pill who">Bill Approver</span>
+<span class="pill todo">blocked: Bill Approver Role is blank</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>With the role, company and service item set, approve a bill.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>A Purchase Invoice is raised carrying the vehicle, bill number, bill date, cost centre and project.</p><p><span class='f'>Purchasing Status</span> reads <b>Ordered</b> with the document number on the record.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-08-07">
+  <div class="hd"><span class="id">FL-08-07</span><span class="ti">A failure explains itself</span><span class="pill who">Bill Approver</span>
+<span class="pill todo">blocked: Bill Approver Role is blank</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Approve a bill with <span class='f'>Purchasing Company</span> still blank.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><span class='f'>Purchasing Status</span> reads <b>Failed</b> and <span class='f'>Purchasing Note</span> names the missing setting.</p><p><b>Fails if the record is silent</b> &mdash; you would be left guessing why no invoice appeared.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-08-08">
+  <div class="hd"><span class="id">FL-08-08</span><span class="ti">Retry after fixing the setting</span><span class="pill who">Bill Approver</span>
+<span class="pill todo">blocked: Bill Approver Role is blank</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Fix the missing setting.</li><li>Click <b>Retry Purchasing</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The document is raised and the status moves to Ordered.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-08-09">
+  <div class="hd"><span class="id">FL-08-09</span><span class="ti">Payment status reads back from the invoice</span><span class="pill who">Accounts</span>
+<span class="pill todo">blocked: Bill Approver Role is blank</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Submit and pay the Purchase Invoice.</li><li>Re-open the maintenance log.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><span class='f'>Payment Status</span> shows <b>Paid</b> and the bill status moves to <b>Payment Processed</b>.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s9">
+  <h2 class="part"><span class="num">09</span>Insurance &amp; renewals</h2>
+  <p class="standfirst">Policies and certificates, history kept rather than overwritten. Email is muted on staging, so these tests verify status and configuration rather than delivery.</p>
+  <div class="suite"><span class="cnt">6 test(s)</span></div>
+<div class="tc" id="FL-09-01">
+  <div class="hd"><span class="id">FL-09-01</span><span class="ti">Register a policy</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Vehicle Master &rsaquo; Renewal Register</span>.</li><li>Set renewal type Insurance, the vehicle, location, policy number, provider, premium, effective from and expiry date.</li><li>Attach the certificate and Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Saved and submitted. <span class='f'>Days to Expiry</span> calculates itself.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-09-02">
+  <div class="hd"><span class="id">FL-09-02</span><span class="ti">Status follows the expiry date</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Create three policies expiring in 60 days, in 10 days, and yesterday.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><b>Valid</b>, <b>Due Soon</b> and <b>Expired</b> respectively.</p><p>Due Soon begins at the 14-day notice window.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-09-03">
+  <div class="hd"><span class="id">FL-09-03</span><span class="ti">The notice window is configuration</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Note a policy expiring in 20 days shows <b>Valid</b> at a 14-day window.</li><li>Change <span class='f'>First Reminder</span> to 30 and re-save the policy.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>It now reads <b>Due Soon</b>.</p><p>Proves the window is configuration, not a number baked into the code.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-09-04">
+  <div class="hd"><span class="id">FL-09-04</span><span class="ti">Renewing keeps the old record intact</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Create a new policy for the next period.</li><li>Set <span class='f'>Previous Renewal</span> to the one it replaces.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The old record is marked <b>Renewed</b> with its particulars <b>unchanged</b>.</p><p><b>Fails if the old policy is edited</b> &mdash; the blueprint requires renewal history, not replacement.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-09-05">
+  <div class="hd"><span class="id">FL-09-05</span><span class="ti">The alert ladder is configured correctly</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open the Notification list and filter on Renewal Register.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><b>First Reminder</b> at 14 days and <b>Second</b> at 3 days are <b>enabled</b>.</p><p><b>Third</b> and <b>Final</b> are <b>disabled</b>, because their settings are 0.</p><p><b>Renewal Expired</b> fires 1 day after. Together: 14 days, 3 days, expiry day.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-09-06">
+  <div class="hd"><span class="id">FL-09-06</span><span class="ti">Run the due report</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run <b>Insurance / Renewal Due</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Everything expiring soon with days to expiry, expired items highlighted.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s10">
+  <h2 class="part"><span class="num">10</span>POL &amp; the coupon balance</h2>
+  <p class="standfirst">The periodic fuel statement, and the running coupon balance the blueprint asks the system to maintain. Tests 06&ndash;10 are the new ground.</p>
+  <div class="suite"><span class="cnt">13 test(s)</span></div>
+<div class="tc" id="FL-10-01">
+  <div class="hd"><span class="id">FL-10-01</span><span class="ti">Create a fuel abstract</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Operations &rsaquo; POL Abstract</span>.</li><li>Set the vehicle, period from and to, opening and closing KM, previous and present tank balance.</li><li>Add three supply rows with memo number, litres and rate.</li><li>Enter total fuel recoupment for BOD and STCBL.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Amount per row calculates as litres &times; rate.</p><p>Total KM, total fuel consumed and performance per litre all calculate.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-10-02">
+  <div class="hd"><span class="id">FL-10-02</span><span class="ti">Consumption is supplied + previous &minus; present</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Enter supplied 154.81 L, previous tank 40 L, present tank 60 L.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><span class='f'>Total Fuel Consumed</span> = <b>134.81 L</b>.</p><p><b>Fails if it reads 174.81</b> &mdash; reversing the two balances gives a plausible but wrong answer, and the mileage figure then lies.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-10-03">
+  <div class="hd"><span class="id">FL-10-03</span><span class="ti">Performance divides by consumed, not supplied</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>With total KM 1,079 and consumed 134.81 L, read <span class='f'>Performance per Litre</span>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><b>8.00 KM/L</b> &mdash; 1,079 &divide; 134.81.</p><p>Dividing by the 154.81 supplied would give 6.97, understating the vehicle.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-10-04">
+  <div class="hd"><span class="id">FL-10-04</span><span class="ti">No supplier bill, no submission</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Leave <span class='f'>Supplier Bill Attachment</span> empty and send the abstract for approval.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused: attach the supplier's fuel bill first.</p><p><b>Fails if it goes through</b> &mdash; a fuel claim with no bill behind it is unauditable.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-10-05">
+  <div class="hd"><span class="id">FL-10-05</span><span class="ti">A duplicate supply memo is refused</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Submit one abstract with memo 25743.</li><li>On a second abstract for the <b>same vehicle</b>, enter memo 25743 again.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, naming the abstract that already carries it.</p><p>This is the guard against one fuel memo being claimed twice.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-10-06">
+  <div class="hd"><span class="id">FL-10-06</span><span class="ti">The first abstract opens at zero</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>On a vehicle with no previous abstract, create one.</li><li>Read <span class='f'>Opening Book Balance (STCBL)</span>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><b>0</b>. That is what a new coupon book starts at.</p><p>Closing = 0 + recoupment &minus; amount.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-10-07">
+  <div class="hd"><span class="id">FL-10-07</span><span class="ti">The unspent balance opens the next period</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Approve an abstract that recoups 20,000 and spends 16,339.43 &mdash; closing <b>3,660.57</b>.</li><li>Create the next abstract for the <b>same vehicle</b>, period starting after the first ends.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><span class='f'>Opening Book Balance (STCBL)</span> reads <b>3,660.57</b>.</p><p>Recoup a further 20,000 and spend 18,000: closing = 3,660.57 + 20,000 &minus; 18,000 = <b>5,660.57</b>.</p><p><b>This is the coupon's to-date amount</b> &mdash; the blueprint requirement. Fails if the opening reads 0.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-10-08">
+  <div class="hd"><span class="id">FL-10-08</span><span class="ti">A draft abstract does not move the balance</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Leave an abstract in <b>Draft</b>.</li><li>Create the next abstract for the same vehicle.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Opening balance reads <b>0</b>, not the draft's closing figure.</p><p>An unapproved claim is not an agreed balance.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-10-09">
+  <div class="hd"><span class="id">FL-10-09</span><span class="ti">Each vehicle has its own coupon book</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>With an approved abstract carrying a balance on vehicle A, create an abstract on vehicle B.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Vehicle B opens at <b>0</b>. Nothing crosses between vehicles.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-10-10">
+  <div class="hd"><span class="id">FL-10-10</span><span class="ti">The opening balance cannot be typed over</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>On an abstract with an opening balance, try to change it.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Read-only, and recomputed on save.</p><p>If it could be edited, the running total would drift away from the abstract it came from.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-10-11">
+  <div class="hd"><span class="id">FL-10-11</span><span class="ti">Overspending shows as a negative balance</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Create an abstract spending more than opening plus recoupment.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Closing balance is <b>negative</b>.</p><p>Deliberate &mdash; it is a real debt to the provider, and flooring it at zero would lose it.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-10-12">
+  <div class="hd"><span class="id">FL-10-12</span><span class="ti">Raise the fuel claim per provider</span><span class="pill who">Fleet HR Approver</span>
+<span class="pill todo">blocked: BOD/STCBL suppliers missing</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Approve an abstract.</li><li>Raise the fuel claim for BOD and for STCBL.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>A Purchase Invoice per provider, each for that provider's amount only, charged to the company's fuel account.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-10-13">
+  <div class="hd"><span class="id">FL-10-13</span><span class="ti">An out-of-order abstract reads no later period</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>With an abstract covering October approved, create one covering August.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The August abstract opens at <b>0</b>, not at October's closing balance.</p><p>Abstracts are not always entered in order; a later period must never feed an earlier one.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s11">
+  <h2 class="part"><span class="num">11</span>Mileage deviation</h2>
+  <p class="standfirst">The blueprint requires a deviation beyond &plusmn;10% to be escalated. GDL chose a flag and a mandatory reason over a second approval chain.</p>
+  <div class="suite"><span class="cnt">6 test(s)</span></div>
+<div class="tc" id="FL-11-01">
+  <div class="hd"><span class="id">FL-11-01</span><span class="ti">Within tolerance passes quietly</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Create an abstract whose performance is within 10% of the vehicle's minimum.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><span class='f'>Mileage Status</span> reads <b>Within Tolerance</b> and submission is not obstructed.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-11-02">
+  <div class="hd"><span class="id">FL-11-02</span><span class="ti">Below tolerance demands a reason</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Create an abstract whose performance is more than 10% <b>below</b> the minimum.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused until <span class='f'>Deviation Reason</span> is entered. The message quotes the actual KM/L, the deviation %, the minimum and the tolerance.</p><p><b>Fails if it submits silently</b> &mdash; HR would have nothing to review.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-11-03">
+  <div class="hd"><span class="id">FL-11-03</span><span class="ti">Above tolerance is flagged too</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Create an abstract more than 10% <b>above</b> the minimum.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Also held for a reason. An implausibly good figure usually means a wrong odometer or a missed fill, so both ends are checked.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-11-04">
+  <div class="hd"><span class="id">FL-11-04</span><span class="ti">With a reason it proceeds to HR</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Enter a deviation reason and submit for approval.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Accepted, with the deviation and the reason visible to the HR approver.</p><p>One approval chain, not two &mdash; the flag is what HR reviews.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-11-05">
+  <div class="hd"><span class="id">FL-11-05</span><span class="ti">The electric vehicle is excluded</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run <b>Mileage Deviation Dashboard</b> and find <code>BG-1A-3779</code> (BYD EV).</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Status <b>Not Applicable</b>, no deviation calculated.</p><p>Its minimum is 0 because km per litre is meaningless for an EV. <b>Fails if it is reported as 100% below target.</b></p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-11-06">
+  <div class="hd"><span class="id">FL-11-06</span><span class="ti">The tolerance is configuration</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Change <span class='f'>Mileage Deviation Tolerance</span> to 5% and re-save a borderline abstract.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>An abstract that passed at 10% is now held. Nothing is hard-coded.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s12">
+  <h2 class="part"><span class="num">12</span>Parts &amp; tyres</h2>
+  <p class="standfirst">Spare part and tyre issuance through standard Stock Entry, and the tyre life the blueprint sets at 20,000 km &plusmn;20%.</p>
+  <div class="suite"><span class="cnt">9 test(s)</span></div>
+<div class="tc blocked" id="FL-12-01">
+  <div class="hd"><span class="id">FL-12-01</span><span class="ti">Issue a spare part</span><span class="pill who">Fleet Store User</span>
+<span class="pill todo">blocked: no stock items</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Parts &amp; Tyres &rsaquo; Fleet Part Issue</span>.</li><li>Set vehicle, issue date, odometer, purpose and source warehouse.</li><li>Add an item with quantity and rate.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>A standard <b>Stock Entry</b> (Material Issue) is raised and linked.</p><p><b>Fails if stock does not move</b> &mdash; the fleet module must never hold quantities of its own.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg blocked" id="FL-12-02">
+  <div class="hd"><span class="id">FL-12-02</span><span class="ti">A serialised item demands its serial number</span><span class="pill who">Fleet Store User</span>
+<span class="pill todo">blocked: no stock items</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Add a serialised item with no serial number.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, naming the item.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg blocked" id="FL-12-03">
+  <div class="hd"><span class="id">FL-12-03</span><span class="ti">The same serial cannot be issued twice</span><span class="pill who">Fleet Store User</span>
+<span class="pill todo">blocked: no stock items</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Enter the same serial number on two rows.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, naming both rows.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg blocked" id="FL-12-04">
+  <div class="hd"><span class="id">FL-12-04</span><span class="ti">A tyre is issued one per row</span><span class="pill who">Fleet Store User</span>
+<span class="pill todo">blocked: no stock items</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Add a tyre row with quantity 2.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused: a tyre is issued one at a time so each can be tracked to the kilometres it achieves.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-12-05">
+  <div class="hd"><span class="id">FL-12-05</span><span class="ti">Issuing a tyre creates its life record</span><span class="pill who">Fleet Store User</span>
+<span class="pill todo">blocked: no stock items</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Issue one tyre with a position and a rate.</li><li>Submit.</li><li>Open <span class='path'>Vehicle Tyre</span>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>A Vehicle Tyre record exists, status <b>Fitted</b>, with the fitted date and odometer.</p><p><b>Its <span class='f'>Cost</span> carries the rate from the issue</b> &mdash; this is what makes cost per km answerable later.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg blocked" id="FL-12-06">
+  <div class="hd"><span class="id">FL-12-06</span><span class="ti">A fitted tyre cannot be fitted again</span><span class="pill who">Fleet Store User</span>
+<span class="pill todo">blocked: no stock items</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Issue a tyre with a serial number already recorded as fitted.</li><li>Submit.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, naming where it is already fitted.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-12-07">
+  <div class="hd"><span class="id">FL-12-07</span><span class="ti">Removing a tyre scores it against the band</span><span class="pill who">Fleet Store User</span>
+<span class="pill todo">blocked: no stock items</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Set removed date and removed odometer on a fitted tyre.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><span class='f'>KM Achieved</span> = removed &minus; fitted odometer.</p><p>Performance reads <b>Within</b>, <b>Below</b> or <b>Above Tolerance</b> against 20,000 km &plusmn;20%, i.e. the 16,000&ndash;24,000 band.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg blocked" id="FL-12-08">
+  <div class="hd"><span class="id">FL-12-08</span><span class="ti">A removal reading below the fitting is refused</span><span class="pill who">Fleet Store User</span>
+<span class="pill todo">blocked: no stock items</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Set removed odometer lower than fitted odometer.</li><li>Save.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused, quoting both.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc blocked" id="FL-12-09">
+  <div class="hd"><span class="id">FL-12-09</span><span class="ti">Cancelling an issue reverses the stock</span><span class="pill who">Fleet Store User</span>
+<span class="pill todo">blocked: no stock items</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Cancel a submitted part issue.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The linked Stock Entry is cancelled and the tyre records are removed.</p><p>Nothing is left stranded between the fleet and the stock ledger.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s13">
+  <h2 class="part"><span class="num">13</span>Reports &amp; dashboard</h2>
+  <p class="standfirst">Eighteen reports and the dashboard. Four reports had a defect where their filters never rendered &mdash; FL-13-02 re-checks all four.</p>
+  <div class="suite"><span class="cnt">11 test(s)</span></div>
+<div class="tc" id="FL-13-01">
+  <div class="hd"><span class="id">FL-13-01</span><span class="ti">The dashboard reads the real fleet</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open the <span class='path'>GDL Fleet</span> workspace.</li><li>Read the five figures at the top.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><b>Vehicles Active 14</b>, Off Road 0, Renewals Due 0, Requests Awaiting a Manager 0, Mileage Outside Tolerance 0.</p><p>Cross-check Vehicles Active against the Vehicle list &mdash; the figures read live off the records, so they must agree.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-13-02">
+  <div class="hd"><span class="id">FL-13-02</span><span class="ti">All four repaired filter panels render</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <b>Cost by Vehicle</b>, <b>Fuel Consumption and Performance</b>, <b>Service Due</b> and <b>Service History</b> in turn.</li><li>On each, check the filter panel at the top.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>All four show their filters &mdash; date range, vehicle, site, department and so on.</p><p><b>Fails if any filter area is blank.</b> These four registered their filters under the wrong report name, so they never appeared. This is the regression test.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-13-03">
+  <div class="hd"><span class="id">FL-13-03</span><span class="ti">The five charts draw</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Scroll to the charts below the figures.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p><b>Fleet by Site</b> shows Head Office 3, Jamjee 3, Dochula 2, Dagapela 2, Samcholing 2, Gedu 1, Jigmeling 1.</p><p><b>Fleet by Status</b>, <b>Distance Travelled</b>, <b>Fuel Spend</b> and <b>Movement Orders</b> all render. Empty is fine where there is no data yet; a broken chart is not.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-13-04">
+  <div class="hd"><span class="id">FL-13-04</span><span class="ti">Fleet Register lists the fleet</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run <b>Fleet Register</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Every vehicle with type, capacity, engine and chassis, current odometer, assigned driver, site and status.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-13-05">
+  <div class="hd"><span class="id">FL-13-05</span><span class="ti">Tyre Cost Analysis reports cost per km</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run <b>Tyre Cost Analysis</b> grouped by Vehicle.</li><li>Switch Group By to Tyre Item, then Site.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Total cost, average cost per tyre, total KM, average KM and <b>cost per km</b> per group.</p><p>The grouped column heading changes with the grouping &mdash; a column headed Vehicle must never be filled with item codes.</p><p>A tyre with no cost recorded is <b>left out</b>, rather than dividing real kilometres by a figure nobody entered.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-13-06">
+  <div class="hd"><span class="id">FL-13-06</span><span class="ti">Parts Consumption totals what left store</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run <b>Parts Consumption</b> grouped by Item.</li><li>Switch to Detail.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Quantity and amount per item, with issue and vehicle counts.</p><p>Detail lists every line with serial numbers.</p><p><b>A draft issue does not appear</b> &mdash; nothing has left store until the issue is submitted.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-13-07">
+  <div class="hd"><span class="id">FL-13-07</span><span class="ti">Part Replacement History measures the interval</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Issue the same part to one vehicle twice, at odometers 80,000 and 87,000.</li><li>Run <b>Part Replacement History</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The second fitting shows <b>KM Since Previous 7,000</b> and the days between.</p><p>The first shows blank &mdash; there is nothing before it to measure against.</p><p>Use <b>Replaced Within (KM)</b> to find parts coming back early.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-13-08">
+  <div class="hd"><span class="id">FL-13-08</span><span class="ti">POL Supplier report reads as a running account</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run <b>POL Supplier / Book Balance</b> for a vehicle with two abstracts.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Columns run <b>Opening &rarr; Recoupment &rarr; Closing</b>.</p><p>One abstract's closing equals the next one's opening.</p><p>These three print once against the abstract's first line and are blank on the rest &mdash; repeating them would multiply the column total.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-13-09">
+  <div class="hd"><span class="id">FL-13-09</span><span class="ti">Cost by Vehicle reports real money</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run <b>Cost by Vehicle</b>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Expense claims, purchase invoices, stock issues, repairs and journals, with cost per km.</p><p>The figures come from the general ledger, not a separate fleet ledger &mdash; Vehicle is an accounting dimension.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-13-10">
+  <div class="hd"><span class="id">FL-13-10</span><span class="ti">Vehicle Availability answers what is free</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run <b>Vehicle Availability</b> for a window in which one vehicle is committed.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The committed vehicle shows as booked; the rest are available.</p><p>Availability is computed from the orders, never stored, so it cannot disagree with them.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-13-11">
+  <div class="hd"><span class="id">FL-13-11</span><span class="ti">A standard report can be filtered by vehicle</span><span class="pill who">Accounts</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run the <b>General Ledger</b> and filter by Vehicle.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The filter exists and works. This is why fleet cost and company accounts cannot drift apart.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="s14">
+  <h2 class="part"><span class="num">14</span>Permissions &amp; security</h2>
+  <p class="standfirst">Who may do what. Run every one of these as a <b>named user</b> &mdash; Administrator bypasses permissions, so testing as Administrator proves nothing.</p>
+  <div class="suite"><span class="cnt">6 test(s)</span></div>
+<div class="tc neg" id="FL-14-01">
+  <div class="hd"><span class="id">FL-14-01</span><span class="ti">A requester cannot create a movement order</span><span class="pill who">jamjee.user@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open <span class='path'>Movement &rsaquo; Movement Order</span>.</li><li>Try to create one.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>No create button, or refused.</p><p>The user applies; the manager creates the order. That is the flow GDL asked for.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-14-02">
+  <div class="hd"><span class="id">FL-14-02</span><span class="ti">A requester cannot approve anything</span><span class="pill who">jamjee.user@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Open your own submitted request.</li><li>Look for Accept or Approve.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Not offered.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-14-03">
+  <div class="hd"><span class="id">FL-14-03</span><span class="ti">An MTO cannot change fleet settings</span><span class="pill who">jamjee.mto@gdl.test</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Try to open <span class='path'>Setup &rsaquo; GDL Fleet Settings</span>.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused or read-only. Settings belong to the Fleet Administrator.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc neg" id="FL-14-04">
+  <div class="hd"><span class="id">FL-14-04</span><span class="ti">A driver cannot approve their own fuel claim</span><span class="pill who">Fleet Driver</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Create and submit a POL abstract.</li><li>Try to Approve it.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>Refused &mdash; self-approval is not allowed on the POL chain.</p><p><b>Fails if it approves.</b> A fuel claim needs a second pair of eyes; that rule is deliberately stricter than the movement order.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-14-05">
+  <div class="hd"><span class="id">FL-14-05</span><span class="ti">Site data is visible to the whole fleet team</span><span class="pill who">Fleet Manager</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Run Fleet Register as Fleet Manager.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>All 14 vehicles across every site.</p><p>Approval is restricted by site; <b>reporting is not</b>. A manager needs the whole picture.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+<div class="tc" id="FL-14-06">
+  <div class="hd"><span class="id">FL-14-06</span><span class="ti">A cancelled or deleted record leaves a trail</span><span class="pill who">Fleet Administrator</span>
+</div>
+  <div class="bd">
+    <span class="lab">Steps</span>
+    <ol><li>Cancel a submitted movement order.</li><li>Check the document's version history.</li></ol>
+    <span class="lab">Expected</span>
+    <div class="exp"><p>The record survives as Cancelled with its history.</p><p>Nothing in this module deletes a business record to tidy up.</p></div>
+    <div class="res"><span><span class="bx"></span>Pass</span><span><span class="bx"></span>Fail</span><span><span class="bx"></span>Blocked</span><span>Tester</span><span class="line"></span><span>Date</span><span class="line"></span></div>
+  </div></div>
+</section>
+
+
+<section id="close">
+  <h2 class="part"><span class="num">&mdash;</span>Finishing the round</h2>
+  <p class="standfirst">What to do with the results.</p>
+
+  <h3>Counting it up</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Suite</th><th class="n">Tests</th><th>Runnable today</th></tr></thead>
+    <tbody>
+      <tr><td>1 Setup &amp; configuration</td><td class="n">9</td><td>All</td></tr>
+      <tr><td>2 Vehicle master</td><td class="n">8</td><td>All</td></tr>
+      <tr><td>3 Drivers &amp; assignment</td><td class="n">7</td><td><b>None</b> &mdash; create drivers first</td></tr>
+      <tr><td>4 Daily KM</td><td class="n">6</td><td>5 of 6</td></tr>
+      <tr><td>5 Requests &amp; location MTO</td><td class="n">12</td><td>All, once passwords are set</td></tr>
+      <tr><td>6 Movement order</td><td class="n">10</td><td>All, once a driver exists</td></tr>
+      <tr><td>7 Service &amp; maintenance</td><td class="n">8</td><td>7 of 8</td></tr>
+      <tr><td>8 Service bills &amp; purchasing</td><td class="n">9</td><td>4 of 9 &mdash; set the approver role</td></tr>
+      <tr><td>9 Insurance &amp; renewals</td><td class="n">6</td><td>All</td></tr>
+      <tr><td>10 POL &amp; coupon balance</td><td class="n">13</td><td>12 of 13</td></tr>
+      <tr><td>11 Mileage deviation</td><td class="n">6</td><td>All</td></tr>
+      <tr><td>12 Parts &amp; tyres</td><td class="n">9</td><td><b>None</b> &mdash; needs stock</td></tr>
+      <tr><td>13 Reports &amp; dashboard</td><td class="n">11</td><td>All</td></tr>
+      <tr><td>14 Permissions</td><td class="n">6</td><td>All, once passwords are set</td></tr>
+      <tr><td><b>Total</b></td><td class="n"><b>120</b></td><td><b>about 90 without further setup</b></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call"><span class="lbl">Suggested order</span>
+  <p>Run <b>1, 2, 13</b> first &mdash; they need nothing and confirm the system is sound.
+  Then set passwords and run <b>5, 6, 14</b>, which cover the change GDL actually
+  asked for. Create drivers and run <b>3, 4, 10, 11</b>. Leave <b>8</b> and <b>12</b>
+  until the approver role and the stock items exist.</p></div>
+
+  <h3>Raising a defect</h3>
+  <p>Quote the test ID, say what you expected and what happened, and attach a
+  screenshot. "FL-05-03 failed &mdash; the Dochula MTO was able to accept a Jamjee
+  request" can be investigated in minutes. "Approvals are broken" cannot.</p>
+
+  <div class="call warn"><span class="lbl">Two results that are not defects</span>
+  <p><b>No email arrived.</b> Outbound mail is muted and the scheduler is paused on
+  staging, deliberately, because this database came from a real system. Test the
+  alert <i>configuration</i> (FL-09-05) instead.</p>
+  <p><b>A blocked test.</b> Missing drivers, suppliers or settings are GDL's to
+  supply. Record them as Blocked and they become the prerequisite list, not the
+  defect list.</p></div>
+
+  <h3>What is knowingly not covered</h3>
+  <p><b>SAP integration.</b> The blueprint names it under Tyre Mileage. Nothing is
+  built and nothing is testable; it needs a scoping session on direction, transport
+  and which documents cross.</p>
+  <p><b>The five-stage approval chain.</b> It exists, switched off. If GDL ever turns
+  it on, Suite 6 needs rewriting for the longer chain.</p>
+</section>
+</main></div>
+
+  <footer class="shell">
+    <p><b>GDL Fleet Test Scripts</b> &middot; 4 November 2026 &middot; companion to the GDL Fleet Handbook.
+    Every expected result in this document was verified against the running system on
+    gdl-staging.localhost before issue.</p>
+  </footer>
+</div>
+

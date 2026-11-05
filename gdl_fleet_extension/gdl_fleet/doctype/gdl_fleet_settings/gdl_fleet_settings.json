@@ -1,0 +1,491 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-09-22 22:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sec_renewal",
+  "renewal_notice_days",
+  "renewal_second_reminder_days",
+  "col_renewal_1",
+  "renewal_third_reminder_days",
+  "renewal_final_reminder_days",
+  "licence_expiry_notice_days",
+  "abnormal_daily_km",
+  "sec_maint",
+  "maintenance_rules",
+  "sec_maint_notice",
+  "maintenance_due_notice_days",
+  "col_maint_1",
+  "maintenance_due_notice_km",
+  "col_maint_2",
+  "default_maintenance_team",
+  "sec_pol",
+  "pol_performance_precision",
+  "pol_enforce_unique_supply_memo",
+  "col_pol_1",
+  "pol_carry_forward_opening_km",
+  "pol_carry_forward_tank_balance",
+  "pol_carry_forward_book_balance",
+  "pol_abstract_requires_attachment",
+  "sec_mileage",
+  "mileage_deviation_tolerance",
+  "mileage_requires_hr_approval",
+  "col_mileage_1",
+  "tyre_target_km",
+  "tyre_tolerance",
+  "sec_approval",
+  "movement_approval_chain",
+  "enforce_location_mto",
+  "cb_approval",
+  "location_officers",
+  "sec_booking",
+  "booking_lead_time_hours",
+  "booking_lead_time_action",
+  "col_booking_1",
+  "emergency_bypasses_lead_time",
+  "sec_pol_accounting",
+  "pol_bod_supplier",
+  "pol_stcbl_supplier",
+  "col_pol_acc_1",
+  "pol_fuel_accounts",
+  "pol_fuel_expense_account",
+  "pol_invoice_on_approval",
+  "sec_purchasing",
+  "purchasing_company",
+  "purchase_order_notify_role",
+  "col_purch_1",
+  "maintenance_po_on_completion",
+  "maintenance_service_item",
+  "maintenance_purchase_document",
+  "maintenance_bill_requires_attachment",
+  "maintenance_approver_role",
+  "sec_insurance_purchasing",
+  "insurance_po_on_expiry",
+  "insurance_service_item",
+  "col_purch_2",
+  "insurance_supplier",
+  "insurance_renewal_lead_days"
+ ],
+ "fields": [
+  {
+   "fieldname": "sec_renewal",
+   "fieldtype": "Section Break",
+   "label": "Renewal Alerts"
+  },
+  {
+   "fieldname": "renewal_notice_days",
+   "fieldtype": "Int",
+   "label": "First Reminder (Days Before Expiry)",
+   "default": "14",
+   "description": "Fleet Mgmt.docx quotes 14 days in section 3 and the 4.6 heading, 30 days in the 4.6 trigger detail, and 30/15/7 in section 5. Confirm with GDL and set the agreed value here."
+  },
+  {
+   "fieldname": "renewal_second_reminder_days",
+   "fieldtype": "Int",
+   "label": "Second Reminder (Days)",
+   "default": "3"
+  },
+  {
+   "fieldname": "col_renewal_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "renewal_third_reminder_days",
+   "fieldtype": "Int",
+   "label": "Third Reminder (Days)",
+   "default": "0",
+   "description": "Set to 0 to switch this reminder off."
+  },
+  {
+   "fieldname": "renewal_final_reminder_days",
+   "fieldtype": "Int",
+   "label": "Final Reminder (Days)",
+   "default": "0",
+   "description": "Set to 0 to switch this reminder off."
+  },
+  {
+   "fieldname": "licence_expiry_notice_days",
+   "fieldtype": "Int",
+   "label": "Driving Licence Expiry Notice (Days)",
+   "default": "30",
+   "description": "How far ahead to warn that a driver's licence expires. Separate from the renewal ladder above: a licence takes longer to replace than a policy. 0 switches it off."
+  },
+  {
+   "fieldname": "abnormal_daily_km",
+   "fieldtype": "Int",
+   "label": "Abnormal Daily KM Threshold",
+   "default": "500",
+   "description": "Section 4.3 requires a warning on abnormal daily mileage."
+  },
+  {
+   "fieldname": "sec_maint",
+   "fieldtype": "Section Break",
+   "label": "Preventive Maintenance"
+  },
+  {
+   "fieldname": "maintenance_rules",
+   "fieldtype": "Table",
+   "options": "GDL Fleet Maintenance Rule",
+   "label": "Maintenance Rules",
+   "description": "Service intervals by distance and/or time. Add or change rules here - they are never hard-coded."
+  },
+  {
+   "fieldname": "sec_maint_notice",
+   "fieldtype": "Section Break",
+   "label": "Due Thresholds"
+  },
+  {
+   "fieldname": "maintenance_due_notice_days",
+   "fieldtype": "Int",
+   "label": "Notify Days Before Due",
+   "default": "14"
+  },
+  {
+   "fieldname": "col_maint_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maintenance_due_notice_km",
+   "fieldtype": "Int",
+   "label": "Notify KM Before Due",
+   "default": "500"
+  },
+  {
+   "fieldname": "col_maint_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_maintenance_team",
+   "fieldtype": "Link",
+   "options": "Asset Maintenance Team",
+   "label": "Default Maintenance Team",
+   "description": "Used when a vehicle's maintenance plan is created."
+  },
+  {
+   "fieldname": "sec_pol",
+   "fieldtype": "Section Break",
+   "label": "POL"
+  },
+  {
+   "fieldname": "pol_performance_precision",
+   "fieldtype": "Int",
+   "default": "2",
+   "label": "Performance Display Precision (KM/L)",
+   "description": "Decimal places used when DISPLAYING performance per litre. The accurate value is always stored in full."
+  },
+  {
+   "fieldname": "pol_enforce_unique_supply_memo",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "Enforce Unique Supply Memo No.",
+   "description": "Rejects a supply memo number already used on another POL Abstract for the same vehicle."
+  },
+  {
+   "fieldname": "col_pol_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pol_carry_forward_opening_km",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "Carry Forward Opening KM",
+   "description": "Suggests Opening KM from the previous abstract's Closing KM. Always overridable."
+  },
+  {
+   "fieldname": "pol_carry_forward_tank_balance",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "Carry Forward Tank Balance",
+   "description": "Suggests Previous Tank Balance from the previous abstract's Present Tank Balance. Always overridable."
+  },
+  {
+   "fieldname": "pol_carry_forward_book_balance",
+   "fieldtype": "Check",
+   "label": "Carry Forward Fuel Book Balance",
+   "default": "1",
+   "description": "Unspent coupon on a vehicle's previous abstract becomes the opening balance on the next one."
+  },
+  {
+   "fieldname": "sec_mileage",
+   "fieldtype": "Section Break",
+   "label": "Mileage Monitoring"
+  },
+  {
+   "fieldname": "mileage_deviation_tolerance",
+   "fieldtype": "Percent",
+   "default": "10",
+   "label": "Mileage Deviation Tolerance (%)",
+   "description": "Actual km/l may differ from the vehicle's minimum by this much in EITHER direction before HR approval is required."
+  },
+  {
+   "fieldname": "mileage_requires_hr_approval",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "Deviation Requires HR Approval"
+  },
+  {
+   "fieldname": "col_mileage_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tyre_target_km",
+   "fieldtype": "Int",
+   "default": "20000",
+   "label": "Tyre Performance Target (KM)"
+  },
+  {
+   "fieldname": "tyre_tolerance",
+   "fieldtype": "Percent",
+   "default": "20",
+   "label": "Tyre Tolerance (%)"
+  },
+  {
+   "fieldname": "sec_approval",
+   "fieldtype": "Section Break",
+   "label": "Approvals and Location Managers"
+  },
+  {
+   "fieldname": "movement_approval_chain",
+   "fieldtype": "Select",
+   "label": "Movement Order Approval",
+   "options": "Simple\nFull (Five Stage)",
+   "default": "Simple",
+   "description": "Simple: the user applies and the location MTO approves. Full: the original Validate -> Review -> MTO/CEO -> FAS chain. Changing this takes effect on the next migrate."
+  },
+  {
+   "fieldname": "enforce_location_mto",
+   "fieldtype": "Check",
+   "label": "Only the Location MTO May Approve",
+   "default": "1",
+   "description": "A request is approved by the MTO listed for its location, or by the head office MTO. Switch off to let any user holding the approver role approve."
+  },
+  {
+   "fieldname": "cb_approval",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "location_officers",
+   "fieldtype": "Table",
+   "label": "Location Managers (MTO)",
+   "options": "GDL Fleet Location Officer",
+   "description": "One row per location: who requests, and who approves. Tick Head Office for the final MTO."
+  },
+  {
+   "fieldname": "sec_booking",
+   "fieldtype": "Section Break",
+   "label": "Booking (OFMS)"
+  },
+  {
+   "fieldname": "booking_lead_time_hours",
+   "fieldtype": "Int",
+   "default": "24",
+   "label": "Minimum Booking Lead Time (Hours)",
+   "description": "Requests raised inside this window need a short-notice reason."
+  },
+  {
+   "fieldname": "booking_lead_time_action",
+   "fieldtype": "Select",
+   "options": "Warn\nRequire Reason\nBlock",
+   "default": "Require Reason",
+   "label": "Action Inside Lead Time"
+  },
+  {
+   "fieldname": "col_booking_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "emergency_bypasses_lead_time",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "Emergency Bypasses Lead Time"
+  },
+  {
+   "fieldname": "sec_pol_accounting",
+   "fieldtype": "Section Break",
+   "label": "POL Accounting"
+  },
+  {
+   "fieldname": "pol_bod_supplier",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "label": "BOD Supplier",
+   "description": "Supplier the BOD fuel claim is invoiced to."
+  },
+  {
+   "fieldname": "pol_stcbl_supplier",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "label": "STCBL Supplier",
+   "description": "Supplier the STCBL fuel claim is invoiced to."
+  },
+  {
+   "fieldname": "col_pol_acc_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pol_fuel_expense_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Fuel Expense Account (Fallback)",
+   "description": "Used only for a company with no row in the table above. It must belong to that company and must not be a group account."
+  },
+  {
+   "fieldname": "pol_invoice_on_approval",
+   "fieldtype": "Check",
+   "default": "0",
+   "label": "Raise Fuel Invoice Automatically on Approval",
+   "description": "Leave off to create the invoice by hand from the approved abstract."
+  },
+  {
+   "fieldname": "sec_purchasing",
+   "fieldtype": "Section Break",
+   "label": "Fleet Purchasing"
+  },
+  {
+   "fieldname": "purchasing_company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Purchasing Company",
+   "description": "Company the fleet purchase orders are raised under."
+  },
+  {
+   "fieldname": "purchase_order_notify_role",
+   "fieldtype": "Link",
+   "options": "Role",
+   "label": "Notify Role",
+   "description": "Who is told when a purchase order is raised, or cannot be."
+  },
+  {
+   "fieldname": "col_purch_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maintenance_po_on_completion",
+   "fieldtype": "Check",
+   "default": "0",
+   "label": "Raise Purchasing Document on Bill Approval",
+   "description": "Off by default. When on, approving a driver's service bill creates the document chosen below. External maintenance is already done when the bill arrives, so nothing is raised on mere completion."
+  },
+  {
+   "fieldname": "maintenance_service_item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Maintenance Service Item",
+   "description": "The Item a workshop service is purchased as. Vehicle Service Item is a maintenance category, not an Item, so it cannot be used on a purchase order."
+  },
+  {
+   "fieldname": "sec_insurance_purchasing",
+   "fieldtype": "Section Break",
+   "label": "Insurance Renewal Purchasing"
+  },
+  {
+   "fieldname": "insurance_po_on_expiry",
+   "fieldtype": "Check",
+   "default": "0",
+   "label": "Raise Purchase Order When Insurance Expires",
+   "description": "Off by default. Turns on the daily check for expired insurance."
+  },
+  {
+   "fieldname": "insurance_service_item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Insurance Renewal Item",
+   "description": "The Item an insurance renewal is purchased as."
+  },
+  {
+   "fieldname": "col_purch_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "insurance_supplier",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "label": "Default Insurance Supplier",
+   "description": "Used when the renewal record names no supplier of its own."
+  },
+  {
+   "fieldname": "insurance_renewal_lead_days",
+   "fieldtype": "Int",
+   "default": "0",
+   "label": "Raise Renewal PO This Many Days Before Expiry",
+   "description": "0 raises it on the day the policy expires. A positive number raises it in advance, which is usually what a broker needs."
+  },
+  {
+   "fieldname": "maintenance_purchase_document",
+   "fieldtype": "Select",
+   "options": "Purchase Invoice\nPurchase Order then Invoice",
+   "default": "Purchase Invoice",
+   "label": "Document to Raise",
+   "description": "The work is finished and the bill is in hand, so a Purchase Invoice normally matches reality. Choose the other option only if company policy demands a Purchase Order even after the fact."
+  },
+  {
+   "fieldname": "maintenance_bill_requires_attachment",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "Require the Bill Attachment",
+   "description": "A driver cannot submit a bill without a scan of the service centre's invoice."
+  },
+  {
+   "fieldname": "maintenance_approver_role",
+   "fieldtype": "Link",
+   "options": "Role",
+   "label": "Bill Approver Role",
+   "description": "Who may approve a service bill. Falls back to the Notify Role."
+  },
+  {
+   "fieldname": "pol_abstract_requires_attachment",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "Require the Supplier Bill Attachment",
+   "description": "A POL Abstract cannot be submitted for approval without a scan of the supplier's fuel bill or supply memos."
+  },
+  {
+   "fieldname": "pol_fuel_accounts",
+   "fieldtype": "Table",
+   "label": "Fuel Expense Account by Company",
+   "options": "GDL Fleet Fuel Account",
+   "description": "Vehicles in different companies post to different accounts. Give each company the account its fuel is charged to. The single account below is used only for a company that has no row here."
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-29 14:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "GDL Fleet Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Fleet Administrator",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Fleet Manager",
+   "read": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

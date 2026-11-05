@@ -1,0 +1,203 @@
+{#-
+	POL Abstract - laid out to match GDL's own printed form (Business Blueprint,
+	"POL Summary Form"), so a printout can be set beside the paper version and
+	read as the same document.
+
+	Deliberate choices, so nobody "corrects" them later:
+
+	* The layout follows GDL's form, but two units on it do NOT. The paper
+	  sheet reads "km/hr" against the odometer and "ltrs" against performance;
+	  a distance is not a speed and km-per-litre is not a volume. GDL asked for
+	  both to be corrected, so this prints "km" and "KM/L". That is the one
+	  place the printout deliberately differs from the paper original.
+	* Sl No prints as 1.00, 2.00 - again, as the form does.
+	* ONE Amount column, and no Supplier column - GDL asked for the line table
+	  to show the money and nothing else. The old sheet carried Amount (BOD)
+	  and Amount (STCBL) side by side and one was always empty, because a fill
+	  comes from one provider.
+
+	  Consequence, recorded so it is a known trade-off and not a surprise: the
+	  summary below still states recoupment and book balance per provider, but
+	  the printed lines no longer say which provider each fill came from. The
+	  split is on screen, in POL Supplier / Book Balance, and on the invoice.
+-#}
+{%- set basis = "Hrs" if doc.distance_basis == "Hours" else "Km" -%}
+{%- set perf_precision = frappe.db.get_single_value("GDL Fleet Settings", "pol_performance_precision") or 2 -%}
+{%- set company = doc.get("company") or frappe.db.get_value("Vehicle", doc.vehicle, "company") -%}
+{%- set logo = frappe.db.get_value("Company", company, "company_logo") if company else None -%}
+
+<div class="pol-sheet">
+
+	<table class="pol-head">
+		<tr>
+			<td class="pol-head-mid">
+				<div class="pol-title">POL ABSTRACT</div>
+				<div class="pol-vehicle">{{ doc.vehicle }}</div>
+			</td>
+			<td class="pol-head-logo">
+				{%- if logo -%}
+					<img src="{{ logo }}" alt="{{ company }}">
+				{%- else -%}
+					<span class="pol-wordmark">{{ frappe.db.get_value("Company", company, "abbr") or "GDL" }}</span>
+				{%- endif -%}
+			</td>
+		</tr>
+	</table>
+
+	<table class="pol-entries">
+		<thead>
+			<tr>
+				<th style="width:8%">Sl No</th>
+				<th style="width:30%">Supply Memo No.</th>
+				<th style="width:16%">Date</th>
+				<th style="width:14%" class="right">HRS<br>Liters</th>
+				<th style="width:14%" class="right">Rate<br>(Nu)</th>
+				<th style="width:18%" class="right">Amount<br>(Nu)</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in doc.entries %}
+			<tr>
+				<td>{{ "{:.2f}".format(loop.index) }}</td>
+				<td class="center">{{ row.supply_memo_no or "" }}</td>
+				<td>{{ frappe.utils.formatdate(row.date, "dd.MM.yy") }}</td>
+				<td class="right">{{ "{:,.2f}".format(row.litres or 0) }}</td>
+				<td class="right">{{ "{:,.2f}".format(row.rate or 0) }}</td>
+				<td class="right">{{ "{:,.2f}".format(row.total_amount or 0) }}</td>
+			</tr>
+			{% endfor %}
+			<tr class="pol-total">
+				<td colspan="3" class="right"><b>Total:</b></td>
+				<td class="right"><b>{{ "{:,.2f}".format(doc.total_fuel_supplied or 0) }}</b></td>
+				<td></td>
+				<td class="right"><b>{{ "{:,.2f}".format((doc.total_amount_bod or 0) + (doc.total_amount_stcbl or 0)) }}</b></td>
+			</tr>
+		</tbody>
+	</table>
+
+	<table class="pol-summary">
+		<tr>
+			<td class="label">Total Fuel recoupment(BOD) :-</td>
+			<td class="box">{{ "{:,.2f}".format(doc.recoupment_bod or 0) }}</td>
+			<td class="unit">Nu.</td>
+		</tr>
+		<tr>
+			<td class="label">Total Fuel recoupment(STCBL) :</td>
+			<td class="box">{{ "{:,.2f}".format(doc.recoupment_stcbl or 0) }}</td>
+			<td class="unit">Nu.</td>
+		</tr>
+		<tr>
+			<td class="label">Opening {{ basis }}:-</td>
+			<td class="box">{{ "{:,.2f}".format(doc.opening_km or 0) }}</td>
+			<td class="unit">{{ basis.lower() }}</td>
+		</tr>
+		<tr>
+			<td class="label">Closing {{ basis }}:-</td>
+			<td class="box">{{ "{:,.2f}".format(doc.closing_km or 0) }}</td>
+			<td class="unit">{{ basis.lower() }}</td>
+		</tr>
+		<tr>
+			<td class="label">Total {{ basis }}:-</td>
+			<td class="box">{{ "{:,.2f}".format(doc.total_km or 0) }}</td>
+			<td class="unit">{{ basis.lower() }}</td>
+		</tr>
+		<tr>
+			<td class="label">Previous tank balance:-</td>
+			<td class="box">{{ "{:,.2f}".format(doc.previous_tank_balance or 0) }}</td>
+			<td class="unit">ltrs</td>
+		</tr>
+		<tr>
+			<td class="label">Present tank balance:-</td>
+			<td class="box">{{ "{:,.2f}".format(doc.present_tank_balance or 0) }}</td>
+			<td class="unit">ltrs</td>
+		</tr>
+		<tr>
+			<td class="label">Fuel book balance(BOD):-</td>
+			<td class="box">{{ "{:,.2f}".format(doc.fuel_book_balance_bod or 0) }}</td>
+			<td class="unit">Nu/chh.</td>
+		</tr>
+		<tr>
+			<td class="label">Fuel book balance(STCBL):-</td>
+			<td class="box">{{ "{:,.2f}".format(doc.fuel_book_balance_stcbl or 0) }}</td>
+			<td class="unit">Nu/chh.</td>
+		</tr>
+		<tr>
+			<td class="label">Total fuel consumed:-</td>
+			<td class="box">{{ "{:,.2f}".format(doc.total_fuel_consumed or 0) }}</td>
+			<td class="unit">ltrs</td>
+		</tr>
+		<tr>
+			<td class="label">Performance per litre</td>
+			<td class="box">
+				{%- if doc.performance_per_litre -%}
+					{{ ("{:,.%df}" % perf_precision).format(doc.performance_per_litre) }}
+				{%- else -%}
+					&ndash;
+				{%- endif -%}
+			</td>
+			<td class="unit">{{ "KM/HR" if basis == "Hrs" else "KM/L" }}</td>
+		</tr>
+	</table>
+
+	<table class="pol-signoff">
+		<tr>
+			<td>Submitted By:</td>
+			<td>Approved by:</td>
+		</tr>
+		<tr class="pol-name">
+			<td>{{ frappe.db.get_value("User", doc.submitted_by, "full_name") or doc.submitted_by or "" }}</td>
+			<td>{{ frappe.db.get_value("User", doc.approved_by, "full_name") or doc.approved_by or "" }}</td>
+		</tr>
+		<tr class="pol-designation">
+			<td>{{ doc.submitted_by_designation or "Driver" }}</td>
+			<td>{{ doc.approved_by_designation or "Head-HR" }}</td>
+		</tr>
+	</table>
+
+</div>
+
+<style>
+	/* The whole sheet sits inside one ruled box, as the paper form does. */
+	.pol-sheet {
+		border: 1px solid #000;
+		padding: 10px 14px 18px;
+		font-family: "Times New Roman", Georgia, serif;
+		font-size: 12px;
+		color: #000;
+	}
+
+	.pol-head { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+	.pol-head td { border: 0; vertical-align: middle; padding: 0; }
+	.pol-head-mid { text-align: center; padding-left: 90px !important; }
+	.pol-head-logo { width: 90px; text-align: right; }
+	.pol-head-logo img { max-height: 34px; max-width: 90px; }
+	.pol-wordmark { font-weight: bold; font-size: 18px; letter-spacing: 1px; }
+	.pol-title { font-weight: bold; font-size: 13px; letter-spacing: .5px; }
+	.pol-vehicle { font-weight: bold; font-size: 12px; margin-top: 1px; }
+
+	.pol-entries { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+	.pol-entries th, .pol-entries td { border: 1px solid #000; padding: 3px 6px; }
+	.pol-entries th { font-weight: bold; text-align: left; vertical-align: bottom; }
+	.pol-entries th.right { text-align: left; }
+	.pol-entries .right { text-align: right; }
+	.pol-entries .center { text-align: center; }
+	.pol-total td { border-top: 1px solid #000; }
+
+	.pol-summary { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+	.pol-summary td { padding: 0; vertical-align: middle; }
+	.pol-summary .label { width: 46%; font-weight: bold; padding-left: 4px; }
+	/* The grey, ruled value boxes of the paper form. */
+	.pol-summary .box {
+		width: 16%;
+		border: 1px solid #000;
+		background: #d9d9d9;
+		text-align: right;
+		padding: 2px 6px;
+		font-weight: bold;
+	}
+	.pol-summary .unit { width: 38%; padding-left: 8px; }
+
+	.pol-signoff { width: 100%; margin-top: 34px; }
+	.pol-signoff td { width: 50%; padding-top: 3px; font-weight: bold; }
+	.pol-signoff .pol-designation td { font-weight: bold; }
+</style>

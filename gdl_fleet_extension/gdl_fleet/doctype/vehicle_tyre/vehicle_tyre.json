@@ -1,0 +1,221 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "creation": "2026-10-15 10:30:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "track_changes": 1,
+ "field_order": [
+  "naming_series",
+  "vehicle",
+  "item_code",
+  "cost",
+  "serial_no",
+  "tyre_position",
+  "col_head_1",
+  "status",
+  "fitted_date",
+  "fitted_odometer",
+  "part_issue",
+  "sec_removal",
+  "removed_date",
+  "removed_odometer",
+  "removal_reason",
+  "col_rem_1",
+  "km_achieved",
+  "target_km",
+  "performance",
+  "sec_more",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "TYR-.YYYY.-.#####",
+   "default": "TYR-.YYYY.-.#####",
+   "reqd": 1,
+   "no_copy": 1,
+   "print_hide": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "options": "Vehicle",
+   "label": "Vehicle",
+   "reqd": 1,
+   "in_standard_filter": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Tyre Item",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cost",
+   "fieldtype": "Currency",
+   "label": "Cost",
+   "description": "What this tyre cost. Filled from the Fleet Part Issue that fitted it; enter it by hand for a tyre recorded without one."
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Data",
+   "label": "Serial No",
+   "in_list_view": 1,
+   "description": "Standard ERPNext serial number where the tyre is serialised."
+  },
+  {
+   "fieldname": "tyre_position",
+   "fieldtype": "Select",
+   "label": "Position",
+   "options": "\nFront Left\nFront Right\nRear Left\nRear Right\nRear Left Outer\nRear Right Outer\nSpare\nOther",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "col_head_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Fitted\nRemoved\nScrapped",
+   "default": "Fitted",
+   "in_standard_filter": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "fitted_date",
+   "fieldtype": "Date",
+   "label": "Fitted Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fitted_odometer",
+   "fieldtype": "Int",
+   "label": "Fitted at Odometer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "part_issue",
+   "fieldtype": "Link",
+   "options": "Fleet Part Issue",
+   "label": "Issued On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_removal",
+   "fieldtype": "Section Break",
+   "label": "Removal"
+  },
+  {
+   "fieldname": "removed_date",
+   "fieldtype": "Date",
+   "label": "Removed Date"
+  },
+  {
+   "fieldname": "removed_odometer",
+   "fieldtype": "Int",
+   "label": "Removed at Odometer"
+  },
+  {
+   "fieldname": "removal_reason",
+   "fieldtype": "Select",
+   "label": "Removal Reason",
+   "options": "\nWorn Out\nPuncture\nBurst\nAccident Damage\nRotation\nOther"
+  },
+  {
+   "fieldname": "col_rem_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "km_achieved",
+   "fieldtype": "Int",
+   "label": "KM Achieved",
+   "read_only": 1,
+   "description": "Removed odometer less fitted odometer."
+  },
+  {
+   "fieldname": "target_km",
+   "fieldtype": "Int",
+   "label": "Target KM",
+   "read_only": 1,
+   "description": "From GDL Fleet Settings. The document sets 20,000 km."
+  },
+  {
+   "fieldname": "performance",
+   "fieldtype": "Select",
+   "label": "Performance",
+   "read_only": 1,
+   "options": "\nIn Service\nWithin Tolerance\nBelow Tolerance\nAbove Tolerance",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "sec_more",
+   "fieldtype": "Section Break",
+   "label": "More"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-15 10:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "Vehicle Tyre",
+ "owner": "Administrator",
+ "naming_rule": "By \"Naming Series\" field",
+ "permissions": [
+  {
+   "role": "Fleet Store User",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Fleet Maintenance User",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Fleet Administrator",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Fleet Manager",
+   "read": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  }
+ ],
+ "search_fields": "vehicle,serial_no,status",
+ "title_field": "vehicle",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

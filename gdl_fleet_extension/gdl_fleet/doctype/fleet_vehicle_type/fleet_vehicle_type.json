@@ -1,0 +1,126 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:vehicle_type_name",
+ "creation": "2026-09-22 19:30:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "vehicle_type_name",
+  "disabled",
+  "column_break_ovw",
+  "requires_driver",
+  "default_seating_capacity",
+  "section_break_dfl",
+  "default_fuel_type",
+  "column_break_dfl",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "vehicle_type_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Vehicle Type",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "column_break_ovw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "requires_driver",
+   "fieldtype": "Check",
+   "label": "Requires Driver"
+  },
+  {
+   "fieldname": "default_seating_capacity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Default Seating Capacity"
+  },
+  {
+   "fieldname": "section_break_dfl",
+   "fieldtype": "Section Break",
+   "label": "Defaults"
+  },
+  {
+   "fieldname": "default_fuel_type",
+   "fieldtype": "Select",
+   "label": "Default Fuel Type",
+   "options": "\nPetrol\nDiesel\nNatural Gas\nElectric\nHybrid\nCNG\nLPG\nOther"
+  },
+  {
+   "fieldname": "column_break_dfl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-09-22 19:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "Fleet Vehicle Type",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Fleet Administrator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Fleet Manager",
+   "share": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Fleet User"
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

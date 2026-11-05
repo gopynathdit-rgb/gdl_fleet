@@ -1,0 +1,294 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "creation": "2026-09-28 09:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "renewal_type",
+  "vehicle",
+  "location",
+  "certificate_no",
+  "col_head_1",
+  "provider",
+  "supplier",
+  "premium",
+  "sec_validity",
+  "effective_from",
+  "expiry_date",
+  "col_val_1",
+  "renewal_status",
+  "days_to_expiry",
+  "sec_chain",
+  "previous_renewal",
+  "col_chain_1",
+  "attachment",
+  "sec_more",
+  "remarks",
+  "amended_from",
+  "sec_purchasing",
+  "purchase_order",
+  "purchasing_status",
+  "col_purchasing_1",
+  "purchasing_message"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "REN-.YYYY.-.#####",
+   "reqd": 1,
+   "no_copy": 1,
+   "print_hide": 1,
+   "set_only_once": 1,
+   "default": "REN-.YYYY.-.#####"
+  },
+  {
+   "fieldname": "renewal_type",
+   "fieldtype": "Select",
+   "label": "Renewal Type",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "options": "Insurance\nRegistration\nFitness\nEmission\nPermit\nRoad Tax\nOther"
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "options": "Vehicle",
+   "label": "Vehicle",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "certificate_no",
+   "fieldtype": "Data",
+   "label": "Policy / Certificate No."
+  },
+  {
+   "fieldname": "col_head_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "provider",
+   "fieldtype": "Data",
+   "label": "Provider / Authority",
+   "description": "Insurance company or issuing authority."
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "label": "Supplier",
+   "description": "Optional, where the provider is a registered supplier."
+  },
+  {
+   "fieldname": "premium",
+   "fieldtype": "Currency",
+   "label": "Premium / Fee"
+  },
+  {
+   "fieldname": "sec_validity",
+   "fieldtype": "Section Break",
+   "label": "Validity"
+  },
+  {
+   "fieldname": "effective_from",
+   "fieldtype": "Date",
+   "label": "Effective From"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "col_val_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "renewal_status",
+   "fieldtype": "Select",
+   "label": "Renewal Status",
+   "read_only": 1,
+   "options": "Valid\nDue Soon\nExpired\nRenewed",
+   "default": "Valid",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "Maintained by the system from the expiry date and any later renewal."
+  },
+  {
+   "fieldname": "days_to_expiry",
+   "fieldtype": "Int",
+   "label": "Days to Expiry",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sec_chain",
+   "fieldtype": "Section Break",
+   "label": "Renewal History"
+  },
+  {
+   "fieldname": "previous_renewal",
+   "fieldtype": "Link",
+   "options": "Renewal Register",
+   "label": "Previous Renewal",
+   "description": "Chains to the record this one replaces. Earlier records are never overwritten."
+  },
+  {
+   "fieldname": "col_chain_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attachment",
+   "description": "Policy or certificate scan."
+  },
+  {
+   "fieldname": "sec_more",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Renewal Register",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "Location"
+  },
+  {
+   "fieldname": "sec_purchasing",
+   "fieldtype": "Section Break",
+   "label": "Purchasing"
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "options": "Purchase Order",
+   "label": "Purchase Order",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "purchasing_status",
+   "fieldtype": "Select",
+   "label": "Purchasing Status",
+   "read_only": 1,
+   "options": "\nNot Required\nPending\nOrdered\nFailed",
+   "no_copy": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "col_purchasing_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchasing_message",
+   "fieldtype": "Small Text",
+   "label": "Purchasing Note",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "Why a purchase order was or was not raised."
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-10-27 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "Renewal Register",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet Administrator",
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Fleet Approver",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet Manager",
+   "delete": 0,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "read": 1,
+   "write": 0,
+   "create": 0,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet User",
+   "delete": 0
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "System Manager",
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  }
+ ],
+ "search_fields": "vehicle,renewal_type,expiry_date,renewal_status",
+ "sort_field": "expiry_date",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

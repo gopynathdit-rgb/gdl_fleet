@@ -1,0 +1,156 @@
+{
+ "actions": [],
+ "creation": "2026-10-05 09:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "supply_memo_no",
+  "date",
+  "supplier",
+  "fuel_type",
+  "litres",
+  "rate",
+  "odometer",
+  "amount_bod",
+  "amount_stcbl",
+  "total_amount",
+  "amount_overridden",
+  "recoupment_bod",
+  "recoupment_stcbl",
+  "driver",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "supply_memo_no",
+   "fieldtype": "Data",
+   "label": "Supply Memo No.",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "label": "Supplier",
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "GDL's fuel provider for this fill. Only BOD and STCBL are offered.",
+   "reqd": 1
+  },
+  {
+   "fieldname": "litres",
+   "fieldtype": "Float",
+   "label": "HRS Liters",
+   "reqd": 1,
+   "precision": "3",
+   "description": "The workbook's own column name. Holds litres supplied.",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "label": "Rate (Nu)",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "amount_bod",
+   "fieldtype": "Currency",
+   "label": "Amount (BOD)",
+   "description": "Derived from Total Amount when the supplier is GDL's BOD provider. Kept because the claim, the book balance and every POL report are split by provider - it is simply no longer typed by hand.",
+   "in_list_view": 0,
+   "hidden": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount_stcbl",
+   "fieldtype": "Currency",
+   "label": "Amount (STCBL)",
+   "description": "Derived from Total Amount when the supplier is GDL's STCBL provider. Kept because the claim, the book balance and every POL report are split by provider - it is simply no longer typed by hand.",
+   "in_list_view": 0,
+   "hidden": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount_overridden",
+   "fieldtype": "Check",
+   "label": "Amount Overridden",
+   "read_only": 1,
+   "description": "Set automatically when the stored amount differs from Litres x Rate."
+  },
+  {
+   "fieldname": "recoupment_bod",
+   "fieldtype": "Currency",
+   "label": "Recoupment (BOD)",
+   "hidden": 1,
+   "description": "Not used in any calculation. Recoupment is held on the abstract as a whole - see Fuel and Book Balance."
+  },
+  {
+   "fieldname": "recoupment_stcbl",
+   "fieldtype": "Currency",
+   "label": "Recoupment (STCBL)",
+   "hidden": 1,
+   "description": "Not used in any calculation. Recoupment is held on the abstract as a whole - see Fuel and Book Balance."
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "fuel_type",
+   "fieldtype": "Select",
+   "label": "Fuel Type",
+   "options": "\nPetrol\nDiesel\nNatural Gas\nElectric\nHybrid\nCNG\nLPG\nOther",
+   "description": "Fuel drawn on this supply memo."
+  },
+  {
+   "fieldname": "odometer",
+   "fieldtype": "Int",
+   "label": "Odometer Reading",
+   "description": "Odometer at the time of this fill.",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "options": "Driver",
+   "label": "Driver",
+   "description": "Driver who drew the fuel. Defaults from the abstract."
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "read_only": 0,
+   "description": "Litres x Rate, calculated. An authorised user may override it; the approved figure is then preserved exactly as entered. Which provider it is claimed from follows the Supplier.",
+   "in_list_view": 1,
+   "columns": 2
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-29 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "POL Entry",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

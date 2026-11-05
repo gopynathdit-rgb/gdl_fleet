@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "creation": "2026-09-22 22:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "service_item",
+  "vehicle_type",
+  "interval_km",
+  "interval_months",
+  "maintenance_type",
+  "is_active",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "service_item",
+   "fieldtype": "Link",
+   "options": "Vehicle Service Item",
+   "label": "Service Item",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2,
+   "description": "Standard HRMS Vehicle Service Item master."
+  },
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Link",
+   "options": "Fleet Vehicle Type",
+   "label": "Vehicle Type",
+   "in_list_view": 1,
+   "columns": 2,
+   "description": "Leave blank to apply to every vehicle type."
+  },
+  {
+   "fieldname": "interval_km",
+   "fieldtype": "Int",
+   "label": "Interval (KM)",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "interval_months",
+   "fieldtype": "Int",
+   "label": "Interval (Months)",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "maintenance_type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Preventive Maintenance\nCalibration",
+   "default": "Preventive Maintenance"
+  },
+  {
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active",
+   "default": "1",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-09-22 22:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "GDL Fleet Maintenance Rule",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

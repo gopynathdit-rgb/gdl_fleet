@@ -1,0 +1,583 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "creation": "2026-09-22 20:30:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "request_date",
+  "requester",
+  "employee",
+  "department",
+  "col_req_1",
+  "site",
+  "project",
+  "task",
+  "cost_center",
+  "sec_trip",
+  "purpose",
+  "usage_type",
+  "col_trip_1",
+  "priority",
+  "allocation_priority",
+  "passenger_count",
+  "passengers",
+  "vehicle_type",
+  "sec_schedule",
+  "required_date",
+  "required_from_time",
+  "col_sched_1",
+  "return_date",
+  "required_to_time",
+  "col_sched_2",
+  "from_datetime",
+  "to_datetime",
+  "duration_hours",
+  "sec_journey",
+  "pickup_location",
+  "from_location",
+  "col_journey_1",
+  "destination",
+  "sec_journey_2",
+  "additional_stops",
+  "sec_alloc",
+  "check_availability",
+  "vehicle",
+  "driver",
+  "col_alloc_1",
+  "assigned_by",
+  "assigned_on",
+  "sec_alloc_2",
+  "assignment_remarks",
+  "approver_remarks",
+  "sec_status",
+  "status",
+  "workflow_state",
+  "col_status_1",
+  "amended_from",
+  "lead_time_hours",
+  "lead_time_waiver_reason"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "MOR-.YYYY.-.#####\nVBR-.YYYY.-.#####",
+   "reqd": 1,
+   "no_copy": 1,
+   "print_hide": 1,
+   "set_only_once": 1,
+   "default": "MOR-.YYYY.-.#####"
+  },
+  {
+   "fieldname": "request_date",
+   "fieldtype": "Date",
+   "label": "Request Date",
+   "default": "Today",
+   "reqd": 1
+  },
+  {
+   "fieldname": "requester",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Requester",
+   "reqd": 1,
+   "default": "__user",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "options": "Employee",
+   "label": "Employee",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "options": "Department",
+   "label": "Department",
+   "fetch_from": "employee.department",
+   "fetch_if_empty": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "col_req_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "Site",
+   "in_standard_filter": 1,
+   "description": "Standard ERPNext Location is the GDL site master."
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "options": "Project",
+   "label": "Project"
+  },
+  {
+   "fieldname": "task",
+   "fieldtype": "Link",
+   "options": "Task",
+   "label": "Task"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "options": "Cost Center",
+   "label": "Cost Center"
+  },
+  {
+   "fieldname": "sec_trip",
+   "fieldtype": "Section Break",
+   "label": "Trip"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Small Text",
+   "label": "Purpose",
+   "reqd": 1
+  },
+  {
+   "fieldname": "usage_type",
+   "fieldtype": "Select",
+   "label": "Usage",
+   "options": "Business\nOfficial\nPersonal\nOther",
+   "default": "Official",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "col_trip_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "Routine\nCritical Business\nEmergency",
+   "default": "Routine",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "passenger_count",
+   "fieldtype": "Int",
+   "label": "Passenger Count",
+   "default": "1"
+  },
+  {
+   "fieldname": "passengers",
+   "fieldtype": "Table",
+   "label": "Passengers / Officials",
+   "options": "Movement Order Passenger",
+   "description": "Who is travelling. Leave empty if the names are not known yet - the count above is what the Fleet Administrator allocates a vehicle against."
+  },
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Link",
+   "options": "Fleet Vehicle Type",
+   "label": "Required Vehicle Type",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "sec_schedule",
+   "fieldtype": "Section Break",
+   "label": "Schedule"
+  },
+  {
+   "fieldname": "required_date",
+   "fieldtype": "Date",
+   "label": "Travel Date",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "required_from_time",
+   "fieldtype": "Time",
+   "label": "Travel Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_sched_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "return_date",
+   "fieldtype": "Date",
+   "label": "Return Date",
+   "description": "Leave blank for a same-day trip."
+  },
+  {
+   "fieldname": "required_to_time",
+   "fieldtype": "Time",
+   "label": "Expected Return Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_sched_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_datetime",
+   "fieldtype": "Datetime",
+   "label": "From",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "Computed. Used for availability and conflict checks."
+  },
+  {
+   "fieldname": "to_datetime",
+   "fieldtype": "Datetime",
+   "label": "To",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "duration_hours",
+   "fieldtype": "Float",
+   "label": "Duration (Hours)",
+   "read_only": 1,
+   "no_copy": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "sec_journey",
+   "fieldtype": "Section Break",
+   "label": "Journey"
+  },
+  {
+   "fieldname": "pickup_location",
+   "fieldtype": "Data",
+   "label": "Pickup Location",
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_location",
+   "fieldtype": "Data",
+   "label": "From Location"
+  },
+  {
+   "fieldname": "col_journey_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "destination",
+   "fieldtype": "Data",
+   "label": "Destination",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sec_journey_2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "additional_stops",
+   "fieldtype": "Small Text",
+   "label": "Additional Stops / Remarks"
+  },
+  {
+   "fieldname": "sec_alloc",
+   "fieldtype": "Section Break",
+   "label": "Vehicle Allocation"
+  },
+  {
+   "fieldname": "check_availability",
+   "fieldtype": "Button",
+   "label": "Check Availability"
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "options": "Vehicle",
+   "label": "Assigned Vehicle",
+   "in_standard_filter": 1,
+   "in_list_view": 1,
+   "permlevel": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "options": "Driver",
+   "label": "Assigned Driver",
+   "permlevel": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "col_alloc_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "assigned_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Assigned By",
+   "read_only": 1,
+   "no_copy": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "assigned_on",
+   "fieldtype": "Datetime",
+   "label": "Assigned On",
+   "read_only": 1,
+   "no_copy": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "sec_alloc_2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "assignment_remarks",
+   "fieldtype": "Small Text",
+   "label": "Assignment Remarks",
+   "permlevel": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "approver_remarks",
+   "fieldtype": "Small Text",
+   "label": "Approver Remarks",
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "sec_status",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "default": "Draft",
+   "options": "Draft\nPending Review\nAccepted\nRejected\nCancelled",
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Link",
+   "options": "Workflow State",
+   "label": "Workflow State",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1,
+   "description": "Maintained by the standard ERPNext Workflow engine.",
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "col_status_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Movement Order Request",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "lead_time_hours",
+   "fieldtype": "Float",
+   "label": "Lead Time Given (Hours)",
+   "read_only": 1,
+   "precision": "2",
+   "description": "Hours between raising the request and the required departure."
+  },
+  {
+   "fieldname": "lead_time_waiver_reason",
+   "fieldtype": "Small Text",
+   "label": "Short-Notice Reason",
+   "description": "Required when the request is raised inside the configured lead time."
+  },
+  {
+   "fieldname": "allocation_priority",
+   "fieldtype": "Int",
+   "label": "Allocation Priority",
+   "read_only": 1,
+   "description": "Lower number is served first. Derived from Priority and lead time."
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-10-15 09:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "Movement Order Request",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet Administrator",
+   "permlevel": 0,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet User",
+   "permlevel": 0,
+   "delete": 0,
+   "submit": 0,
+   "cancel": 0,
+   "if_owner": 1
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet Validator",
+   "permlevel": 0,
+   "delete": 0
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet Reviewer",
+   "permlevel": 0,
+   "delete": 0
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet Approver",
+   "permlevel": 0,
+   "delete": 0,
+   "submit": 1
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet Finance User",
+   "permlevel": 0,
+   "delete": 0,
+   "submit": 1
+  },
+  {
+   "read": 1,
+   "write": 0,
+   "create": 0,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet Manager",
+   "permlevel": 0,
+   "delete": 0
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "System Manager",
+   "permlevel": 0,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Fleet Administrator",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Fleet Manager",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Fleet User",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Fleet Validator",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Fleet Reviewer",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Fleet Approver",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Fleet Finance User",
+   "permlevel": 1,
+   "read": 1
+  }
+ ],
+ "search_fields": "requester,vehicle,required_date,status",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "purpose",
+ "track_changes": 1
+}

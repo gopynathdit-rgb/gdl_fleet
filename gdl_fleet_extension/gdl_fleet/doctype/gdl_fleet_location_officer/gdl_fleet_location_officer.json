@@ -1,0 +1,71 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-11-03 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "location",
+  "mto",
+  "mto_name",
+  "fleet_user",
+  "is_head_office"
+ ],
+ "fields": [
+  {
+   "columns": 3,
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Location",
+   "options": "Location",
+   "reqd": 1
+  },
+  {
+   "columns": 3,
+   "description": "The manager who approves vehicle requests for this location.",
+   "fieldname": "mto",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "MTO / Manager",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "mto.full_name",
+   "fieldname": "mto_name",
+   "fieldtype": "Data",
+   "label": "MTO Name",
+   "read_only": 1
+  },
+  {
+   "columns": 3,
+   "description": "The person at this location who raises vehicle requests. Optional - any Fleet User at the location may request.",
+   "fieldname": "fleet_user",
+   "fieldtype": "Link",
+   "label": "Requesting User",
+   "options": "User"
+  },
+  {
+   "columns": 1,
+   "description": "The head office MTO. Approves at any location and covers a location whose own MTO is away.",
+   "fieldname": "is_head_office",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Head Office"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-03 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "GDL Fleet Location Officer",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

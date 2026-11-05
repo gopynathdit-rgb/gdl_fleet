@@ -1,0 +1,1469 @@
+<title>GDL Fleet Handbook</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky contents rail beside one reading column; stacks under 940px. */
+:root{
+  --bg:#F6F5F2; --surface:#FFFFFF; --surface-2:#EFEEE9; --fg:#1A211F; --muted:#5C6865;
+  --border:#DCD9D1; --accent:#0E4C5C; --accent-fg:#FFFFFF; --accent-soft:#E3EDF0;
+  --ok:#2C6A4A; --ok-soft:#E4F0E9; --warn:#8A5300; --warn-soft:#F7EEDC;
+  --stop:#96302E; --stop-soft:#F7E6E5; --new:#4A3A86; --new-soft:#ECE8F7;
+  --code-bg:#F0EFEA;
+  --display:"Zilla Slab",Georgia,serif;
+  --body:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14191A; --surface:#1B2224; --surface-2:#222A2C; --fg:#E8EAE8; --muted:#9AA7A5;
+  --border:#2E383A; --accent:#5EB8CC; --accent-fg:#0B2126; --accent-soft:#15333B;
+  --ok:#68C295; --ok-soft:#172E25; --warn:#D9A441; --warn-soft:#30260F;
+  --stop:#E0807D; --stop-soft:#331D1D; --new:#A99BE4; --new-soft:#241F3B;
+  --code-bg:#1E2628; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#14191A; --surface:#1B2224; --surface-2:#222A2C; --fg:#E8EAE8; --muted:#9AA7A5;
+  --border:#2E383A; --accent:#5EB8CC; --accent-fg:#0B2126; --accent-soft:#15333B;
+  --ok:#68C295; --ok-soft:#172E25; --warn:#D9A441; --warn-soft:#30260F;
+  --stop:#E0807D; --stop-soft:#331D1D; --new:#A99BE4; --new-soft:#241F3B;
+  --code-bg:#1E2628; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.62;margin:0}
+.shell{max-width:1180px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0}
+.masthead{padding-block:44px 28px;border-bottom:3px solid var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+.masthead h1{font-family:var(--display);font-weight:700;font-size:clamp(2rem,5.5vw,3.1rem);line-height:1.08;margin:0 0 12px;text-wrap:balance;letter-spacing:-.01em}
+.masthead p{margin:0;max-width:62ch;color:var(--muted);font-size:1.03rem}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:20px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.meta b{color:var(--fg);font-weight:500}
+.grid{display:grid;grid-template-columns:238px minmax(0,1fr);gap:48px;align-items:start;padding-block:36px 72px}
+@media (max-width:940px){.grid{grid-template-columns:1fr;gap:0}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);font-size:13.2px;max-height:calc(100vh - 60px);overflow-y:auto;min-width:0}
+.toc h2{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:500}
+.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.toc a{display:flex;gap:9px;padding:4px 8px;border-radius:4px;color:var(--muted);text-decoration:none}
+.toc a:hover{color:var(--fg);background:var(--surface-2)}
+.toc a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.toc a .n{font-family:var(--mono);font-size:11px;color:var(--accent);flex:none;padding-top:2px}
+@media (max-width:940px){
+  .toc{position:static;max-height:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-block:24px}
+  .toc ol{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:2px}
+}
+main{min-width:0}
+section{scroll-margin-top:24px;margin-bottom:56px}
+h2.part{font-family:var(--display);font-weight:600;font-size:clamp(1.45rem,3.4vw,1.95rem);line-height:1.2;margin:0 0 6px;text-wrap:balance;display:flex;gap:14px;align-items:baseline}
+h2.part .num{font-family:var(--mono);font-size:.74em;color:var(--accent);font-weight:500;flex:none}
+.standfirst{color:var(--muted);margin:0 0 24px;max-width:68ch}
+h3{font-family:var(--display);font-weight:600;font-size:1.14rem;margin:32px 0 8px;text-wrap:balance}
+h4{font-family:var(--body);font-weight:600;font-size:.96rem;margin:22px 0 6px}
+p{margin:0 0 14px;max-width:70ch}
+ul{padding-left:20px;margin:0 0 14px;max-width:70ch}
+li{margin-bottom:6px}
+ol.steps{counter-reset:s;list-style:none;padding:0;margin:0 0 18px;display:flex;flex-direction:column;gap:12px;max-width:72ch}
+ol.steps>li{counter-increment:s;position:relative;padding-left:40px;margin:0}
+ol.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;width:25px;height:25px;border-radius:50%;
+  background:var(--accent);color:var(--accent-fg);font-family:var(--mono);font-size:12px;font-weight:500;
+  display:flex;align-items:center;justify-content:center}
+code,.f{font-family:var(--mono);font-size:.875em;background:var(--code-bg);padding:1px 5px;border-radius:3px;
+  border:1px solid var(--border);white-space:nowrap}
+.path{font-family:var(--mono);font-size:.875em;color:var(--accent);font-weight:500;white-space:nowrap}
+.tw{overflow-x:auto;margin:0 0 18px;border:1px solid var(--border);border-radius:7px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.4px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface-2);font-weight:600;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.call{border-left:3px solid var(--accent);background:var(--accent-soft);padding:13px 16px;border-radius:0 6px 6px 0;margin:0 0 18px;max-width:72ch}
+.call.warn{border-color:var(--warn);background:var(--warn-soft)}
+.call.rule{border-color:var(--ok);background:var(--ok-soft)}
+.call.stop{border-color:var(--stop);background:var(--stop-soft)}
+.call.new{border-color:var(--new);background:var(--new-soft)}
+.call p:last-child{margin-bottom:0}
+.call .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;display:block;margin-bottom:5px;color:var(--accent)}
+.call.warn .lbl{color:var(--warn)} .call.rule .lbl{color:var(--ok)}
+.call.stop .lbl{color:var(--stop)} .call.new .lbl{color:var(--new)}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:0 0 18px;font-family:var(--mono);font-size:12px}
+.flow .st{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 10px;white-space:nowrap}
+.flow .st.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.flow .st.bad{background:var(--stop-soft);border-color:var(--stop);color:var(--stop)}
+.flow .st.good{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.flow .ar{color:var(--muted);flex:none}
+.flow .ar small{font-family:var(--body);display:block;font-size:10px;line-height:1}
+.calc{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:16px 18px;margin:0 0 18px;
+  font-family:var(--mono);font-size:13px;overflow-x:auto}
+.calc .eq{color:var(--accent);font-weight:500}
+.calc .cm{color:var(--muted)}
+.err{font-family:var(--mono);font-size:12.5px;color:var(--stop);display:block;margin-bottom:4px}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:99px;
+  border:1px solid var(--border);background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.pill.who{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.pill.todo{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.pill.set{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.roles{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 18px}
+footer{border-top:1px solid var(--border);padding-block:24px 48px;color:var(--muted);font-size:13px}
+a{color:var(--accent)}
+@media (max-width:560px){body{font-size:14.5px}.grid{padding-block:24px 48px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="shell">
+  <header class="masthead">
+    <p class="eyebrow">GDL Fleet Extension &middot; ERPNext 16</p>
+    <h1>GDL Fleet Handbook</h1>
+    <p>How to run the fleet day to day: registering a vehicle, assigning a driver, recording daily kilometres, booking a movement, servicing and paying the workshop, renewals, fuel and mileage, tyres and spare parts.</p>
+    <div class="meta">
+      <span><b>Covers</b> 15 DocTypes, 18 reports, 3 approval workflows</span>
+      <span><b>Currency</b> Ngultrum (Nu.)</span>
+      <span><b>Fleet</b> 14 vehicles across 7 sites &middot; GreenDigital Limited</span>
+      <span><b>Revised</b> 4 November 2026</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <nav class="toc">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#p1"><span class="n">1</span><span>Before you start</span></a></li>
+        <li><a href="#p2"><span class="n">2</span><span>One-time setup</span></a></li>
+        <li><a href="#p3"><span class="n">3</span><span>The vehicle</span></a></li>
+        <li><a href="#p4"><span class="n">4</span><span>Drivers &amp; assignment</span></a></li>
+        <li><a href="#p5"><span class="n">5</span><span>Daily KM</span></a></li>
+        <li><a href="#p6"><span class="n">6</span><span>Service &amp; maintenance</span></a></li>
+        <li><a href="#p7"><span class="n">7</span><span>The service bill</span></a></li>
+        <li><a href="#p8"><span class="n">8</span><span>Insurance &amp; renewals</span></a></li>
+        <li><a href="#p9"><span class="n">9</span><span>Requesting a vehicle</span></a></li>
+        <li><a href="#p10"><span class="n">10</span><span>The movement order</span></a></li>
+        <li><a href="#p11"><span class="n">11</span><span>POL: fuel</span></a></li>
+        <li><a href="#p12"><span class="n">12</span><span>Mileage monitoring</span></a></li>
+        <li><a href="#p13"><span class="n">13</span><span>Parts &amp; tyres</span></a></li>
+        <li><a href="#p14"><span class="n">14</span><span>Reports</span></a></li>
+        <li><a href="#p15"><span class="n">15</span><span>When you're refused</span></a></li>
+        <li><a href="#p16"><span class="n">16</span><span>Reference</span></a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+<!-- 1 -->
+<section id="p1">
+  <h2 class="part"><span class="num">01</span>Before you start</h2>
+  <p class="standfirst">What the system is, who does what, and how to find anything.</p>
+
+  <p>GDL Fleet adds fleet management on top of standard ERPNext 16. It does not
+  replace the standard Vehicle, Driver, Employee, Supplier or Asset records &mdash;
+  it extends them. That matters in one practical way: a vehicle here is the same
+  vehicle the accounts team sees in the General Ledger, so fleet operations and
+  fleet costs never drift apart.</p>
+
+  <h3>Finding your way</h3>
+  <p>Everything lives in one workspace. From the ERPNext home screen open
+  <span class="path">GDL Fleet</span>. The top of the page is the dashboard &mdash;
+  five figures and five charts, described in Part&nbsp;14. Below it, eight cards:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Card</th><th>What is in it</th></tr></thead>
+    <tbody>
+      <tr><td><b>Vehicle Master</b></td><td>Vehicle, Driver, Fleet Vehicle Type, Driver Assignment, Renewal Register</td></tr>
+      <tr><td><b>Movement</b></td><td>Movement Order Request, Movement Order</td></tr>
+      <tr><td><b>Operations</b></td><td>Daily KM / Vehicle Log, POL Abstract</td></tr>
+      <tr><td><b>Service &amp; Maintenance</b></td><td>Asset Maintenance, Asset Maintenance Log, Asset Repair, Vehicle Service Item</td></tr>
+      <tr><td><b>Parts &amp; Tyres</b></td><td>Fleet Part Issue, Vehicle Tyre</td></tr>
+      <tr><td><b>Setup</b></td><td>GDL Fleet Settings, Site (Location), Cost Center, Department</td></tr>
+      <tr><td><b>Reports</b></td><td>All 18 fleet reports</td></tr>
+      <tr><td><b>Standard Accounting Reports</b></td><td>General Ledger, Budget Variance, Profitability Analysis</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Who does what</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Role</th><th>Can do</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill who">Fleet User</span></td><td>Raise a vehicle request. Read reports.</td></tr>
+      <tr><td><span class="pill who">Fleet Driver</span></td><td>Record daily KM. Create and submit a POL abstract. Record a service visit and hand over the workshop's bill &mdash; but not enter its costs.</td></tr>
+      <tr><td><span class="pill who">Fleet Approver</span></td><td><b>The location MTO.</b> Accepts vehicle requests for their own site, allocates the vehicle and driver, and approves the movement order.</td></tr>
+      <tr><td><span class="pill who">Fleet Validator</span></td><td>Not used in the approval chain GDL runs. Kept for the optional five-stage chain.</td></tr>
+      <tr><td><span class="pill who">Fleet Reviewer</span></td><td>As above &mdash; unused unless the five-stage chain is switched on.</td></tr>
+      <tr><td><span class="pill who">Fleet Finance User</span></td><td>As above &mdash; unused unless the five-stage chain is switched on.</td></tr>
+      <tr><td><span class="pill who">Fleet HR Approver</span></td><td>Approve POL abstracts, including mileage deviations.</td></tr>
+      <tr><td><span class="pill who">Fleet Store User</span></td><td>Issue spare parts and tyres.</td></tr>
+      <tr><td><span class="pill who">Fleet Maintenance User</span></td><td>Record services and repairs, <b>and enter the workshop bill and its costs</b>.</td></tr>
+      <tr><td><span class="pill who">Fleet Administrator</span></td><td>Accept requests, raise and dispatch orders, maintain masters and settings.</td></tr>
+      <tr><td><span class="pill who">Fleet Manager</span></td><td>Read everything, including all reports.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call new"><span class="lbl">Fleet roles can use the links on their own forms &mdash; fixed November 2026</span>
+  <p>A Link field is dead to a role that cannot <b>select</b> its target: frappe refuses
+  the lookup before any form filter runs and shows
+  <i>&ldquo;Insufficient Permission for &hellip;&rdquo;</i> with no way forward. This was
+  not one field. A sweep of every editable link on every form each fleet role may fill
+  found <b>21 blocked targets</b>:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Role</th><th>Could not look up</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill who">Fleet Driver</span></td><td>Supplier, Location, Vehicle Service Item (the Service Type on a service line), Movement Order, Task</td></tr>
+      <tr><td><span class="pill who">Fleet User</span> <span class="pill who">Fleet Approver</span></td><td>Location, Cost Center, Project, Department, Task, Employee, Driver, User, Fleet Vehicle Type</td></tr>
+      <tr><td><span class="pill who">Fleet Maintenance User</span></td><td>Supplier, Location, Item, Warehouse, Asset, Account, Company, Purchase Invoice, Serial and Batch Bundle, Expense Claim</td></tr>
+      <tr><td><span class="pill who">Fleet Store User</span></td><td>Location, Item, Warehouse, Driver, Expense Claim, Cost Center, Project</td></tr>
+      <tr><td><span class="pill who">Fleet HR Approver</span></td><td>Supplier, Location, Driver, Cost Center, Project, Department</td></tr>
+    </tbody>
+  </table></div>
+  <p>Each is granted <b>select</b> and nothing else &mdash; the narrow right that lets a
+  field resolve and display a link. It gives no list, report, export, create or write on
+  any of them. Hidden and read-only links were excluded from the sweep: neither opens a
+  lookup, so neither earns a permission.</p>
+  <p>A test now asserts the rule rather than the symptoms &mdash; it covers 200 role and
+  link combinations and fails the day a link is added to a fleet form without the
+  matching grant.</p>
+  <p class="pill">Worth knowing: granting anything on a standard doctype makes frappe
+  copy its shipped permissions into Custom DocPerm and read those from then on, so a
+  future ERPNext change to the <i>standard</i> permissions of these doctypes will not
+  reach this site. <span class="f">frappe.permissions.reset_perms(doctype)</span> undoes
+  that for any one of them.</p></div>
+
+  <h3>One manager per location</h3>
+  <p>Every site has a named <b>MTO</b> who approves that site's vehicle requests, and
+  one of them &mdash; the <b>Head Office MTO</b> &mdash; is the final authority. The
+  distinction matters:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Who</th><th>May approve</th></tr></thead>
+    <tbody>
+      <tr><td>The MTO for a site</td><td>Requests for <b>that site only</b>. Try to approve another site's request and you are refused by name.</td></tr>
+      <tr><td>The Head Office MTO</td><td><b>Any site.</b> Final authority, and the cover when a site's own MTO is away.</td></tr>
+    </tbody>
+  </table></div>
+  <p>This is <i>one</i> approval, not two. Head Office having the right to approve
+  everywhere does not mean Head Office has to approve anything. The list of sites and
+  managers lives in <span class="path">GDL Fleet Settings &rsaquo; Location Managers (MTO)</span>.</p>
+
+  <div class="call"><span class="lbl">Three habits worth forming</span>
+  <p><b>Submit, don't just save.</b> A saved record is a draft and counts for nothing.<br>
+  <b>Never delete to correct.</b> Cancel and amend, so the history survives.<br>
+  <b>Read the red box.</b> Every refusal names the record it is protecting. Part 15 lists them all.</p></div>
+</section>
+
+<!-- 2 -->
+<section id="p2">
+  <h2 class="part"><span class="num">02</span>One-time setup</h2>
+  <p class="standfirst">Done once by the Fleet Administrator. Most of it is already in place; five settings are still blank and are listed at the end.</p>
+  <div class="roles"><span class="pill who">Fleet Administrator</span></div>
+
+  <p>Open <span class="path">Setup &rsaquo; GDL Fleet Settings</span>. Nothing in this
+  system hard-codes a threshold &mdash; every number below is yours to change, and it
+  takes effect immediately.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Setting</th><th class="n">Set to</th><th>Controls</th></tr></thead>
+    <tbody>
+      <tr><td colspan="3"><b>Renewal alerts</b></td></tr>
+      <tr><td>First / Second / Third / Final reminder</td><td class="n">14 / 3 / 0 / 0</td><td>The warning ladder before a policy expires. <b>0 switches a rung off.</b></td></tr>
+      <tr><td>Abnormal Daily KM Threshold</td><td class="n">500</td><td>A daily log above this warns. It does not block.</td></tr>
+      <tr><td colspan="3"><b>Preventive maintenance</b></td></tr>
+      <tr><td>Maintenance Rules</td><td class="n">12 items</td><td>Service intervals in km and months.</td></tr>
+      <tr><td>Notify Days / KM Before Due</td><td class="n">14 / 500</td><td>How early a service shows as due.</td></tr>
+      <tr><td>Default Maintenance Team</td><td class="n"><b>blank</b></td><td>Who a preventive maintenance plan is assigned to. Needed before one can be raised.</td></tr>
+      <tr><td colspan="3"><b>POL</b></td></tr>
+      <tr><td>Performance Display Precision</td><td class="n">2</td><td>Decimals shown for KM/L. The accurate value is always stored in full.</td></tr>
+      <tr><td>Enforce Unique Supply Memo No.</td><td class="n">on</td><td>Blocks the same memo on two abstracts for one vehicle.</td></tr>
+      <tr><td>Carry Forward Opening KM / Tank Balance</td><td class="n">on</td><td>Suggests opening figures from the last abstract.</td></tr>
+      <tr><td>Carry Forward Fuel Book Balance</td><td class="n">on</td><td>Unspent coupon becomes the next abstract's opening balance. See Part 11.</td></tr>
+      <tr><td>Require the Supplier Bill Attachment</td><td class="n">on</td><td>An abstract cannot leave Draft without the supplier's bill. See Part 11.</td></tr>
+      <tr><td colspan="3"><b>Mileage monitoring</b></td></tr>
+      <tr><td>Mileage Deviation Tolerance</td><td class="n">10 %</td><td>How far actual KM/L may differ from target <b>in either direction</b>.</td></tr>
+      <tr><td>Deviation Requires HR Approval</td><td class="n">on</td><td>Holds an abstract until a reason is given.</td></tr>
+      <tr><td>Tyre Target / Tolerance</td><td class="n">20,000 km / 20 %</td><td>Acceptable tyre life.</td></tr>
+      <tr><td colspan="3"><b>Approvals and location managers</b></td></tr>
+      <tr><td>Movement Order Approval</td><td class="n">Simple</td><td>User applies, the site MTO approves. <b>Full (Five Stage)</b> restores the longer chain.</td></tr>
+      <tr><td>Only the Location MTO May Approve</td><td class="n">on</td><td>A request is approved by the manager named for its site, or by the head office MTO.</td></tr>
+      <tr><td>Location Managers (MTO)</td><td class="n">7 rows</td><td>One requester and one MTO per site. See Part 16.</td></tr>
+      <tr><td colspan="3"><b>Booking (OFMS)</b></td></tr>
+      <tr><td>Minimum Booking Lead Time</td><td class="n">24 hours</td><td>Notice required on a vehicle request.</td></tr>
+      <tr><td>Action Inside Lead Time</td><td class="n">Require Reason</td><td>Warn, Require Reason, or Block.</td></tr>
+      <tr><td>Emergency Bypasses Lead Time</td><td class="n">on</td><td>An emergency may be booked at any notice.</td></tr>
+      <tr><td colspan="3"><b>POL accounting</b></td></tr>
+      <tr><td>BOD / STCBL Supplier</td><td class="n"><b>blank</b></td><td>Who the fuel claim is invoiced to. No claim can be raised until both exist as Suppliers and are named here.</td></tr>
+      <tr><td>Fuel Expense Account by Company</td><td class="n">1 row</td><td>Which account fuel is charged to, <b>per company</b>. See below.</td></tr>
+      <tr><td>Fuel Expense Account (Fallback)</td><td class="n">empty</td><td>Used only for a company with no row in the table.</td></tr>
+      <tr><td>Raise Fuel Invoice Automatically</td><td class="n">off</td><td>Leave off to raise the claim by hand.</td></tr>
+      <tr><td colspan="3"><b>Fleet purchasing</b></td></tr>
+      <tr><td>Raise Purchasing Document on Bill Approval</td><td class="n">off</td><td>Switched off November 2026. A service bill is a number on the record, not a purchase order. See Part 7.</td></tr>
+      <tr><td>Document to Raise</td><td class="n">Purchase Invoice</td><td>Or Purchase Order then Invoice.</td></tr>
+      <tr><td>Require the Bill Attachment</td><td class="n">on</td><td>No service bill without a scan of the workshop's invoice.</td></tr>
+      <tr><td>Purchasing Company &middot; Service Item &middot; Approver Role &middot; Notify Role</td><td class="n"><b>blank</b></td><td>Only needed if GDL ever switches purchasing back on. Nothing is waiting on them today.</td></tr>
+      <tr><td colspan="3"><b>Insurance renewal purchasing</b></td></tr>
+      <tr><td>Raise Purchase Order When Insurance Expires</td><td class="n">off</td><td>Off until GDL decides to automate renewals.</td></tr>
+      <tr><td>Renewal Item &middot; Default Insurance Supplier</td><td class="n"><b>blank</b></td><td>Needed before the automation can run.</td></tr>
+      <tr><td>Raise Renewal PO This Many Days Before Expiry</td><td class="n">0</td><td>0 means on the expiry date itself.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call stop"><span class="lbl">What is still blank on this system</span>
+  <p>None of these is a fault. They are decisions and master data that belong to GDL,
+  and each one holds up the process beside it. The maintenance purchasing settings are
+  no longer among them: purchasing was switched <b>off</b> in November 2026, so a
+  service record no longer waits on any of them.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Blank setting</th><th>What it holds up</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f">Bill Approver Role</span></td><td>Nothing, now. Bill approval is off &mdash; see Part 7.</td></tr>
+      <tr><td><span class="f">Purchasing Company</span> &middot; <span class="f">Maintenance Service Item</span> &middot; <span class="f">Notify Role</span></td><td>Nothing, now. They would only be needed if maintenance purchasing were switched back on.</td></tr>
+      <tr><td><span class="f">BOD Supplier</span> &middot; <span class="f">STCBL Supplier</span></td><td>Now set &mdash; <b>BOD</b> and <b>STCBL</b>. Both fuel providers are offered on a POL line, and a line naming any other supplier is refused on save. That rule was inert while STCBL was blank.</td></tr>
+      <tr><td><span class="f">Default Maintenance Team</span></td><td>Preventive maintenance plans cannot be raised.</td></tr>
+      <tr><td><span class="f">Insurance Renewal Item</span> &middot; <span class="f">Default Insurance Supplier</span></td><td>Only matters if renewal purchasing is switched on. It is off.</td></tr>
+    </tbody>
+  </table></div></div>
+
+  <div class="call new"><span class="lbl">Fuel accounts are set per company</span>
+  <p>An account in ERPNext belongs to exactly one company, and a fuel claim is raised
+  in the company that owns the <i>vehicle</i>. A single global account could therefore
+  never serve a group running more than one company &mdash; which is what produced the
+  <i>Invalid Account</i> error GDL hit earlier.</p>
+  <p>Every company that owns a vehicle gets its own row. On this system that is one:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Company</th><th>Fuel Expense Account</th></tr></thead>
+    <tbody>
+      <tr><td>GreenDigital Limited</td><td><code>55193 - Vehicle (Petroleum, Oil &amp; Lubricants) - GDL</code></td></tr>
+    </tbody>
+  </table></div>
+  <p>Add a row the day a second company acquires a vehicle. The fallback field below
+  the table is used only for a company with no row of its own.</p>
+  <p>Two kinds of account are refused the moment you save, rather than when
+  somebody later tries to raise a claim: a <b>group</b> account, which nothing can
+  ever be posted to, and an account belonging to a <b>different company</b> from the
+  one on its row.</p></div>
+
+  <div class="call warn"><span class="lbl">The Chairman's Office split</span>
+  <p>GDL's chart also carries a separate <i>Vehicle (POL) &mdash; Chairman's Office</i>
+  account, and <i>Fuel Allowance</i> accounts that sit under Salaries and Compensation
+  rather than Office Expenses. Every vehicle currently posts to the general POL account.
+  If the Chairman's vehicles are meant to be charged separately, that is a change
+  worth making deliberately.</p></div>
+
+  <h3>The maintenance rules</h3>
+  <p>Twelve items ship configured. Each sets an interval in kilometres, in months,
+  or both &mdash; <b>whichever falls first</b> makes the service due.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Item</th><th class="n">Every</th><th class="n">Or every</th></tr></thead>
+    <tbody>
+      <tr><td>Engine Oil &middot; Engine Oil Filter</td><td class="n">7,500 km</td><td class="n">6 months</td></tr>
+      <tr><td>Fuel Filter &middot; Air Filter</td><td class="n">10,000 km</td><td class="n">12 months</td></tr>
+      <tr><td>Tyre Replacement / Rotation</td><td class="n">20,000 km</td><td class="n">24 months</td></tr>
+      <tr><td>Brake Pads</td><td class="n">30,000 km</td><td class="n">24 months</td></tr>
+      <tr><td>Brake Fluid &middot; Gear Oil &middot; Coolant</td><td class="n">40,000 km</td><td class="n">24 months</td></tr>
+      <tr><td>Battery Replacement</td><td class="n">&mdash;</td><td class="n">36 months</td></tr>
+      <tr><td>General Inspection</td><td class="n">&mdash;</td><td class="n">6 months</td></tr>
+      <tr><td>Other Repair or Maintenance</td><td class="n">&mdash;</td><td class="n">&mdash;</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 3 -->
+<section id="p3">
+  <h2 class="part"><span class="num">03</span>The vehicle</h2>
+  <p class="standfirst">The permanent record: identity, capacity, ownership, status and fuel target.</p>
+  <div class="roles"><span class="pill who">Fleet Administrator</span></div>
+
+  <div class="call new"><span class="lbl">The fleet is already loaded</span>
+  <p>All <b>14 vehicles</b> are registered to <b>GreenDigital Limited</b> across Head
+  Office, Jamjee, Dochula, Dagapela, Gedu, Samcholing and Jigmeling, each with its
+  minimum KM/L from the mileage chart. Three things still need you:
+  <b>odometers all start at 0</b> and will be set by the first daily log or POL
+  abstract; chassis numbers, engine numbers and acquisition dates are blank pending
+  the registration documents; and <b>no drivers are on the system yet</b>, so no
+  movement order or fuel abstract can name one.</p></div>
+
+  <h3>Registering a new vehicle</h3>
+  <ol class="steps">
+    <li>Open <span class="path">Vehicle Master &rsaquo; Vehicle</span> and click <b>Add Vehicle</b>.</li>
+    <li>Enter the <span class="f">Registration Number</span> &mdash; this names the record and cannot be changed, so enter it exactly as on the certificate, e.g. <code>BG-1-A2397</code>.</li>
+    <li>Fill <span class="f">Make</span>, <span class="f">Model</span> and <span class="f">Vehicle Type</span> (Car, SUV, Bus, Truck, Utility).</li>
+    <li>Set <span class="f">Ownership Type</span>. For Leased or Rented, name the <span class="f">Lessor / Rental Supplier</span>.</li>
+    <li>Enter <span class="f">Opening Odometer</span>, <span class="f">Engine No</span>, <span class="f">Chassis No</span>, <span class="f">Manufacturing Year</span>, <span class="f">Capacity</span> and <span class="f">Capacity UOM</span>.</li>
+    <li>Set <span class="f">Minimum Required Mileage (KM/L)</span> &mdash; the fuel target this vehicle is held to. See Part 12.</li>
+    <li>Set the <span class="f">Site</span>, plus <span class="f">Department</span>, <span class="f">Cost Center</span> and <span class="f">Project</span> if it belongs to one.</li>
+    <li><b>Save</b>. A <span class="f">Vehicle ID</span> such as <code>GDL-VEH-00003</code> is allotted and never changes.</li>
+  </ol>
+
+  <h3>Vehicle status</h3>
+  <p><span class="f">Vehicle Status</span> is read-only because the system maintains it.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Active</b></td><td>In service and available for a movement order.</td></tr>
+      <tr><td><b>Under Maintenance</b></td><td>With the workshop. Cannot be dispatched.</td></tr>
+      <tr><td><b>Unavailable</b></td><td>Off the road for any other reason.</td></tr>
+      <tr><td><b>Disposed</b></td><td>Sold, written off or returned to the lessor.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="call"><span class="lbl">Why "booked" is not a status</span>
+  <p>Whether a vehicle is booked right now is worked out from its movement orders,
+  not stored. That way a booking and the vehicle record can never disagree. To see
+  what is free, run <b>Vehicle Availability</b>.</p></div>
+</section>
+
+<!-- 4 -->
+<section id="p4">
+  <h2 class="part"><span class="num">04</span>Drivers &amp; assignment</h2>
+  <p class="standfirst">A dated history of who drove which vehicle, kept rather than overwritten &mdash; and the driver's own staff record carried through to every document.</p>
+  <div class="roles"><span class="pill who">Fleet Administrator</span></div>
+
+  <h3>Linking a driver to their staff record</h3>
+  <p>Open the <span class="path">Driver</span> record and set <span class="f">Employee</span>.
+  This single link is what lets the fleet documents show who the driver actually is.
+  Wherever a driver is named, the system now fills in, without being asked:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Document</th><th>Fills in</th></tr></thead>
+    <tbody>
+      <tr><td>Driver Assignment</td><td>Employee, Location, Licence No.</td></tr>
+      <tr><td>Movement Order</td><td>Driver's Employee, Driver's Licence No.</td></tr>
+      <tr><td>POL Abstract</td><td>Driver's Employee, Driver's Licence No.</td></tr>
+      <tr><td>Fleet Part Issue</td><td>Driver's Employee, Driver's Licence No.</td></tr>
+      <tr><td>Asset Maintenance Log</td><td>Driver's Employee</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call warn"><span class="lbl">"Employee" means three different things</span>
+  <p>This catches people out, so it is worth stating plainly:</p>
+  <ul>
+    <li><span class="f">Driver Assignment.Employee</span> is <b>the driver's</b> staff record.</li>
+    <li><span class="f">Movement Order Request.Employee</span> is <b>the requester's</b> &mdash; the person who wants the vehicle, who is usually not the driver.</li>
+    <li><span class="f">Vehicle Log.Employee</span> comes from the <b>vehicle's</b> responsible employee, which may be neither.</li>
+  </ul>
+  <p>Fields that hold the driver's own record are named <span class="f">Driver's
+  Employee</span> for exactly this reason. When you are reading a report or writing a
+  filter, check which of the three you mean.</p></div>
+
+  <div class="call"><span class="lbl">If a fetched value looks wrong</span>
+  <p>These fields re-read the driver record every time the document is saved, so
+  changing a driver's employee link corrects every draft document that names them.
+  You do not have to hunt down and fix each one. Submitted documents keep the value
+  they were approved with.</p></div>
+
+  <h3>Assigning a driver to a vehicle</h3>
+  <ol class="steps">
+    <li>Open <span class="path">Vehicle Master &rsaquo; Driver Assignment</span>.</li>
+    <li>Choose the <span class="f">Vehicle</span> and <span class="f">Driver</span>. The employee, location and licence number fill in.</li>
+    <li>Set the <span class="f">Purpose</span>.</li>
+    <li>Pick the <span class="f">Assignment Type</span>:
+      <ul>
+        <li><b>Primary</b> &mdash; the regular driver</li>
+        <li><b>Temporary</b> &mdash; standing in for a defined spell</li>
+        <li><b>Relief</b> &mdash; covering a shift or single trip</li>
+      </ul>
+    </li>
+    <li>Enter the <span class="f">From Date</span>. Leave <span class="f">To Date</span> empty for open-ended.</li>
+    <li><b>Submit</b>. The vehicle's assigned driver updates to match.</li>
+  </ol>
+
+  <div class="call rule"><span class="lbl">The one rule</span>
+  <p>A vehicle may have only <b>one Primary driver at a time</b>. Overlapping dates are
+  refused with <i>"Vehicle &hellip; already has a primary driver &hellip; for an
+  overlapping period"</i>. Temporary and Relief may overlap &mdash; that is the point of
+  them.</p></div>
+
+  <p><b>Handing over:</b> do not edit the old assignment. Set a <span class="f">To
+  Date</span> on it and create a new one starting the next day. Both records remain,
+  and <b>Driver Assignment History</b> shows the chain &mdash; which is what you need when
+  a penalty or accident has to be traced to whoever was driving.</p>
+</section>
+
+<!-- 5 -->
+<section id="p5">
+  <h2 class="part"><span class="num">05</span>Daily KM</h2>
+  <p class="standfirst">One record per vehicle per day. Everything downstream rests on this.</p>
+  <div class="roles"><span class="pill who">Fleet Driver</span><span class="pill who">Fleet Administrator</span></div>
+
+  <ol class="steps">
+    <li>Open <span class="path">Operations &rsaquo; Daily KM / Vehicle Log</span>.</li>
+    <li>Select the <span class="f">Vehicle</span>. <span class="f">Opening Odometer</span> fills in from the last reading.</li>
+    <li>Set the <span class="f">Date</span>.</li>
+    <li>Enter the <span class="f">Closing Odometer</span>. <span class="f">Distance Travelled</span> calculates itself.</li>
+    <li>Enter <span class="f">Place to Travel</span> &mdash; required. Add start location and destination if useful.</li>
+    <li>Link the <span class="f">Movement Order</span> if the day's running was against one; the driver is then taken from it.</li>
+    <li>Set <span class="f">Usage</span> and any dimensions &mdash; Site, Department, Cost Center, Project.</li>
+    <li><b>Submit</b>. The vehicle's current odometer moves to the closing reading.</li>
+  </ol>
+
+  <div class="call warn"><span class="lbl">Two guards you will meet</span>
+  <p><b>One record per vehicle per day.</b> A second log for the same vehicle and date
+  is refused &mdash; edit the existing one. A log attached to a movement order is treated
+  separately, so two distinct movements in one day can still be recorded.</p>
+  <p><b>Unusually high mileage.</b> Above 500 km you get a warning asking you to
+  re-check the reading, then it lets you proceed.</p></div>
+
+  <div class="call"><span class="lbl">If you cancel a log</span>
+  <p>The odometer is recalculated from whatever readings remain, rather than having
+  the distance subtracted. Cancelling an old log cannot drag the odometer back past
+  a newer reading.</p></div>
+</section>
+
+<!-- 6 -->
+<section id="p6">
+  <h2 class="part"><span class="num">06</span>Service &amp; maintenance</h2>
+  <p class="standfirst">Planned servicing and unplanned repairs, both against the vehicle and its odometer.</p>
+  <div class="roles"><span class="pill who">Fleet Maintenance User</span></div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Use</th><th>When</th><th>Carries</th></tr></thead>
+    <tbody>
+      <tr><td><b>Asset Maintenance Log</b></td><td>Routine and corrective servicing</td><td>Several service items in one visit, each with part, quantity and cost &mdash; plus the workshop's invoice number and a scan of it.</td></tr>
+      <tr><td><b>Asset Repair</b></td><td>Breakdown, accident, corrective job</td><td>One service type, downtime, and cost from the parts consumed.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call new"><span class="lbl">The form was cut back &mdash; November 2026</span>
+  <p>The service record now holds exactly what the final document asks for in
+  &sect;2.1.1.4, and nothing else. Twenty-four fields came off the screen: fourteen
+  belonged to ERPNext's own asset-maintenance machinery (Asset Maintenance, Task,
+  Periodicity, Certificate and the rest), and ten were a service-bill approval and
+  purchasing chain the document never asked for.</p>
+  <p>Nothing was deleted. Every field keeps its data and its code, and any of them can
+  be put back. They are simply off the form until GDL asks for them.</p></div>
+
+  <h3>What is on the form</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Section</th><th>Fields</th></tr></thead>
+    <tbody>
+      <tr><td><b>Top</b></td><td><span class="f">Vehicle</span> (required) &middot; <span class="f">Location</span></td></tr>
+      <tr><td><b>Service Details</b></td><td><span class="f">Status</span> &middot; <span class="f">Service Date</span> &middot; <span class="f">Odometer Reading</span> &middot; <span class="f">Service Provider</span><br>
+        <span class="f">Labour Cost</span> &middot; <span class="f">Parts Cost</span> &middot; <span class="f">Total Cost</span> &middot; <span class="f">Cost Center</span> &middot; <span class="f">Project</span> &middot; <span class="f">Next Service Date</span> &middot; <span class="f">Next Service KM</span></td></tr>
+      <tr><td><b>Service Items</b></td><td>One row per job: <span class="f">Service Type</span> &middot; <span class="f">Quantity</span> &middot; <span class="f">Part / Material Used</span> &middot; <span class="f">Cost</span></td></tr>
+      <tr><td><b>Service Description</b></td><td>Free text &mdash; what was actually done.</td></tr>
+      <tr><td><b>Service Bill</b></td><td><span class="f">Driver</span> &middot; <span class="f">Invoice / Reference No</span> &middot; <span class="f">Bill Date</span> &middot; <span class="f">Bill Attachment</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Recording a service</h3>
+  <ol class="steps">
+    <li>Open <span class="path">Service &amp; Maintenance &rsaquo; Asset Maintenance Log</span>.</li>
+    <li>Select the <span class="f">Vehicle</span> &mdash; now required &mdash; and the <span class="f">Location</span> it was serviced at.</li>
+    <li>Set <span class="f">Service Date</span> and the <span class="f">Odometer Reading</span> at service, and name the <span class="f">Service Provider</span>.</li>
+    <li>In <b>Service Items</b>, add a row per job done &mdash; <span class="f">Service Type</span>, quantity, the part or material used, and its cost.</li>
+    <li>Enter <span class="f">Labour Cost</span>. <span class="f">Parts Cost</span> and <span class="f">Total Cost</span> add themselves up.</li>
+    <li>Set <span class="f">Cost Center</span> or <span class="f">Project</span> if the expense belongs to one.</li>
+    <li>Check <span class="f">Next Service Date</span> and <span class="f">Next Service KM</span>, worked out from the maintenance rules in Part 2.</li>
+    <li>Write what was done in <b>Service Description</b>.</li>
+    <li>If an outside workshop did the work, fill the <b>Service Bill</b> section &mdash; see Part 7.</li>
+    <li><b>Submit</b>.</li>
+  </ol>
+
+  <div class="call rule"><span class="lbl">Why the Vehicle is now required</span>
+  <p>A service record with no vehicle joins no service history and appears on no due
+  list. It was possible to save one. It is not any more.</p></div>
+
+  <p>For a repair, use <span class="path">Asset Repair</span> with the
+  <span class="f">Repair / Failure Date</span>, <span class="f">Maintenance Category</span>
+  (Corrective, Preventive, Accident) and the parts consumed. The repair cost is
+  derived by ERPNext from those parts and the invoices, so it is not typed in.</p>
+
+  <p>To stay ahead, run <b>Service Due</b> &mdash; it lists everything approaching by date
+  or kilometres and highlights overdue items. Notifications also go out 14 days
+  before and the day after a service is missed.</p>
+</section>
+
+<!-- 7 -->
+<section id="p7">
+  <h2 class="part"><span class="num">07</span>The service bill</h2>
+  <p class="standfirst">A vehicle goes to an outside workshop and comes back with a bill. The bill number, its date and a scan of it live on the same service record as the work.</p>
+  <div class="roles"><span class="pill who">Fleet Maintenance User</span><span class="pill who">Fleet Administrator</span></div>
+
+  <div class="call new"><span class="lbl">Simplified &mdash; November 2026</span>
+  <p>This part used to describe a four-step chain: submit the bill, have it approved by
+  a Bill Approver, raise a Purchase Order and Invoice from the approval, then watch the
+  payment status. The final document asks for an <b>Invoice/Reference No</b> on the
+  service record &mdash; not a procurement chain &mdash; so the chain is switched off.</p>
+  <p>It could not run anyway. Raising a purchase document needs a <span class="f">Purchasing
+  Company</span> and a <span class="f">Maintenance Service Item</span>, and neither has ever
+  been set, so every completed service stopped at <i>Purchasing: Pending</i> with an error
+  nobody could clear. One record on staging was sitting there; it has been cleared.</p>
+  <p><b>Nothing was deleted.</b> The fields, the approval code and the purchasing code are
+  all still in place. Switching <span class="f">Raise Purchasing Document on Bill
+  Approval</span> back on in GDL Fleet Settings, with those two settings filled in,
+  brings the whole chain back.</p></div>
+
+  <h3>Recording the bill</h3>
+  <ol class="steps">
+    <li>Open the maintenance log for that visit.</li>
+    <li>Set the <span class="f">Service Provider</span> &mdash; the workshop, as a Supplier.</li>
+    <li>In <b>Service Bill</b>, name the <span class="f">Driver</span> who took the vehicle in. Their employee record fills itself.</li>
+    <li>Enter the <span class="f">Invoice / Reference No</span> and <span class="f">Bill Date</span> exactly as printed.</li>
+    <li>Attach a scan or photograph in <span class="f">Bill Attachment</span>.</li>
+    <li>Enter <span class="f">Labour Cost</span> and the per-item costs in <b>Service Items</b>. <span class="f">Total Cost</span> adds itself up.</li>
+    <li><b>Submit</b>.</li>
+  </ol>
+
+  <div class="call rule"><span class="lbl">The invoice number is asked for once</span>
+  <p>It used to appear both on the record and on every service line. There is one
+  <span class="f">Invoice / Reference No</span> now, on the record.</p></div>
+
+  <div class="call warn"><span class="lbl">Who may enter costs</span>
+  <p>A Fleet Driver can record <b>the service</b> &mdash; vehicle, odometer, date and the
+  work done &mdash; but the cost and bill fields sit above a driver's permission level
+  and are greyed out for them. The person who took the vehicle in is not the person
+  who records what it cost. That separation is deliberate and is unchanged.</p></div>
+
+  <h3>Paying it</h3>
+  <div class="roles"><span class="pill who">Accounts</span></div>
+  <p>Accounts raise the Purchase Invoice for the workshop in the normal way, outside
+  the fleet module, and pay it through a Payment Entry. The service record carries the
+  bill number, the date, the scan and the cost, which is what Accounts need to match
+  it &mdash; and what the final document asks the record to hold.</p>
+</section>
+
+<!-- 8 -->
+<section id="p8">
+  <h2 class="part"><span class="num">08</span>Insurance &amp; renewals</h2>
+  <p class="standfirst">Every policy and certificate, history kept, five reminders &mdash; and optionally a purchase order when one expires.</p>
+  <div class="roles"><span class="pill who">Fleet Administrator</span></div>
+
+  <ol class="steps">
+    <li>Open <span class="path">Vehicle Master &rsaquo; Renewal Register</span>.</li>
+    <li>Choose the <span class="f">Renewal Type</span>: Insurance, Registration, Fitness, Emission, Permit, Road Tax or Other.</li>
+    <li>Select the <span class="f">Vehicle</span> and <span class="f">Location</span>, and enter the <span class="f">Policy / Certificate No.</span></li>
+    <li>Name the <span class="f">Provider / Authority</span>, and link the <span class="f">Supplier</span> if the premium is paid through accounts.</li>
+    <li>Enter the <span class="f">Premium / Fee</span>, <span class="f">Effective From</span> and <span class="f">Expiry Date</span>.</li>
+    <li>Attach the scanned certificate and <b>Submit</b>.</li>
+  </ol>
+
+  <div class="call rule"><span class="lbl">Renewing</span>
+  <p><b>Do not edit the old record.</b> Create a new entry for the new period and set
+  <span class="f">Previous Renewal</span> to the one it replaces. The old record is
+  marked <b>Renewed</b> with its particulars untouched, so the history stands up to
+  audit.</p></div>
+
+  <div class="flow">
+    <span class="st on">Valid</span><span class="ar">&rarr;</span>
+    <span class="st">Due Soon</span><span class="ar">&rarr;</span>
+    <span class="st bad">Expired</span>
+    <span class="ar" style="margin-left:12px">or&nbsp;&rarr;</span><span class="st good">Renewed</span>
+  </div>
+
+  <p>Reminders go out at <b>14 days</b> and <b>3 days</b> before expiry, and again the
+  day after it lapses &mdash; the schedule GDL asked for. Two further rungs exist and
+  ship switched off; set <span class="f">Third Reminder</span> or
+  <span class="f">Final Reminder</span> to any number of days to turn them on, or back
+  to <b>0</b> to silence them again. Driving licence expiry is tracked the same way.
+  For the whole picture, run <b>Insurance / Renewal Due</b>.</p>
+
+  <h3>Raising the renewal order automatically</h3>
+  <p>A daily job can raise a Purchase Order for each insurance policy reaching
+  expiry, so the renewal is in the buying system before the cover lapses. It is
+  <b>switched off</b>, and needs three things before it can be switched on:</p>
+  <ol class="steps">
+    <li>Set <span class="f">Insurance Renewal Item</span> &mdash; the item code a premium is charged against.</li>
+    <li>Set <span class="f">Default Insurance Supplier</span>, used when the policy itself does not name one.</li>
+    <li>Set <span class="f">Raise Renewal PO This Many Days Before Expiry</span>. It is 0, meaning on the expiry date itself; a week or two of notice is usually more useful.</li>
+    <li>Tick <span class="f">Raise Purchase Order When Insurance Expires</span>.</li>
+  </ol>
+
+  <p>Once on, each policy picked up gets a Purchase Order carrying the vehicle, its
+  cost centre and project, and the record shows the order number together with a
+  <span class="f">Purchasing Status</span> and note, exactly as a service bill does.
+  A policy that already has a live order is skipped rather than ordered twice.</p>
+
+  <div class="call"><span class="lbl">An expired policy still orders</span>
+  <p>If a policy expired before anyone noticed, the renewal order is dated today
+  rather than in the past &mdash; a required-by date in the past would be refused by
+  ERPNext. The order still goes out; it is simply dated when it was actually raised.</p></div>
+</section>
+
+<!-- 9 -->
+<section id="p9">
+  <h2 class="part"><span class="num">09</span>Requesting a vehicle</h2>
+  <p class="standfirst">An employee asks; transport accepts or rejects.</p>
+  <div class="roles"><span class="pill who">Fleet User</span><span class="pill who">Fleet Administrator</span></div>
+
+  <div class="flow">
+    <span class="st on">Draft</span><span class="ar">&rarr;<small>submit</small></span>
+    <span class="st">Pending Review</span><span class="ar">&rarr;<small>accept</small></span>
+    <span class="st good">Accepted</span>
+    <span class="ar" style="margin-left:14px">or&nbsp;&rarr;</span><span class="st bad">Rejected</span>
+  </div>
+
+  <ol class="steps">
+    <li>Open <span class="path">Movement &rsaquo; Movement Order Request</span>. It is numbered <code>MOR-2026-00001</code>.</li>
+    <li>Your name fills in as requester. Add <span class="f">Employee</span> &mdash; <b>the person travelling</b>, not a driver &mdash; and the <span class="f">Department</span> fills in from it.</li>
+    <li>Set the <span class="f">Site</span>, <span class="f">Project</span>, <span class="f">Task</span> and <span class="f">Cost Center</span> the trip belongs to.</li>
+    <li>Describe the <span class="f">Purpose</span>, and set <span class="f">Usage</span> and <span class="f">Priority</span> (Routine, Critical Business, Emergency).</li>
+    <li>Enter the <span class="f">Passenger Count</span> and <span class="f">Required Vehicle Type</span>. You ask for a <i>type</i>, not a particular vehicle.</li>
+    <li>If you already know who is travelling, name them in <b>Passengers / Officials</b>. It is optional &mdash; book first and name them later if you must &mdash; but anyone you list carries through to the movement order, so nobody retypes it.</li>
+    <li>Set the travel and return date and time, the <span class="f">Pickup Location</span> and <span class="f">Destination</span>.</li>
+    <li>Click <b>Submit for Review</b>.</li>
+  </ol>
+
+  <div class="call new"><span class="lbl">Give at least 24 hours notice</span>
+  <p>The system measures the notice you give and records it as
+  <span class="f">Lead Time Given</span>. Inside <b>24 hours</b> you must enter a
+  <span class="f">Short-Notice Reason</span> so the approver can judge it. Marking the
+  request <b>Emergency</b> bypasses the rule entirely.</p>
+  <p>Requests are also given an <span class="f">Allocation Priority</span> &mdash; lower is
+  served first. Urgency decides it first; the notice you gave breaks ties, so of two
+  equally urgent requests the one booked further ahead wins.</p></div>
+
+  <h3>Reviewing a request</h3>
+  <div class="roles"><span class="pill who">Fleet Approver</span> &mdash; the MTO for that site</div>
+  <ol class="steps">
+    <li>Open the request from <b>Movement Request Status</b> or your notifications.</li>
+    <li>Click <b>Check Availability</b> to list vehicles of that type free for the window,
+      then <b>click the row</b> of the one you want &mdash; it fills
+      <span class="f">Assigned Vehicle</span> for you.</li>
+    <li>Or pick it straight from <span class="f">Assigned Vehicle</span>: the dropdown now
+      offers only vehicles free for this window, at your own location.</li>
+    <li>Set the <span class="f">Assigned Driver</span>.</li>
+    <li>Add <span class="f">Approver Remarks</span>, then click <b>Accept</b> &mdash; or <b>Reject</b>, always with a reason, since the requester sees it.</li>
+  </ol>
+  <p>The vehicle and driver stay editable after acceptance, so a last-minute swap
+  does not mean starting again. <span class="f">Assigned By</span> and
+  <span class="f">Assigned On</span> record who made the call and when.</p>
+
+  <div class="call new"><span class="lbl">You are offered your own location's fleet &mdash; November 2026</span>
+  <p>Two things used to be wrong with <span class="f">Assigned Vehicle</span>. It offered
+  every vehicle in the company, and it filtered on vehicle status alone &mdash; so a
+  vehicle already booked for your window was offered, and you only found out when the
+  save was refused. <b>Check Availability</b> knew better; the field beside it did not.</p>
+  <p>The dropdown now runs the same availability rules as that button, and shows only
+  vehicles at a location you draw on. A user at Head Office is offered Head Office's
+  vehicles; a user at Gedu is offered Gedu's.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Who</th><th>Is offered</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill who">Head Office MTO</span></td><td><b>Every location.</b> The final authority approves anywhere &mdash; that is what the seat is for.</td></tr>
+      <tr><td><span class="pill who">Fleet Administrator</span> <span class="pill who">System Manager</span></td><td>Every location.</td></tr>
+      <tr><td>A location's MTO</td><td>That location, from the <b>Location Officers</b> table in GDL Fleet Settings. Nothing to configure &mdash; they are already named there.</td></tr>
+      <tr><td>Anyone else</td><td>The location on their <b>User Permission</b>. This is standard frappe, set in the desk under <span class="path">User Permission</span>, and it is where a requester's site comes from.</td></tr>
+      <tr><td>A user with no location at all</td><td>Everything. A site list is a filter on a dropdown, not a security boundary, and an empty vehicle field for everyone not yet mapped would stop the fleet working.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="pill">A group location stands for the depots beneath it, so somebody mapped
+  to a region reaches every site inside it.</p>
+  <p class="pill">The clash rule has not moved: whatever the dropdown offers, a vehicle
+  already booked for that window is still refused on save, before and after acceptance.</p></div>
+
+  <div class="call warn"><span class="lbl">Only the site's own MTO may accept</span>
+  <p>Allocating a vehicle and accepting a request are reserved for the manager named
+  for that site, or for the Head Office MTO. Anyone else is refused, and the message
+  names who should act. A requester can never allocate their own vehicle &mdash; if
+  they could, checking availability would mean nothing.</p>
+  <p>An MTO who raises a request themselves cannot accept it either. The Head Office
+  MTO covers that case.</p></div>
+</section>
+
+<!-- 10 -->
+<section id="p10">
+  <h2 class="part"><span class="num">10</span>The movement order</h2>
+  <p class="standfirst">Approved authority for a vehicle and driver to make a journey. One approval, by the site's MTO.</p>
+  <div class="roles"><span class="pill who">Fleet Approver</span><span class="pill who">Fleet Administrator</span></div>
+
+  <div class="flow">
+    <span class="st on">Draft</span><span class="ar">&rarr;<small>submit</small></span>
+    <span class="st">Pending Approval</span><span class="ar">&rarr;<small>site MTO</small></span>
+    <span class="st good">Approved</span>
+  </div>
+  <div class="flow">
+    <span class="st good">Approved</span><span class="ar">&rarr;</span>
+    <span class="st">Dispatched</span><span class="ar">&rarr;</span>
+    <span class="st">Completed</span>
+    <span class="ar" style="margin-left:14px">any stage&nbsp;&rarr;</span>
+    <span class="st bad">Rejected</span><span class="ar">&rarr;<small>resubmit</small></span>
+  </div>
+
+  <h3>Creating it from the request</h3>
+
+  <div class="call new"><span class="lbl">The button now exists &mdash; November 2026</span>
+  <p>This page has described <b>Create &rsaquo; Movement Order</b> since it was written,
+  and the server has always been able to build the order from the request. The button
+  itself was never put on the form, so the MTO had to leave the request, open a blank
+  Movement Order and type the request's number back in. It is there now.</p></div>
+
+  <ol class="steps">
+    <li>Open the <b>accepted</b> request and click <b>Create &rsaquo; Movement Order</b>.<br>
+      <span class="pill">Only an accepted request can become an order, and only one.</span><br>
+      <span class="pill">The button appears only for a role that may raise an order &mdash;
+      the MTO and the Fleet Administrator. A requester does not see it.</span><br>
+      <span class="pill">If an order already exists, the button takes you to it instead
+      of offering a second Create the system would refuse.</span></li>
+    <li>Check what carried across &mdash; the table below lists every field.</li>
+    <li>Choose the <span class="f">Vehicle</span> and <span class="f">Driver</span>. The driver's employee record and licence number fill in from the driver.<br>
+      <span class="pill">If the request was accepted without an allocation these arrive
+      blank, and the order will not save until both are set. That is the control: the
+      MTO decides which vehicle goes, not the requester.</span></li>
+    <li>Set <span class="f">Departure Date &amp; Time</span> and <span class="f">Expected Return</span>.</li>
+    <li>Check the <b>Passengers</b> table &mdash; anyone the requester named is already there. Add or correct as needed.</li>
+    <li>Click <b>Submit for Approval</b>, then <b>Approve</b>.</li>
+  </ol>
+
+  <div class="tw"><table>
+    <thead><tr><th>On the request</th><th>Becomes, on the order</th></tr></thead>
+    <tbody>
+      <tr><td>Assigned Vehicle &middot; Assigned Driver</td><td>Vehicle &middot; Driver</td></tr>
+      <tr><td>Travel Date + Travel Time</td><td>Departure Date &amp; Time</td></tr>
+      <tr><td>Return Date + Expected Return Time</td><td>Expected Return</td></tr>
+      <tr><td>Employee (the requester)</td><td>Requested By</td></tr>
+      <tr><td>Pickup Location &middot; Destination &middot; Purpose</td><td>From Location &middot; Destination &middot; Purpose</td></tr>
+      <tr><td>Department &middot; Site &middot; Vehicle Type</td><td>Department &middot; Location &middot; Vehicle Type Required</td></tr>
+      <tr><td>Passenger Count</td><td>No. of Passengers</td></tr>
+      <tr><td>Passengers / Officials</td><td>Passengers &mdash; names, designations and contact numbers carried across</td></tr>
+      <tr><td>&mdash;</td><td>Driver Assignment, Driver's Employee and Licence No., from the driver</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>The chain</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Stage</th><th>Who</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>Draft</td><td><span class="pill who">Fleet User</span></td><td>Submit for Approval</td></tr>
+      <tr><td>Pending Approval</td><td><span class="pill who">Fleet Approver</span> &mdash; the site MTO</td><td>Approve, or Reject</td></tr>
+      <tr><td>Approved</td><td><span class="pill who">Fleet Administrator</span></td><td>Dispatch, then Complete</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call"><span class="lbl">Why the MTO approves twice-looking steps once</span>
+  <p>The decision was already taken when the MTO accepted the request. Submitting and
+  approving the order is the same person confirming the dispatch they just
+  authorised, not a second opinion &mdash; so the system lets them do both. The
+  <i>decision</i> still cannot be self-approved: an MTO who raises a request of their
+  own cannot accept it.</p></div>
+
+  <div class="call"><span class="lbl">Rejection, and the longer chain</span>
+  <p><b>Reject</b> sends the order to <b>Rejected</b>, where it stays <i>editable</i>, so
+  the originator can correct it and click <b>Resubmit</b>. Nothing is retyped and
+  nothing is lost.</p>
+  <p>A five-stage chain &mdash; Validate, Review, MTO/CEO, FAS &mdash; also exists and is
+  <b>switched off</b>. Set <span class="f">Movement Order Approval</span> to
+  <b>Full (Five Stage)</b> in settings and run a migrate to turn it on. Orders already
+  part-way through either chain keep their state.</p></div>
+
+  <div class="call warn"><span class="lbl">Two checks before dispatch</span>
+  <p><b>Availability.</b> A vehicle that is Under Maintenance, Unavailable or Disposed
+  cannot be dispatched.</p>
+  <p><b>Double booking.</b> If the vehicle is already committed for an overlapping
+  period you are told which order clashes. Both checks run again if you edit an
+  approved order, so widening the dates cannot slip a clash through.</p></div>
+</section>
+
+<!-- 11 -->
+<section id="p11">
+  <h2 class="part"><span class="num">11</span>POL: fuel</h2>
+  <p class="standfirst">The periodic fuel statement: supply, recoupment, tank balances, consumption and the claim on BOD and STCBL.</p>
+  <div class="roles"><span class="pill who">Fleet Driver</span><span class="pill who">Fleet HR Approver</span></div>
+
+  <div class="call new"><span class="lbl">Fuel is recorded here, not separately</span>
+  <p>There is <b>no separate fuel entry form</b>. Each fill is a row on the POL
+  abstract, carrying its supply memo, date, supplier, fuel type, litres, rate and
+  odometer. As the requirements put it, the fuel details are filled in after several
+  fills, once the recoupment amount has been reached.</p></div>
+
+  <div class="flow">
+    <span class="st on">Draft</span><span class="ar">&rarr;<small>driver</small></span>
+    <span class="st">Submitted</span><span class="ar">&rarr;<small>HR / MTO</small></span>
+    <span class="st good">Approved</span>
+    <span class="ar" style="margin-left:14px">or&nbsp;&rarr;</span>
+    <span class="st bad">Rejected</span><span class="ar">&rarr;<small>resubmit</small></span>
+  </div>
+
+  <h3>Preparing an abstract</h3>
+  <ol class="steps">
+    <li>Open <span class="path">Operations &rsaquo; POL Abstract</span>. It is numbered <code>POL-2026-00001</code>.</li>
+    <li>Select the <span class="f">Vehicle</span>. The driver, their employee record and licence, the minimum KM/L, the opening odometer and the previous tank balance all fill in from the last approved abstract.</li>
+    <li>Set the <span class="f">Abstract Date</span>, then <span class="f">Period From</span> and <span class="f">Period To</span>.
+      <br><span class="pill">The period is whatever you declare &mdash; it is not forced to a calendar month.</span></li>
+    <li>Leave <span class="f">Distance Basis</span> as <b>KM</b>. Choose <b>Hours</b> only for hour-metered plant.</li>
+    <li>Add a row per fill &mdash; memo, date, <b>supplier</b>, litres, rate, odometer. The <b>Amount</b> works itself out. Every field you need is in the table itself; no row has to be opened.</li>
+    <li>Attach the supplier's bill in <span class="f">Supplier Bill Attachment</span>.</li>
+    <li>Enter the <span class="f">Total Fuel Recoupment</span> for BOD and STCBL.</li>
+    <li>Enter the <span class="f">Closing KM</span>.</li>
+    <li><b>Save</b>, then <b>Submit for Approval</b>.</li>
+  </ol>
+
+  <h3>Filling the table quickly</h3>
+  <p>The entries table shows the seven fields a fill needs, side by side:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Column</th><th>What goes in it</th></tr></thead>
+    <tbody>
+      <tr><td><b>Supply Memo No.</b></td><td>The memo number, as printed.</td></tr>
+      <tr><td><b>Date</b></td><td>The date of the fill.</td></tr>
+      <tr><td><b>Supplier</b></td><td><b>BOD or STCBL.</b> Only those two are offered, and the choice decides which provider the amount is claimed from.</td></tr>
+      <tr><td><b>HRS Liters</b></td><td>Litres supplied.</td></tr>
+      <tr><td><b>Rate (Nu)</b></td><td>Rate per litre.</td></tr>
+      <tr><td><b>Odometer Reading</b></td><td>The reading at the pump.</td></tr>
+      <tr><td><b>Amount</b></td><td>Litres &times; Rate, calculated &mdash; and editable.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call new"><span class="lbl">One amount, and the supplier decides where it goes</span>
+  <p>A line used to carry <b>Amount (BOD)</b> and <b>Amount (STCBL)</b> side by side.
+  That meant saying twice what the supplier already says once &mdash; and one of the two
+  was always empty, because a fill comes from one provider, not both.</p>
+  <p>Now there is a single <b>Amount</b>, and the <b>Supplier</b> routes it. Choose BOD
+  and the amount is claimed from BOD; choose STCBL and it goes to STCBL. Nothing else
+  to tick, nothing to keep in step.</p>
+  <p>The two provider columns still exist and still drive the claim, the book balance
+  and every POL report &mdash; they are simply <b>worked out rather than typed</b>, and
+  are out of sight.</p></div>
+
+  <div class="call stop"><span class="lbl">A supplier that is neither provider is refused</span>
+  <p>The Supplier list offers only the two providers named in
+  <span class="path">GDL Fleet Settings &rsaquo; BOD Supplier</span> and
+  <span class="f">STCBL Supplier</span>. Pick anything else and the abstract will not
+  save: <i>"&hellip; is not one of GDL's fuel providers."</i> A fuel line credited to
+  neither provider cannot be claimed from either.</p>
+  <p>The rule only bites once <b>both</b> settings are filled in. Until then the system
+  cannot know what to check against, so it stays out of the way.</p></div>
+
+  <div class="call new"><span class="lbl">Set for All Rows</span>
+  <p>A month of fills usually shares one supplier, one fuel type and often one rate.
+  Rather than typing them into every line, click <b>Set for All Rows</b> above the
+  table, fill in only the fields you want to apply, and click <b>Apply</b>.</p>
+  <p>Tick particular rows first and only those are changed; tick nothing and it
+  applies to the whole table. Fields you leave blank in the dialog are left alone on
+  every row. An amount you have already corrected by hand is never overwritten.</p></div>
+
+  <div class="call stop"><span class="lbl">The supplier's bill is required</span>
+  <p>An abstract cannot leave Draft without <span class="f">Supplier Bill
+  Attachment</span>. The check runs when you click <b>Submit for Approval</b> &mdash; not
+  at the approver's end &mdash; so an unsupported abstract never reaches their queue.</p>
+  <p>Abstracts approved before this rule came in are untouched. If you have a draft
+  from before, you will be asked for the bill the first time you send it up.</p></div>
+
+  <h3>How every figure is worked out</h3>
+  <div class="calc">
+<span class="eq">Total Fuel Supplied</span> = sum of the litres on every row
+<span class="eq">Amount</span>              = Litres &times; Rate            <span class="cm">(per row; overridable)</span>
+<span class="eq">  &rarr; claimed from</span>    = whichever provider the row's Supplier names
+<span class="eq">Total KM</span>            = Closing KM &minus; Opening KM
+<span class="eq">Total Fuel Consumed</span> = Total Fuel Supplied + Previous Tank Balance &minus; Present Tank Balance
+                        <span class="cm">both tank balances are hidden and sit at 0, so this equals Supplied</span>
+<span class="eq">Performance per Litre</span> = Total KM &divide; Total Fuel <b>Consumed</b>
+<span class="eq">Closing Book Balance</span> = Opening Book Balance + Recoupment &minus; Amount   <span class="cm">(BOD and STCBL kept separate)</span>
+  </div>
+
+  <div class="call rule"><span class="lbl">The consumption formula, and why this order</span>
+  <p>Consumed is <b>supplied + previous &minus; present</b>. Fuel you had at the start
+  plus fuel you bought, less what is still in the tank, is what you actually burned.
+  Reversing the two balances gives a different and wrong answer.</p></div>
+
+  <div class="call warn"><span class="lbl">The tank balances are off the form</span>
+  <p><b>Previous Tank Balance</b> and <b>Present Tank Balance</b> are hidden at GDL's
+  request. Nothing is entered in them, so both read 0 and <b>Total Fuel Consumed now
+  equals Total Fuel Supplied</b>.</p>
+  <p>That is a real change to a figure. The blueprint's own example carries 40 litres
+  in the tank at the start and 60 at the end, giving 134.81 litres consumed from
+  154.81 supplied &mdash; and a performance of 8.00 KM/L rather than 6.97. With the
+  fields hidden, a period like that can no longer be recorded as the blueprint
+  records it.</p>
+  <p>The fields and the formula are intact, not deleted, so unhiding them restores the
+  old behaviour exactly.</p></div>
+
+  <div class="call new"><span class="lbl">The coupon has a running balance</span>
+  <p>A coupon book is not emptied and reissued each period. Whatever is left unspent
+  belongs to the next one, so each abstract opens where the last one closed:</p>
+  <div class="calc">
+<span class="eq">Opening Book Balance</span> = the <b>closing</b> balance of this vehicle's previous abstract
+<span class="eq">Closing Book Balance</span> = Opening + Recoupment &minus; Amount
+  </div>
+  <p><span class="f">Opening Book Balance</span> is read-only and recomputed every time
+  you save. You cannot type over it &mdash; if you could, the running total would drift
+  away from the abstract it came from. Four rules govern it:</p>
+  <ul class="steps">
+    <li>Only an <b>approved</b> abstract carries forward. A draft or rejected one is not an agreed balance.</li>
+    <li>Each vehicle has its <b>own</b> coupon book. Nothing crosses between vehicles.</li>
+    <li>An abstract entered <b>out of order</b> reads only periods that ended before it began, never a later one.</li>
+    <li>A vehicle's <b>first</b> abstract opens at zero, which is what a new coupon book starts at.</li>
+  </ul>
+  <p>Spending more than the coupon holds gives a <b>negative</b> closing balance. That
+  is deliberate &mdash; it is a real debt to the provider, and hiding it at zero would
+  lose it. To work period-by-period instead, untick
+  <span class="f">Carry Forward Fuel Book Balance</span> in settings.</p></div>
+
+  <div class="call warn"><span class="lbl">Recoupment belongs to the abstract, not the row</span>
+  <p>Enter <span class="f">Total Fuel Recoupment</span> once, in the <b>Fuel and Book
+  Balance</b> section. That is the figure the book balance is worked out from.</p>
+  <p>The entry rows used to carry recoupment columns of their own that fed no
+  calculation at all. They have been taken off the table so nothing can be typed
+  into a field that discards it. Figures already recorded there are kept, and the
+  reports have always read the abstract's value.</p>
+  <p><b>Amount (BOD)</b> and <b>Amount (STCBL)</b> on the abstract are hidden too.
+  They are sums of the lines, so there was never anything to type &mdash; and now that
+  the supplier decides the split, there is nothing to read either. Both still drive the
+  closing book balance and the invoice raised on each provider.</p></div>
+
+  <div class="call"><span class="lbl">What is hidden, and still working</span>
+  <div class="tw"><table>
+    <thead><tr><th>Hidden</th><th>Where</th><th>Still used for</th></tr></thead>
+    <tbody>
+      <tr><td>Amount (BOD) &middot; Amount (STCBL)</td><td>on each line</td><td>the claim and the book balance, now derived from the Supplier</td></tr>
+      <tr><td>Amount (BOD) &middot; Amount (STCBL)</td><td>on the abstract</td><td>the closing book balance and the Purchase Invoice per provider</td></tr>
+      <tr><td>Previous &middot; Present Tank Balance</td><td>on the abstract</td><td>Total Fuel Consumed &mdash; both at 0, so consumed equals supplied</td></tr>
+    </tbody>
+  </table></div>
+  <p>None of these was deleted. Hiding a field that still feeds a calculation keeps the
+  arithmetic honest while taking the clutter off the screen.</p></div>
+
+  <h3>A worked example</h3>
+  <p>Vehicle <code>BG-1-A2397</code>, three fills:</p>
+  <div class="tw"><table>
+    <thead><tr><th class="n">Sl</th><th>Supply Memo No.</th><th>Date</th><th class="n">Litres</th><th class="n">Rate</th><th class="n">Amount (STCBL)</th></tr></thead>
+    <tbody>
+      <tr><td class="n">1</td><td>25743</td><td>07.08.26</td><td class="n">41.81</td><td class="n">105.55</td><td class="n">4,413.04</td></tr>
+      <tr><td class="n">2</td><td>39883</td><td>17.08.26</td><td class="n">58.00</td><td class="n">104.38</td><td class="n">6,054.04</td></tr>
+      <tr><td class="n">3</td><td>64535</td><td>24.09.26</td><td class="n">55.00</td><td class="n">106.77</td><td class="n">5,872.35</td></tr>
+      <tr><td></td><td><b>Total</b></td><td></td><td class="n"><b>154.81</b></td><td></td><td class="n"><b>16,339.43</b></td></tr>
+    </tbody>
+  </table></div>
+  <p>Opening 227,953 &middot; Closing 229,032 &middot; Previous tank 40 L &middot; Present tank 60 L &middot; Recoupment BOD 15,000 &middot; STCBL 20,000. This is the vehicle's first abstract, so both opening book balances are 0.</p>
+  <div class="calc">
+Total KM            = 229,032 &minus; 227,953      = <b>1,079 km</b>
+Total Fuel Consumed = 154.81 + 40 &minus; 60        = <b>134.81 L</b>
+Performance         = 1,079 &divide; 134.81          = <b>8.00 KM/L</b>
+Closing Bal. STCBL  = 0 + 20,000 &minus; 16,339.43  = <b>Nu. 3,660.57</b>
+Closing Bal. BOD    = 0 + 15,000 &minus; 0          = <b>Nu. 15,000.00</b>
+  </div>
+  <p>Next period those two figures arrive as the <b>opening</b> balances. If the
+  following abstract recoups a further 20,000 STCBL and spends 18,000, its closing
+  balance is 3,660.57 + 20,000 &minus; 18,000 = <b>Nu. 5,660.57</b> &mdash; the coupon's
+  to-date amount, which is what the blueprint asks the system to maintain.</p>
+
+  <div class="call warn"><span class="lbl">This example can no longer be entered as it stands</span>
+  <p>It depends on the tank holding 40 litres at the start and 60 at the end. Those two
+  fields are now hidden, so both read 0 and the same period would compute
+  <b>154.81 L consumed</b> and a performance of <b>6.97 KM/L</b>, not 134.81 and 8.00.</p>
+  <p>The worked example is kept because it is the blueprint's, and because it shows what
+  the formula does when the tank balances carry a value. Unhide the two fields and the
+  figures above return exactly.</p></div>
+
+  <div class="call warn"><span class="lbl">Overriding an amount</span>
+  <p><b>Amount</b> is calculated but stays editable. If the approved memo shows a
+  different figure from the raw multiplication, type the memo's figure in &mdash; the row
+  is flagged <span class="f">Amount Overridden</span> and your figure carries through.
+  The system will not quietly re-round an approved amount, and <b>Set for All
+  Rows</b> will not overwrite it either.</p>
+  <p>This matters more than it looks. The blueprint's own sheet reads
+  <b>4,413.04</b> where 41.81 &times; 105.55 comes to 4,413.0455. The approved figure
+  is the one that counts, and it survives untouched.</p>
+  <p>The rule is the same whichever provider the line is claimed from &mdash; BOD and
+  STCBL no longer behave differently, because there is only one amount now.</p></div>
+
+  <h3>Claiming the fuel from the provider</h3>
+  <div class="roles"><span class="pill who">Fleet HR Approver</span><span class="pill who">Accounts</span></div>
+  <p>Once the abstract is approved, open it and use the <b>Fuel Claim</b> menu:</p>
+  <ol class="steps">
+    <li>Click <b>Raise BOD Claim</b> or <b>Raise STCBL Claim</b>.</li>
+    <li>A <b>draft Purchase Invoice</b> is created for that provider's amount only, carrying a link back to the abstract.</li>
+    <li>Accounts check it and submit it. That submission is what reaches the ledger.</li>
+  </ol>
+  <div class="call rule"><span class="lbl">Fuel reaches the accounts once</span>
+  <p>The abstract itself posts nothing &mdash; it is the approval document. The invoice
+  posts. One claim per provider per abstract; if a claim was raised in error,
+  Accounts can cancel it and it can be raised again.</p></div>
+
+  <h3>Printing the abstract</h3>
+  <p>Open the abstract and click the <b>printer icon</b> in the right-hand sidebar
+  &mdash; or <kbd>Ctrl</kbd>+<kbd>P</kbd>, or <b>&ctdot; &rsaquo; Print</b>. The
+  <b>POL Abstract</b> format is the default, so it comes up without choosing anything.
+  <b>Get PDF</b> downloads it.</p>
+
+  <p>It is laid out to match GDL's own printed form, so a printout can be set beside
+  the paper version and read as the same document: the ruled outer box, the company
+  logo top right, numbering as <b>1.00, 2.00</b>, dates as <b>05.11.26</b>, the grey
+  ruled value boxes down the summary, and the Submitted By / Approved by block ending
+  in Driver and Head-HR.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>The printed supply table</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>Sl No &middot; Supply Memo No. &middot; Date</td><td>as entered</td></tr>
+      <tr><td>HRS Liters &middot; Rate (Nu)</td><td>as entered</td></tr>
+      <tr><td><b>Amount (Nu)</b></td><td><b>one money column</b>, then a Total row</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call"><span class="lbl">Two differences from the paper form, both deliberate</span>
+  <p><b>One Amount column, not two.</b> The paper sheet has Amount (BOD) and Amount
+  (STCBL) side by side and one of them is always empty. The printout carries a single
+  <b>Amount</b> and a single Total, which is the sum of both providers &mdash; no money
+  is lost in the change.</p>
+  <p><b>The units are corrected.</b> The paper form labels the odometer
+  <i>km/hr</i> and performance <i>ltrs</i>. A distance is not a speed and kilometres
+  per litre is not a volume, so the printout reads <b>km</b> and <b>KM/L</b>. Everything
+  genuinely measured in litres &mdash; the tank balances, total fuel consumed &mdash;
+  still reads <b>ltrs</b>.</p></div>
+
+  <div class="call warn"><span class="lbl">What the printed lines no longer say</span>
+  <p>The supply table does not name the supplier, so on an abstract mixing BOD and
+  STCBL fills the page shows the split totals in the summary without showing which
+  lines produced them. The provider is still on screen, in the
+  <b>POL Supplier / Book Balance</b> report, and on the invoice raised against each
+  provider.</p></div>
+</section>
+
+<!-- 12 -->
+<section id="p12">
+  <h2 class="part"><span class="num">12</span>Mileage monitoring</h2>
+  <p class="standfirst">Every vehicle has a fuel target. Straying from it in either direction needs HR's agreement.</p>
+  <div class="roles"><span class="pill who">Fleet HR Approver</span><span class="pill who">Fleet Manager</span></div>
+
+  <p>Each vehicle carries a <span class="f">Minimum Required Mileage (KM/L)</span>. When
+  a POL abstract is saved, actual performance is compared against it:</p>
+  <div class="calc">
+<span class="eq">Deviation %</span> = (Actual KM/L &minus; Minimum KM/L) &divide; Minimum KM/L &times; 100
+  </div>
+
+  <div class="call new"><span class="lbl">The tolerance works both ways</span>
+  <p>A deviation of more than <b>&plusmn;10%</b> needs a reason. Running <i>below</i>
+  target is the obvious case. Running far <i>above</i> it is flagged too, because in
+  practice that almost always means a missed fill or a mis-keyed odometer rather
+  than a genuinely frugal vehicle.</p></div>
+
+  <p>For a vehicle with a target of 8.00 KM/L the acceptable band is
+  <b>7.20 to 8.80</b>. Outside it, the abstract will not save until you enter a
+  <span class="f">Deviation Reason</span>, which HR reviews as part of approving it.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Within Tolerance</b></td><td>Inside &plusmn;10% of target. Nothing to do.</td></tr>
+      <tr><td><b>Below Tolerance</b></td><td>Under target by more than 10%. Reason required.</td></tr>
+      <tr><td><b>Above Tolerance</b></td><td>Over target by more than 10%. Reason required &mdash; check the readings.</td></tr>
+      <tr><td><b>Not Applicable</b></td><td>No target set. Excluded from monitoring.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call"><span class="lbl">Electric vehicles</span>
+  <p>The BYD EV at Head Office has a minimum of <b>0</b>, because kilometres per litre
+  means nothing for a vehicle that burns no fuel. A target of zero is read as
+  <i>efficiency does not apply</i>, so EVs are excluded from deviation monitoring and
+  never held up.</p></div>
+
+  <p>To see the whole fleet at once, run <b>Mileage Deviation Dashboard</b>. It shows
+  actual against target for every vehicle with a chart, flags which need HR
+  approval, and has an <span class="f">Outside Tolerance Only</span> filter.</p>
+</section>
+
+<!-- 13 -->
+<section id="p13">
+  <h2 class="part"><span class="num">13</span>Parts &amp; tyres</h2>
+  <p class="standfirst">Issuing spare parts and tyres from store, and tracking what each tyre achieves.</p>
+  <div class="roles"><span class="pill who">Fleet Store User</span><span class="pill who">Fleet Maintenance User</span></div>
+
+  <h3>Issuing a part or tyre</h3>
+  <ol class="steps">
+    <li>Open <span class="path">Parts &amp; Tyres &rsaquo; Fleet Part Issue</span>. It is numbered <code>FPI-2026-00001</code>.</li>
+    <li>Select the <span class="f">Vehicle</span>, <span class="f">Location</span> and <span class="f">Issue Date</span>.</li>
+    <li>Name the <span class="f">Driver</span>; their employee record and licence number fill in.</li>
+    <li>Enter the <span class="f">Odometer at Issue</span> &mdash; this becomes the starting reading for any tyre fitted.</li>
+    <li>Set the <span class="f">Purpose</span>: Routine Replacement, Breakdown, Accident, Wear and Tear or Other.</li>
+    <li>Add a row per item with quantity, serial number where it has one, and rate.</li>
+    <li>For a tyre, tick <span class="f">Is Tyre</span> and set the <span class="f">Position</span>.</li>
+    <li>Set the <span class="f">Source Warehouse</span>, <span class="f">Cost Center</span> and <span class="f">Project</span>.</li>
+    <li><b>Submit</b>.</li>
+  </ol>
+
+  <div class="call rule"><span class="lbl">The stock stays in ERPNext</span>
+  <p>Submitting raises a standard <b>Material Issue Stock Entry</b> from the source
+  warehouse. The fleet module keeps no quantities of its own, so it can never drift
+  away from the stock ledger. Where a part was bought out of pocket, link the
+  <span class="f">Expense Claim</span> instead.</p></div>
+
+  <div class="call warn"><span class="lbl">One tyre per row</span>
+  <p>Tyres must be issued <b>one at a time</b>. Four tyres means four rows, each with its
+  own position and serial number &mdash; that is what lets the system track the kilometres
+  each one achieves. A tyre already recorded as fitted cannot be fitted again.</p></div>
+
+  <h3>The life of a tyre</h3>
+  <p>Submitting an issue with a tyre on it opens a <b>Vehicle Tyre</b> record
+  (<code>TYR-2026-00001</code>) at status <b>Fitted</b>, stamped with the odometer.</p>
+  <p>When the tyre comes off, open that record and enter the
+  <span class="f">Removed Date</span>, <span class="f">Removed Odometer</span> and
+  <span class="f">Removal Reason</span>. The system computes:</p>
+  <div class="calc">
+<span class="eq">KM Achieved</span> = Removed Odometer &minus; Fitted Odometer
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Target</th><th class="n">20,000 km</th></tr></thead>
+    <tbody>
+      <tr><td>Tolerance</td><td class="n">&plusmn; 20 %</td></tr>
+      <tr><td><b>Acceptable band</b></td><td class="n"><b>16,000 &ndash; 24,000 km</b></td></tr>
+      <tr><td>Below tolerance</td><td class="n">under 16,000 km</td></tr>
+      <tr><td>Above tolerance</td><td class="n">over 24,000 km</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>A tyre that falls short is a procurement or road-condition question. One that
+  runs far beyond the band usually means the removal reading was missed, so both
+  ends are reported. Run <b>Tyre Mileage Report</b> to see them all.</p>
+</section>
+
+<!-- 14 -->
+<section id="p14">
+  <h2 class="part"><span class="num">14</span>Reports</h2>
+  <p class="standfirst">A dashboard for the morning glance, and eighteen reports for the detail.</p>
+
+  <h3>The dashboard</h3>
+  <p>The top of the <span class="path">GDL Fleet</span> workspace answers one question:
+  is anything wrong today? Five figures, each a doorway to the report that explains it.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Figure</th><th>Counts</th><th>If it is not zero</th></tr></thead>
+    <tbody>
+      <tr><td><b>Vehicles Active</b></td><td>Vehicles on the road</td><td>This one <i>should</i> be your whole fleet.</td></tr>
+      <tr><td><b>Off Road</b></td><td>Under Maintenance or Unavailable</td><td>Open Service Due &mdash; something is waiting on a workshop.</td></tr>
+      <tr><td><b>Renewals Due</b></td><td>Insurance etc. Due Soon or Expired</td><td>Open Insurance / Renewal Due. An expired policy is a vehicle that should not be moving.</td></tr>
+      <tr><td><b>Requests Awaiting a Manager</b></td><td>Requests sitting at Pending Review</td><td>An MTO has not acted. Somebody is waiting for a vehicle.</td></tr>
+      <tr><td><b>Mileage Outside Tolerance</b></td><td>Abstracts beyond &plusmn;10%</td><td>Open Mileage Deviation Dashboard before approving them.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Below the figures: <b>Fleet by Site</b> and <b>Fleet by Status</b> for where the
+  fleet is, <b>Distance Travelled</b> and <b>Fuel Spend</b> by month, and
+  <b>Movement Orders</b> by week. All five read live off the records &mdash; nothing is
+  stored, so nothing can drift out of step with the documents underneath.</p>
+
+  <h3>The reports</h3>
+
+  <div class="tw"><table>
+    <thead><tr><th>Report</th><th>Answers</th></tr></thead>
+    <tbody>
+      <tr><td><b>Fleet Register</b></td><td>What do we own? Every vehicle with type, capacity, engine and chassis, current odometer, assigned driver, site and status.</td></tr>
+      <tr><td><b>Vehicle Utilization</b></td><td>Which vehicles earn their keep? Days used, utilisation %, km per day, idle days.</td></tr>
+      <tr><td><b>Driver Assignment History</b></td><td>Who was driving? Every assignment by effective period.</td></tr>
+      <tr><td><b>Service History</b></td><td>What has been done? Every service and repair with odometer, maintenance items, provider and cost.</td></tr>
+      <tr><td><b>Service Due</b></td><td>What needs servicing, by date or kilometres, overdue highlighted.</td></tr>
+      <tr><td><b>Insurance / Renewal Due</b></td><td>What expires soon, with days to expiry.</td></tr>
+      <tr><td><b>Movement Request Status</b></td><td>Pending, accepted and rejected requests, with turnaround time.</td></tr>
+      <tr><td><b>Movement Order Register</b></td><td>Approved movements by vehicle, driver, department, destination and period.</td></tr>
+      <tr><td><b>Vehicle Availability</b></td><td>What is free right now.</td></tr>
+      <tr><td><b>Cost by Vehicle</b></td><td>Expense claims, purchase invoices, stock issues, repairs and journals, with cost per km.</td></tr>
+      <tr><td><b>POL Summary Register</b></td><td>Every abstract with totals, balances and approval status.</td></tr>
+      <tr><td><b>POL Supplier / Book Balance</b></td><td>Each supply line with supplier, litres, rate and amount, plus recoupment and book balance.</td></tr>
+      <tr><td><b>Fuel Consumption &amp; Performance</b></td><td>Total KM, fuel supplied, tank balances, fuel consumed and KM/L.</td></tr>
+      <tr><td><b>Mileage Deviation Dashboard</b></td><td>Actual against target per vehicle, &plusmn;10% deviation, who needs HR approval.</td></tr>
+      <tr><td><b>Tyre Mileage Report</b></td><td>Kilometres achieved per tyre against 20,000 km &plusmn;20%, with what each tyre cost and its cost per km.</td></tr>
+      <tr><td><b>Tyre Cost Analysis</b></td><td>What tyres cost us, grouped by vehicle, tyre item, site or removal reason. <b>Cost per km</b> is the column that matters &mdash; it is the only figure that fairly compares a cheap tyre lasting 12,000 km against an expensive one lasting 30,000.</td></tr>
+      <tr><td><b>Parts Consumption</b></td><td>What came out of store over a period and what it cost, grouped by item, vehicle, site or purpose &mdash; or line by line with serial numbers.</td></tr>
+      <tr><td><b>Part Replacement History</b></td><td>How long each part lasted before it came back: kilometres and days since the previous one. A brake pad replaced every 9,000 km on one vehicle and every 30,000 on another is a problem no spend total will show you.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call"><span class="lbl">Reading the POL Supplier report</span>
+  <p>It now runs <b>Opening &rarr; Recoupment &rarr; Closing</b>, so a vehicle's coupon
+  reads as a running account rather than a set of disconnected periods.</p>
+  <p>Those three belong to the abstract as a whole, so they are printed once against
+  its first line and left blank on the rest. Repeating them per line would make a
+  column total read as several times the real figure.</p></div>
+
+  <div class="call"><span class="lbl">A tyre with no cost is left out</span>
+  <p>Tyre Cost Analysis ignores any tyre carrying no cost, rather than dividing real
+  kilometres by a figure nobody recorded. A tyre picks its cost up automatically from
+  the Fleet Part Issue that fitted it; one recorded by hand needs the
+  <span class="f">Cost</span> typed on the tyre itself.</p></div>
+</section>
+
+<!-- 15 -->
+<section id="p15">
+  <h2 class="part"><span class="num">15</span>When the system refuses you</h2>
+  <p class="standfirst">Every message below is real. Each names the fix.</p>
+
+  <h3>Daily KM and odometer</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Message</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td><span class="err">Ending Odometer (…) cannot be less than Starting Odometer (…)</span></td><td>Re-read the dashboard. If the opening figure is wrong, correct the earlier log.</td></tr>
+      <tr><td><span class="err">A daily record already exists for … on …</span></td><td>Open that log and edit it.</td></tr>
+      <tr><td><span class="err">Distance of … km is above the abnormal-mileage threshold</span></td><td>A warning. Confirm the reading, or raise the threshold in settings.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Drivers and movement</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Message</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td><span class="err">Vehicle … already has a primary driver … for an overlapping period</span></td><td>Close the previous assignment with a To Date, or make this one Temporary / Relief.</td></tr>
+      <tr><td><span class="err">Vehicle … is already on Movement Order … from … to …</span></td><td>Open the named order. Pick another vehicle or shift your timings.</td></tr>
+      <tr><td><span class="err">Vehicle … is … and cannot be dispatched</span></td><td>It is Under Maintenance, Unavailable or Disposed.</td></tr>
+      <tr><td><span class="err">This request gives … hours notice, less than the … hours required</span></td><td>Enter a Short-Notice Reason, book earlier, or mark it Emergency if it is one.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Service bills and purchasing</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Message</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td><span class="err">The bill cannot be submitted yet. Still needed: …</span></td><td>Supply exactly what it names &mdash; service centre, bill number, bill date, total, or the attachment.</td></tr>
+      <tr><td><span class="err">Bill … from … is already on Purchase Invoice …</span></td><td>That bill has already been presented. Open the named invoice before entering it again.</td></tr>
+      <tr><td><span class="err">You are not allowed to approve service bills. The approver role is not configured.</span></td><td>Set <span class="f">Bill Approver Role</span> in GDL Fleet Settings (Part 2).</td></tr>
+      <tr><td><span class="err">Only a submitted bill can be approved. This one is Draft.</span></td><td>The driver has not clicked <b>Submit Bill</b> yet.</td></tr>
+      <tr><td><span class="err">This bill has already been approved.</span></td><td>Nothing to do. Check <span class="f">Payment Status</span> for where it stands.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call warn"><span class="lbl">"The bill was approved but no invoice appeared"</span>
+  <p>Read <span class="f">Purchasing Note</span> on the record. It is filled in every
+  time and says which of these it was:</p>
+  <ul>
+    <li><b>Purchasing is switched off.</b> <span class="f">Raise Purchasing Document on Bill Approval</span> is unticked, so the note reads <i>"record it in Accounts directly"</i>. That is a setting, not a fault.</li>
+    <li><b>A setting is missing.</b> Purchasing Company or Maintenance Service Item is blank. Fill it in and click <b>Retry Purchasing</b>.</li>
+    <li><b>ERPNext refused the document.</b> The note carries the reason. Correct it and retry.</li>
+  </ul>
+  <p>The status is <span class="f">Failed</span> only in the last two cases. <b>Not
+  Required</b> means the system did what it was configured to do.</p></div>
+
+  <h3>POL and mileage</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Message</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td><span class="err">Attach the supplier's fuel bill before sending this abstract for approval.</span></td><td>Add the scan in <span class="f">Supplier Bill Attachment</span>.</td></tr>
+      <tr><td><span class="err">Closing KM (…) cannot be less than Opening KM (…)</span></td><td>Check the closing reading, or the carried-forward opening figure.</td></tr>
+      <tr><td><span class="err">Total Fuel Consumed works out to … litres. The present tank balance cannot exceed the fuel supplied plus the previous balance.</span></td><td>The present tank balance is too high, or a fill is missing.</td></tr>
+      <tr><td><span class="err">Mileage of … KM/L is …% below the minimum of … KM/L … outside the 10% tolerance. Enter a Deviation Reason for HR to review.</span></td><td>Explain the deviation &mdash; hill route, heavy load, idling &mdash; or correct the readings.</td></tr>
+      <tr><td><span class="err">Supply Memo No. … is already on POL Abstract … for this vehicle.</span></td><td>That memo is already abstracted. Open the named abstract.</td></tr>
+      <tr><td><span class="err">No fuel expense account is set for … . Add a row for it under Fuel Expense Account by Company …</span></td><td>That company has no row. Add one (Part 2).</td></tr>
+      <tr><td><span class="err">The fallback fuel account … belongs to … , but this abstract is for a vehicle in … .</span></td><td>Accounts belong to one company. Give the vehicle's company its own row.</td></tr>
+      <tr><td><span class="err">… is a group account, so nothing can be posted to it. Choose the ledger account beneath it.</span></td><td>You have picked a heading rather than a ledger. Expand it and take the account below.</td></tr>
+      <tr><td><span class="err">The STCBL fuel claim for this abstract is already on Purchase Invoice …</span></td><td>One claim per provider. Cancel that invoice first if it was wrong.</td></tr>
+      <tr><td><span class="err">There is no BOD amount on this abstract to claim.</span></td><td>Nothing was drawn from that provider.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Parts and tyres</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Message</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td><span class="err">Row …: a tyre is issued one at a time so each one can be tracked … Add a row per tyre.</span></td><td>Split the quantity into one row per tyre.</td></tr>
+      <tr><td><span class="err">Tyre with Serial No … is already recorded as fitted on …</span></td><td>Remove it from the other vehicle first.</td></tr>
+      <tr><td><span class="err">Removed odometer (…) cannot be less than the fitted odometer (…)</span></td><td>Check the removal reading.</td></tr>
+      <tr><td><span class="err">Row …: a tyre needs a Position.</span></td><td>Set Front Left, Rear Right and so on.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 16 -->
+<section id="p16">
+  <h2 class="part"><span class="num">16</span>Reference</h2>
+
+  <h3>Document numbers</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Document</th><th>Numbered</th></tr></thead>
+    <tbody>
+      <tr><td>Vehicle</td><td><code>BG-1-A2397</code> &mdash; the registration itself, plus a <code>GDL-VEH-00001</code> internal ID</td></tr>
+      <tr><td>Driver Assignment</td><td><code>DA-2026-00001</code></td></tr>
+      <tr><td>Movement Order Request</td><td><code>MOR-2026-00001</code></td></tr>
+      <tr><td>Movement Order</td><td><code>MO-2026-00001</code></td></tr>
+      <tr><td>POL Abstract</td><td><code>POL-2026-00001</code></td></tr>
+      <tr><td>Renewal Register</td><td><code>REN-2026-00001</code></td></tr>
+      <tr><td>Fleet Part Issue</td><td><code>FPI-2026-00001</code></td></tr>
+      <tr><td>Vehicle Tyre</td><td><code>TYR-2026-00001</code></td></tr>
+    </tbody>
+  </table></div>
+  <p>Requests raised before the module was renamed carry a <code>VBR-</code> prefix.
+  Those records are still valid; only new ones use <code>MOR-</code>.</p>
+
+  <h3>Status values</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Document</th><th>States</th></tr></thead>
+    <tbody>
+      <tr><td>Vehicle</td><td>Active &middot; Under Maintenance &middot; Unavailable &middot; Disposed</td></tr>
+      <tr><td>Driver Assignment</td><td>Active &middot; Completed &middot; Cancelled</td></tr>
+      <tr><td>Movement Order Request</td><td>Draft &middot; Pending Review &middot; Accepted &middot; Rejected &middot; Cancelled</td></tr>
+      <tr><td>Movement Order</td><td>Draft &middot; Pending Approval &middot; Approved &middot; Dispatched &middot; Completed &middot; Rejected &middot; Cancelled<br><small>The five-stage chain adds Pending Validation, Pending Review, Pending MTO/CEO and Pending FAS. Those states exist but are unreachable unless it is switched on.</small></td></tr>
+      <tr><td>POL Abstract</td><td>Draft &middot; Submitted &middot; Approved &middot; Rejected &middot; Cancelled</td></tr>
+      <tr><td>Service bill</td><td>Not in use &mdash; bill approval was switched off in November 2026 (Part 7). The states remain on the record for anything already stamped with one.</td></tr>
+      <tr><td>Purchasing (bill or renewal)</td><td>Not Required &middot; Pending &middot; Ordered &middot; Failed</td></tr>
+      <tr><td>Payment</td><td>Not Invoiced &middot; Unpaid &middot; Partly Paid &middot; Paid &middot; Overdue &middot; Cancelled</td></tr>
+      <tr><td>Renewal Register</td><td>Valid &middot; Due Soon &middot; Expired &middot; Renewed</td></tr>
+      <tr><td>Fleet Part Issue</td><td>Draft &middot; Issued &middot; Cancelled</td></tr>
+      <tr><td>Vehicle Tyre</td><td>Fitted &middot; Removed &middot; Scrapped</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>The fleet</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Site</th><th>Vehicles</th><th class="n">Min KM/L</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="3">Head Office</td><td>BG-1-A2397 Toyota Hilux</td><td class="n">8.00</td></tr>
+      <tr><td>BG-1A3812 Toyota Fortuner</td><td class="n">9.00</td></tr>
+      <tr><td>BG-1A-3779 BYD EV</td><td class="n">n/a</td></tr>
+      <tr><td rowspan="3">Jamjee</td><td>BG-1-A3632 Mahindra Bolero</td><td class="n">6.50</td></tr>
+      <tr><td>BG-1-A3687 Toyota Hiace Bus</td><td class="n">7.00</td></tr>
+      <tr><td>BG-1A-0091 TATA Bus</td><td class="n">3.00</td></tr>
+      <tr><td rowspan="2">Dochula</td><td>BG-1-A0017 Toyota Hiace Bus</td><td class="n">9.00</td></tr>
+      <tr><td>BG-1-A3679 TATA Yodha</td><td class="n">10.00</td></tr>
+      <tr><td rowspan="2">Dagapela</td><td>BG-1-A3387 Toyota Hiace Bus</td><td class="n">7.00</td></tr>
+      <tr><td>BG-1A-3782 TATA Yodha</td><td class="n">8.50</td></tr>
+      <tr><td>Gedu</td><td>BG-1-A3615 Toyota Hiace Bus</td><td class="n">7.45</td></tr>
+      <tr><td rowspan="2">Samcholing</td><td>BG-1-A3631 Mahindra Bolero</td><td class="n">8.50</td></tr>
+      <tr><td>BG-1-A3529 Toyota Hiace Bus</td><td class="n">6.00</td></tr>
+      <tr><td>Jigmeling</td><td>BG-1A-3780 Mahindra Bolero</td><td class="n">12.00</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Notifications and scheduled jobs</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Sent</th><th>About</th></tr></thead>
+    <tbody>
+      <tr><td>14 and 3 days before expiry, and 1 day after</td><td>Renewal Register</td></tr>
+      <tr><td><i>(two further rungs ship switched off &mdash; set them to any number of days to enable)</i></td><td>Renewal Register</td></tr>
+      <tr><td>30 days before expiry</td><td>Driving licence</td></tr>
+      <tr><td>14 days before due, and 1 day after</td><td>Maintenance</td></tr>
+      <tr><td>On status change</td><td>Movement request and movement order</td></tr>
+      <tr><td>On submission and approval</td><td>Service bill, to the approver and the driver</td></tr>
+      <tr><td>Daily</td><td>One job, <span class="f">daily_fleet_purchasing</span>, which raises insurance renewal orders and refreshes payment status.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>The location managers</h3>
+  <p>One requesting user and one MTO per site, with Head Office the final authority.
+  The addresses below are <b>placeholders on the reserved <code>.test</code> domain</b> so
+  nothing can email a real person by accident, and none of them has a password set.
+  Replace them with real addresses and set passwords before go-live.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Site</th><th>Requester</th><th>MTO</th></tr></thead>
+    <tbody>
+      <tr><td>Head Office</td><td>headoffice.user@gdl.test</td><td>headoffice.mto@gdl.test &nbsp;<span class="pill">final MTO</span></td></tr>
+      <tr><td>Jamjee</td><td>jamjee.user@gdl.test</td><td>jamjee.mto@gdl.test</td></tr>
+      <tr><td>Dochula</td><td>dochula.user@gdl.test</td><td>dochula.mto@gdl.test</td></tr>
+      <tr><td>Dagapela</td><td>dagapela.user@gdl.test</td><td>dagapela.mto@gdl.test</td></tr>
+      <tr><td>Gedu</td><td>gedu.user@gdl.test</td><td>gedu.mto@gdl.test</td></tr>
+      <tr><td>Samcholing</td><td>samcholing.user@gdl.test</td><td>samcholing.mto@gdl.test</td></tr>
+      <tr><td>Jigmeling</td><td>jigmeling.user@gdl.test</td><td>jigmeling.mto@gdl.test</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>GMC</b>, <b>Motanga</b> and <b>Service Location</b> have no MTO. No vehicle is
+  based at any of them, so nothing is blocked &mdash; the Head Office MTO covers them.
+  Name a manager for any site that gets a vehicle.</p>
+
+  <h3>Still to be settled</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Item</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill todo">setting</span> Bill Approver Role</td><td>Until set, no service bill can be approved by anyone.</td></tr>
+      <tr><td><span class="pill todo">setting</span> Purchasing Company, Maintenance Service Item</td><td>Purchasing is on but cannot raise a document without them.</td></tr>
+      <tr><td><span class="pill todo">setting</span> Insurance Renewal Item, Default Insurance Supplier</td><td>Needed only if renewal purchasing is switched on.</td></tr>
+      <tr><td><span class="pill todo">data</span> Odometers</td><td>All 14 vehicles read 0 until the first daily log or abstract.</td></tr>
+      <tr><td><span class="pill todo">data</span> Chassis and engine numbers</td><td>Blank pending the registration documents.</td></tr>
+      <tr><td><span class="pill todo">decision</span> When the maintenance order is raised</td><td>Currently on bill approval, after the work. See Part 7.</td></tr>
+      <tr><td><span class="pill todo">decision</span> Chairman's Office POL account</td><td>All vehicles post to the general POL account. Split only if GDL wants it. See Part 2.</td></tr>
+      <tr><td><span class="pill todo">scope</span> SAP integration</td><td>The blueprint names it under Tyre Mileage. Nothing is built; it needs a scoping session on direction, transport and which documents cross.</td></tr>
+      <tr><td><span class="pill todo">data</span> Fleet user accounts</td><td>Fourteen users on <code>@gdl.test</code> placeholders with no passwords. Replace before go-live.</td></tr>
+      <tr><td><span class="pill todo">data</span> BOD and STCBL suppliers</td><td>Not yet created, so no fuel claim can be raised. Create them and name them in settings.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>A note on where things live</h3>
+  <p>This module adds to standard ERPNext rather than copying it. Vehicles, drivers,
+  employees, suppliers, locations, cost centres and projects are the <i>same</i>
+  records the rest of the business uses, and Vehicle is registered as an accounting
+  dimension &mdash; which is why a vehicle can be selected on an invoice, an expense claim
+  or a journal entry, and why <b>Cost by Vehicle</b> reports real money without a
+  separate fleet ledger. Standard reports such as the General Ledger and Budget
+  Variance can be filtered by vehicle for the same reason.</p>
+</section>
+
+    </main>
+  </div>
+
+  <footer>
+    <p>GDL Fleet Extension for ERPNext 16. Thresholds, reminder days, maintenance intervals, mileage and tyre tolerances, booking rules and both purchasing automations are all configuration &mdash; change them in GDL Fleet Settings rather than asking for a code change.</p>
+  </footer>
+</div>

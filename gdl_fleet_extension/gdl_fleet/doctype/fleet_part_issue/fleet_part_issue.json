@@ -1,0 +1,275 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "creation": "2026-10-15 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "is_submittable": 1,
+ "track_changes": 1,
+ "field_order": [
+  "naming_series",
+  "vehicle",
+  "location",
+  "driver",
+  "driver_employee",
+  "driver_license_no",
+  "col_head_1",
+  "issue_date",
+  "odometer",
+  "purpose",
+  "status",
+  "sec_items",
+  "items",
+  "sec_totals",
+  "total_qty",
+  "total_amount",
+  "sec_stock",
+  "source_warehouse",
+  "stock_entry",
+  "col_stock_1",
+  "cost_center",
+  "project",
+  "expense_claim",
+  "sec_more",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "FPI-.YYYY.-.#####",
+   "default": "FPI-.YYYY.-.#####",
+   "reqd": 1,
+   "no_copy": 1,
+   "print_hide": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "options": "Vehicle",
+   "label": "Vehicle",
+   "reqd": 1,
+   "in_standard_filter": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "Location",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "options": "Driver",
+   "label": "Driver",
+   "description": "Defaults from the vehicle's active Driver Assignment."
+  },
+  {
+   "fieldname": "col_head_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "issue_date",
+   "fieldtype": "Date",
+   "label": "Issue Date",
+   "reqd": 1,
+   "default": "Today",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "odometer",
+   "fieldtype": "Int",
+   "label": "Odometer at Issue",
+   "reqd": 1,
+   "description": "Used as the starting reading for any tyre fitted on this issue."
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Select",
+   "label": "Purpose",
+   "options": "Routine Replacement\nBreakdown\nAccident\nWear and Tear\nOther",
+   "default": "Routine Replacement"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nIssued\nCancelled",
+   "default": "Draft",
+   "read_only": 1,
+   "in_standard_filter": 1,
+   "in_list_view": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sec_items",
+   "fieldtype": "Section Break",
+   "label": "Parts and Tyres"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "options": "Fleet Part Issue Item",
+   "label": "Items",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sec_totals",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "total_qty",
+   "fieldtype": "Float",
+   "label": "Total Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_stock",
+   "fieldtype": "Section Break",
+   "label": "Stock and Accounting"
+  },
+  {
+   "fieldname": "source_warehouse",
+   "fieldtype": "Link",
+   "options": "Warehouse",
+   "label": "Source Warehouse",
+   "description": "Stock is issued from here through a standard Stock Entry. The fleet module keeps no stock of its own."
+  },
+  {
+   "fieldname": "stock_entry",
+   "fieldtype": "Link",
+   "options": "Stock Entry",
+   "label": "Stock Entry",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "col_stock_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "options": "Cost Center",
+   "label": "Cost Center"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "options": "Project",
+   "label": "Project"
+  },
+  {
+   "fieldname": "expense_claim",
+   "fieldtype": "Link",
+   "options": "Expense Claim",
+   "label": "Expense Claim",
+   "description": "Where the part was bought out of pocket rather than drawn from store."
+  },
+  {
+   "fieldname": "sec_more",
+   "fieldtype": "Section Break",
+   "label": "More"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Fleet Part Issue",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "driver_employee",
+   "fieldtype": "Link",
+   "options": "Employee",
+   "label": "Driver's Employee",
+   "read_only": 1,
+   "fetch_from": "driver.employee",
+   "description": "From the Driver master. Blank means that Driver has no Employee recorded."
+  },
+  {
+   "fieldname": "driver_license_no",
+   "fieldtype": "Data",
+   "label": "Driver's Licence No.",
+   "read_only": 1,
+   "fetch_from": "driver.license_number"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-27 09:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "Fleet Part Issue",
+ "owner": "Administrator",
+ "naming_rule": "By \"Naming Series\" field",
+ "permissions": [
+  {
+   "role": "Fleet Store User",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Fleet Maintenance User",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Fleet Administrator",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Fleet Manager",
+   "read": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  }
+ ],
+ "search_fields": "vehicle,issue_date,status",
+ "title_field": "vehicle",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,592 @@
+{
+ "app": "gdl_fleet_extension",
+ "charts": [
+  {
+   "chart_name": "Fleet by Site",
+   "label": "Fleet by Site"
+  },
+  {
+   "chart_name": "Fleet by Status",
+   "label": "Fleet by Status"
+  },
+  {
+   "chart_name": "Distance Travelled",
+   "label": "Distance Travelled"
+  },
+  {
+   "chart_name": "Fuel Spend",
+   "label": "Fuel Spend"
+  },
+  {
+   "chart_name": "Movement Orders",
+   "label": "Movement Orders"
+  }
+ ],
+ "content": "[{\"id\": \"gdlhdr_overview\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Fleet at a Glance</b></span>\", \"col\": 12}}, {\"id\": \"gdlcard_0\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Vehicles Active\", \"col\": 3}}, {\"id\": \"gdlcard_1\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Off Road\", \"col\": 3}}, {\"id\": \"gdlcard_2\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Renewals Due\", \"col\": 3}}, {\"id\": \"gdlcard_3\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Requests Awaiting a Manager\", \"col\": 3}}, {\"id\": \"gdlcard_4\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Mileage Outside Tolerance\", \"col\": 3}}, {\"id\": \"gdlsp_overview\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"gdlch_0\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Fleet by Site\", \"col\": 6}}, {\"id\": \"gdlch_1\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Fleet by Status\", \"col\": 6}}, {\"id\": \"gdlch_2\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Distance Travelled\", \"col\": 12}}, {\"id\": \"gdlch_3\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Fuel Spend\", \"col\": 6}}, {\"id\": \"gdlch_4\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Movement Orders\", \"col\": 6}}, {\"id\": \"gdlsp_charts\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"h1\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Fleet</b></span>\", \"col\": 12}}, {\"id\": \"c1\", \"type\": \"card\", \"data\": {\"card_name\": \"Vehicle Master\", \"col\": 4}}, {\"id\": \"c2\", \"type\": \"card\", \"data\": {\"card_name\": \"Movement\", \"col\": 4}}, {\"id\": \"c3\", \"type\": \"card\", \"data\": {\"card_name\": \"Operations\", \"col\": 4}}, {\"id\": \"s1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"c4\", \"type\": \"card\", \"data\": {\"card_name\": \"Service & Maintenance\", \"col\": 4}}, {\"id\": \"gdlPartsTyres01\", \"type\": \"card\", \"data\": {\"card_name\": \"Parts & Tyres\", \"col\": 4}}, {\"id\": \"c5\", \"type\": \"card\", \"data\": {\"card_name\": \"Setup\", \"col\": 4}}, {\"id\": \"s2\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"h2\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Reports</b></span>\", \"col\": 12}}, {\"id\": \"c6\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}, {\"id\": \"c7\", \"type\": \"card\", \"data\": {\"card_name\": \"Standard Accounting Reports\", \"col\": 4}}]",
+ "creation": "2026-09-22 20:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "gdl_fleet",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "GDL Fleet",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Master",
+   "link_count": 5,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle",
+   "link_count": 0,
+   "link_to": "Vehicle",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Driver",
+   "link_count": 0,
+   "link_to": "Driver",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Fleet Vehicle Type",
+   "link_count": 0,
+   "link_to": "Fleet Vehicle Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Driver Assignment",
+   "link_count": 0,
+   "link_to": "Driver Assignment",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Renewal Register",
+   "link_count": 0,
+   "link_to": "Renewal Register",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Movement",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Movement Order Request",
+   "link_count": 0,
+   "link_to": "Movement Order Request",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Movement Order",
+   "link_count": 0,
+   "link_to": "Movement Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Operations",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Daily KM / Vehicle Log",
+   "link_count": 0,
+   "link_to": "Vehicle Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "POL Abstract",
+   "link_count": 0,
+   "link_to": "POL Abstract",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service & Maintenance",
+   "link_count": 4,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Asset Maintenance",
+   "link_count": 0,
+   "link_to": "Asset Maintenance",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Asset Maintenance Log",
+   "link_count": 0,
+   "link_to": "Asset Maintenance Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Asset Repair",
+   "link_count": 0,
+   "link_to": "Asset Repair",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Service Item",
+   "link_count": 0,
+   "link_to": "Vehicle Service Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Parts & Tyres",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Fleet Part Issue",
+   "link_count": 0,
+   "link_to": "Fleet Part Issue",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Tyre",
+   "link_count": 0,
+   "link_to": "Vehicle Tyre",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Setup",
+   "link_count": 4,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "GDL Fleet Settings",
+   "link_count": 0,
+   "link_to": "GDL Fleet Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Site (Location)",
+   "link_count": 0,
+   "link_to": "Location",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cost Center",
+   "link_count": 0,
+   "link_to": "Cost Center",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Department",
+   "link_count": 0,
+   "link_to": "Department",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reports",
+   "link_count": 18,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Fleet Register",
+   "link_count": 0,
+   "link_to": "Fleet Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Driver Assignment History",
+   "link_count": 0,
+   "link_to": "Driver Assignment History",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Insurance / Renewal Due",
+   "link_count": 0,
+   "link_to": "Insurance and Renewal Due",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Movement Request Status",
+   "link_count": 0,
+   "link_to": "Movement Request Status",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Movement Order Register",
+   "link_count": 0,
+   "link_to": "Movement Order Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Vehicle Availability",
+   "link_count": 0,
+   "link_to": "Vehicle Availability",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Vehicle Utilization",
+   "link_count": 0,
+   "link_to": "Vehicle Utilization",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Service Due",
+   "link_count": 0,
+   "link_to": "Service Due",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Service History",
+   "link_count": 0,
+   "link_to": "Service History",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Fuel Consumption & Performance",
+   "link_count": 0,
+   "link_to": "Fuel Consumption and Performance",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Cost by Vehicle",
+   "link_count": 0,
+   "link_to": "Cost by Vehicle",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Parts Consumption",
+   "link_count": 0,
+   "link_to": "Parts Consumption",
+   "link_type": "Report",
+   "onboard": 0,
+   "dependencies": "Fleet Part Issue",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Part Replacement History",
+   "link_count": 0,
+   "link_to": "Part Replacement History",
+   "link_type": "Report",
+   "onboard": 0,
+   "dependencies": "Fleet Part Issue",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "POL Summary Register",
+   "link_count": 0,
+   "link_to": "POL Summary Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "POL Supplier / Book Balance",
+   "link_count": 0,
+   "link_to": "POL Supplier and Book Balance",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Mileage Deviation Dashboard",
+   "link_count": 0,
+   "link_to": "Mileage Deviation Dashboard",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Tyre Mileage Report",
+   "link_count": 0,
+   "link_to": "Tyre Mileage Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Tyre Cost Analysis",
+   "link_count": 0,
+   "link_to": "Tyre Cost Analysis",
+   "link_type": "Report",
+   "onboard": 0,
+   "dependencies": "Vehicle Tyre",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Standard Accounting Reports",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "General Ledger",
+   "link_count": 0,
+   "link_to": "General Ledger",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Budget Variance Report",
+   "link_count": 0,
+   "link_to": "Budget Variance Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Profitability Analysis",
+   "link_count": 0,
+   "link_to": "Profitability Analysis",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-11-03 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "GDL Fleet",
+ "number_cards": [
+  {
+   "number_card_name": "Vehicles Active"
+  },
+  {
+   "number_card_name": "Off Road"
+  },
+  {
+   "number_card_name": "Renewals Due"
+  },
+  {
+   "number_card_name": "Requests Awaiting a Manager"
+  },
+  {
+   "number_card_name": "Mileage Outside Tolerance"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 1.5,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Vehicle",
+   "link_to": "Vehicle",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "Movement Requests",
+   "link_to": "Movement Order Request",
+   "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Movement Orders",
+   "link_to": "Movement Order",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Driver Assignment",
+   "link_to": "Driver Assignment",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Renewals",
+   "link_to": "Renewal Register",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Daily KM",
+   "link_to": "Vehicle Log",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "Tree",
+   "label": "Sites",
+   "link_to": "Location",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "",
+   "label": "Fleet Settings",
+   "link_to": "GDL Fleet Settings",
+   "type": "DocType"
+  }
+ ],
+ "title": "GDL Fleet",
+ "type": "Workspace"
+}

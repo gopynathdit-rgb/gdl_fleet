@@ -1,0 +1,327 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "creation": "2026-09-28 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "movement_order_request",
+  "vehicle",
+  "driver",
+  "driver_assignment",
+  "driver_employee",
+  "driver_license_no",
+  "col_head_1",
+  "departure_datetime",
+  "expected_return",
+  "department",
+  "site",
+  "vehicle_type",
+  "requested_by",
+  "sec_journey",
+  "from_location",
+  "destination",
+  "col_journey_1",
+  "purpose",
+  "sec_pax",
+  "passenger_count",
+  "passengers",
+  "contact_details",
+  "sec_status",
+  "status",
+  "workflow_state",
+  "col_status_1",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Movement Order No.",
+   "options": "MO-.YYYY.-.#####",
+   "reqd": 1,
+   "no_copy": 1,
+   "print_hide": 1,
+   "set_only_once": 1,
+   "default": "MO-.YYYY.-.#####"
+  },
+  {
+   "fieldname": "movement_order_request",
+   "fieldtype": "Link",
+   "options": "Movement Order Request",
+   "label": "Movement Order Request",
+   "in_standard_filter": 1,
+   "description": "The accepted request this order was raised from."
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "options": "Vehicle",
+   "label": "Vehicle",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "options": "Driver",
+   "label": "Driver",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "allow_on_submit": 1,
+   "description": "Fetched from the active Driver Assignment. An authorised user may select a temporary driver."
+  },
+  {
+   "fieldname": "driver_assignment",
+   "fieldtype": "Link",
+   "options": "Driver Assignment",
+   "label": "Driver Assignment",
+   "read_only": 1,
+   "no_copy": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "col_head_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "departure_datetime",
+   "fieldtype": "Datetime",
+   "label": "Departure Date & Time",
+   "reqd": 1,
+   "in_list_view": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "expected_return",
+   "fieldtype": "Datetime",
+   "label": "Expected Return",
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "options": "Department",
+   "label": "Department"
+  },
+  {
+   "fieldname": "requested_by",
+   "fieldtype": "Link",
+   "options": "Employee",
+   "label": "Requested By"
+  },
+  {
+   "fieldname": "sec_journey",
+   "fieldtype": "Section Break",
+   "label": "Journey"
+  },
+  {
+   "fieldname": "from_location",
+   "fieldtype": "Data",
+   "label": "From Location"
+  },
+  {
+   "fieldname": "destination",
+   "fieldtype": "Data",
+   "label": "Destination",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_journey_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Small Text",
+   "label": "Purpose",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sec_pax",
+   "fieldtype": "Section Break",
+   "label": "Passengers / Officials"
+  },
+  {
+   "fieldname": "passenger_count",
+   "fieldtype": "Int",
+   "label": "No. of Passengers"
+  },
+  {
+   "fieldname": "passengers",
+   "fieldtype": "Table",
+   "options": "Movement Order Passenger",
+   "label": "Passengers"
+  },
+  {
+   "fieldname": "contact_details",
+   "fieldtype": "Data",
+   "label": "Contact Details"
+  },
+  {
+   "fieldname": "sec_status",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "default": "Draft",
+   "allow_on_submit": 1,
+   "options": "Draft\nPending Approval\nPending Validation\nPending Review\nPending MTO/CEO\nPending FAS\nApproved\nDispatched\nCompleted\nRejected\nCancelled"
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Link",
+   "options": "Workflow State",
+   "label": "Workflow State",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "col_status_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks",
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Movement Order",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "driver_employee",
+   "fieldtype": "Link",
+   "options": "Employee",
+   "label": "Driver's Employee",
+   "read_only": 1,
+   "fetch_from": "driver.employee",
+   "description": "From the Driver master. Blank means that Driver has no Employee recorded."
+  },
+  {
+   "fieldname": "driver_license_no",
+   "fieldtype": "Data",
+   "label": "Driver's Licence No.",
+   "read_only": 1,
+   "fetch_from": "driver.license_number"
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "Location",
+   "description": "Carried from the request. The site the movement belongs to."
+  },
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Link",
+   "options": "Fleet Vehicle Type",
+   "label": "Vehicle Type Required",
+   "read_only": 1,
+   "description": "The type the requester asked for, carried from the request."
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-10-27 09:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "Movement Order",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet Administrator",
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet Approver",
+   "delete": 0,
+   "submit": 1,
+   "cancel": 1
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet Manager",
+   "delete": 0,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "read": 1,
+   "write": 0,
+   "create": 0,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "Fleet User",
+   "delete": 0
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "email": 1,
+   "share": 1,
+   "print": 1,
+   "role": "System Manager",
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  }
+ ],
+ "search_fields": "vehicle,driver,departure_datetime,status",
+ "sort_field": "departure_datetime",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "vehicle",
+ "track_changes": 1
+}

@@ -1,0 +1,506 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "creation": "2026-10-05 09:00:00.000000",
+ "default_print_format": "POL Abstract",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "is_submittable": 1,
+ "track_changes": 1,
+ "field_order": [
+  "naming_series",
+  "vehicle",
+  "driver",
+  "driver_employee",
+  "driver_license_no",
+  "abstract_date",
+  "col_head_1",
+  "period_from",
+  "period_to",
+  "distance_basis",
+  "status",
+  "sec_entries",
+  "entries",
+  "supplier_bill_attachment",
+  "sec_totals",
+  "total_fuel_supplied",
+  "total_amount_bod",
+  "total_amount_stcbl",
+  "col_tot_1",
+  "opening_book_balance_bod",
+  "opening_book_balance_stcbl",
+  "recoupment_bod",
+  "recoupment_stcbl",
+  "fuel_book_balance_bod",
+  "fuel_book_balance_stcbl",
+  "sec_odometer",
+  "opening_km",
+  "closing_km",
+  "total_km",
+  "col_odo_1",
+  "previous_tank_balance",
+  "present_tank_balance",
+  "total_fuel_consumed",
+  "performance_per_litre",
+  "sec_mileage",
+  "min_mileage",
+  "mileage_deviation",
+  "col_mileage_1",
+  "mileage_status",
+  "deviation_reason",
+  "sec_dimensions",
+  "site",
+  "department",
+  "col_dim_1",
+  "cost_center",
+  "project",
+  "sec_approval",
+  "submitted_by",
+  "submitted_by_designation",
+  "col_app_1",
+  "approved_by",
+  "approved_by_designation",
+  "sec_more",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "POL-.YYYY.-.#####",
+   "default": "POL-.YYYY.-.#####",
+   "reqd": 1,
+   "no_copy": 1,
+   "print_hide": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "options": "Vehicle",
+   "label": "Vehicle",
+   "reqd": 1,
+   "in_standard_filter": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "options": "Driver",
+   "label": "Driver",
+   "in_standard_filter": 1,
+   "description": "Defaults from the vehicle's active Driver Assignment."
+  },
+  {
+   "fieldname": "abstract_date",
+   "fieldtype": "Date",
+   "label": "Abstract Date",
+   "reqd": 1,
+   "description": "The date the abstract itself is raised (workbook cell C2)."
+  },
+  {
+   "fieldname": "col_head_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "period_from",
+   "fieldtype": "Date",
+   "label": "Period From",
+   "reqd": 1,
+   "in_standard_filter": 1,
+   "description": "The POL reporting period is explicit. It is not a calendar month - the customer's own abstracts span month boundaries."
+  },
+  {
+   "fieldname": "period_to",
+   "fieldtype": "Date",
+   "label": "Period To",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "distance_basis",
+   "fieldtype": "Select",
+   "options": "KM\nHours",
+   "default": "KM",
+   "label": "Distance Basis",
+   "reqd": 1,
+   "description": "KM for odometer-metered vehicles, Hours for hour-metered plant. Performance is reported per litre either way."
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Draft\nSubmitted\nApproved\nRejected\nCancelled",
+   "default": "Draft",
+   "label": "Status",
+   "read_only": 1,
+   "in_standard_filter": 1,
+   "in_list_view": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sec_entries",
+   "fieldtype": "Section Break",
+   "label": "Fuel Supply"
+  },
+  {
+   "fieldname": "entries",
+   "fieldtype": "Table",
+   "options": "POL Entry",
+   "label": "POL Entries",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sec_totals",
+   "fieldtype": "Section Break",
+   "label": "Fuel and Book Balance"
+  },
+  {
+   "fieldname": "total_fuel_supplied",
+   "fieldtype": "Float",
+   "label": "Total Fuel Supplied (Ltr)",
+   "read_only": 1,
+   "precision": "3",
+   "description": "SUM of the POL entry litres. Never entered by hand."
+  },
+  {
+   "fieldname": "total_amount_bod",
+   "fieldtype": "Currency",
+   "label": "Amount (BOD)",
+   "read_only": 1,
+   "hidden": 1,
+   "description": "SUM of the BOD lines. Hidden at GDL's request - the split now follows each line's supplier, so it is derived, not read. The BOD book balance and the claim raised on that provider are both worked out from it."
+  },
+  {
+   "fieldname": "total_amount_stcbl",
+   "fieldtype": "Currency",
+   "label": "Amount (STCBL)",
+   "read_only": 1,
+   "hidden": 1,
+   "description": "SUM of the STCBL lines. Hidden at GDL's request - the split now follows each line's supplier, so it is derived, not read. The STCBL book balance and the claim raised on that provider are both worked out from it."
+  },
+  {
+   "fieldname": "col_tot_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "opening_book_balance_bod",
+   "fieldtype": "Currency",
+   "label": "Opening Book Balance (BOD)",
+   "read_only": 1,
+   "description": "Unspent BOD coupon carried in from this vehicle's previous abstract."
+  },
+  {
+   "fieldname": "opening_book_balance_stcbl",
+   "fieldtype": "Currency",
+   "label": "Opening Book Balance (STCBL)",
+   "read_only": 1,
+   "description": "Unspent STCBL coupon carried in from this vehicle's previous abstract."
+  },
+  {
+   "fieldname": "recoupment_bod",
+   "fieldtype": "Currency",
+   "label": "Total Fuel Recoupment (BOD)",
+   "description": "The standing recoupment for this provider. This is the figure the fuel book balance is worked out from."
+  },
+  {
+   "fieldname": "recoupment_stcbl",
+   "fieldtype": "Currency",
+   "label": "Total Fuel Recoupment (STCBL)",
+   "description": "The standing recoupment for this provider. This is the figure the fuel book balance is worked out from."
+  },
+  {
+   "fieldname": "fuel_book_balance_bod",
+   "fieldtype": "Currency",
+   "label": "Closing Book Balance (BOD)",
+   "read_only": 1,
+   "description": "Opening + Recouped - Spent. Carries into the next abstract."
+  },
+  {
+   "fieldname": "fuel_book_balance_stcbl",
+   "fieldtype": "Currency",
+   "label": "Closing Book Balance (STCBL)",
+   "read_only": 1,
+   "description": "Opening + Recouped - Spent. Carries into the next abstract."
+  },
+  {
+   "fieldname": "sec_odometer",
+   "fieldtype": "Section Break",
+   "label": "Distance and Tank"
+  },
+  {
+   "fieldname": "opening_km",
+   "fieldtype": "Float",
+   "label": "Opening KM",
+   "reqd": 1,
+   "precision": "2",
+   "description": "Carried forward from the previous approved abstract where configured; an authorised user may override it."
+  },
+  {
+   "fieldname": "closing_km",
+   "fieldtype": "Float",
+   "label": "Closing KM",
+   "reqd": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "total_km",
+   "fieldtype": "Float",
+   "label": "Total KM",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "col_odo_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "previous_tank_balance",
+   "fieldtype": "Float",
+   "label": "Previous Tank Balance (Ltr)",
+   "precision": "3",
+   "description": "Hidden at GDL's request. The field and its value are retained - Total Fuel Consumed still reads it - but nothing is entered here, so consumed equals supplied.",
+   "hidden": 1
+  },
+  {
+   "fieldname": "present_tank_balance",
+   "fieldtype": "Float",
+   "label": "Present Tank Balance (Ltr)",
+   "precision": "3",
+   "hidden": 1,
+   "description": "Hidden at GDL's request. The field and its value are retained - Total Fuel Consumed still reads it - but nothing is entered here, so consumed equals supplied."
+  },
+  {
+   "fieldname": "total_fuel_consumed",
+   "fieldtype": "Float",
+   "label": "Total Fuel Consumed (Ltr)",
+   "read_only": 1,
+   "precision": "3",
+   "description": "Total Fuel Supplied + Previous Tank Balance - Present Tank Balance."
+  },
+  {
+   "fieldname": "performance_per_litre",
+   "fieldtype": "Float",
+   "label": "Performance per Litre (KM/L)",
+   "read_only": 1,
+   "precision": "6",
+   "description": "Total KM divided by Total Fuel CONSUMED. Left blank when consumption is not positive."
+  },
+  {
+   "fieldname": "sec_dimensions",
+   "fieldtype": "Section Break",
+   "label": "Dimensions"
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "Site",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "options": "Department",
+   "label": "Department"
+  },
+  {
+   "fieldname": "col_dim_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "options": "Cost Center",
+   "label": "Cost Center"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "options": "Project",
+   "label": "Project"
+  },
+  {
+   "fieldname": "sec_approval",
+   "fieldtype": "Section Break",
+   "label": "Accountability"
+  },
+  {
+   "fieldname": "submitted_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Submitted By",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "submitted_by_designation",
+   "fieldtype": "Data",
+   "label": "Submitted By Designation",
+   "default": "Driver"
+  },
+  {
+   "fieldname": "col_app_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Approved By",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "approved_by_designation",
+   "fieldtype": "Data",
+   "label": "Approved By Designation",
+   "default": "Head-HR"
+  },
+  {
+   "fieldname": "sec_more",
+   "fieldtype": "Section Break",
+   "label": "More"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "POL Abstract",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "sec_mileage",
+   "fieldtype": "Section Break",
+   "label": "Mileage Monitoring"
+  },
+  {
+   "fieldname": "min_mileage",
+   "fieldtype": "Float",
+   "label": "Minimum Required (KM/L)",
+   "read_only": 1,
+   "precision": "2",
+   "fetch_from": "vehicle.min_mileage",
+   "fetch_if_empty": 1,
+   "description": "From the vehicle. Zero means fuel efficiency does not apply, as for an EV."
+  },
+  {
+   "fieldname": "mileage_deviation",
+   "fieldtype": "Percent",
+   "label": "Deviation (%)",
+   "read_only": 1,
+   "description": "(Actual - Minimum) / Minimum. Negative is under target, positive is over."
+  },
+  {
+   "fieldname": "col_mileage_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mileage_status",
+   "fieldtype": "Select",
+   "label": "Mileage Status",
+   "read_only": 1,
+   "options": "\nWithin Tolerance\nBelow Tolerance\nAbove Tolerance\nNot Applicable",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "deviation_reason",
+   "fieldtype": "Small Text",
+   "label": "Deviation Reason",
+   "description": "Required when the deviation falls outside tolerance in either direction. HR reviews this before approving."
+  },
+  {
+   "fieldname": "driver_employee",
+   "fieldtype": "Link",
+   "options": "Employee",
+   "label": "Driver's Employee",
+   "read_only": 1,
+   "fetch_from": "driver.employee",
+   "description": "From the Driver master. Blank means that Driver has no Employee recorded."
+  },
+  {
+   "fieldname": "driver_license_no",
+   "fieldtype": "Data",
+   "label": "Driver's Licence No.",
+   "read_only": 1,
+   "fetch_from": "driver.license_number"
+  },
+  {
+   "fieldname": "supplier_bill_attachment",
+   "fieldtype": "Attach",
+   "label": "Supplier Bill Attachment",
+   "description": "A scan or photograph of the fuel supply memos. Required before the abstract can be submitted for approval."
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-29 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "POL Abstract",
+ "owner": "Administrator",
+ "naming_rule": "By \"Naming Series\" field",
+ "permissions": [
+  {
+   "role": "Fleet Driver",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Fleet HR Approver",
+   "read": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Fleet Administrator",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Fleet Manager",
+   "read": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Fleet User",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "search_fields": "vehicle,period_from,period_to,status",
+ "title_field": "vehicle",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

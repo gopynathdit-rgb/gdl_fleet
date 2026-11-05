@@ -1,0 +1,179 @@
+# gdl_fleet_extension/setup/fleet_permissions.py
+# Copyright (c) 2026, GDL and contributors
+"""
+Fleet role permissions on the STANDARD DocTypes this app extends, and the
+permission levels that keep money away from the roles that do not need it.
+
+DEF-001: the custom DocTypes carry permissions in their own JSON; the standard
+ones cannot, because this app must never edit another app's files. Nothing ever
+granted GDL's roles access to Vehicle, Driver, Vehicle Log, Asset Maintenance Log
+or Asset Repair. A Fleet Driver could not record a Vehicle Log and no fleet role
+at all could record a service.
+
+Two things to know before changing anything here.
+
+1. add_permission() rather than shipping DocPerm rows. Vehicle Log already carries
+   Custom DocPerm rows, and once a DocType has any, frappe reads Custom DocPerm and
+   ignores DocPerm entirely - a DocPerm shipped by this app would be silently
+   discarded on exactly the DocType the driver needs most. add_permission() writes
+   Custom DocPerm, and on a DocType with none it copies the standard rows across
+   first, so ERPNext's own permissions survive.
+
+2. PRESERVING rows. Raising a field to permlevel 1 removes it from every role
+   without a level-1 row - including Delivery Manager, Delivery User and
+   Manufacturing User, which belong to other modules. The rows marked "preserve"
+   below exist for no other reason than to leave those roles exactly as they were.
+   Delete one and you silently take access away from someone outside the fleet.
+
+Fleet Manager's level-0 rows are never touched: it is a standard ERPNext role.
+"""
+
+import frappe
+from frappe.custom.doctype.property_setter.property_setter import make_property_setter
+from frappe.permissions import add_permission, update_permission_property
+
+MODULE = "GDL Fleet"
+
+# doctype -> permlevel -> role -> rights
+FLEET_PERMISSIONS = {
+    "Vehicle": {
+        0: {
+            "Fleet Administrator":    ["read", "write", "create"],
+            "Fleet Approver":         ["read"],
+            "Fleet Driver":           ["read"],
+            "Fleet Maintenance User": ["read"],
+            "Fleet Store User":       ["read"],
+            "Fleet HR Approver":      ["read"],
+            "Fleet User":             ["read"],
+        },
+        1: {
+            "Fleet Administrator": ["read", "write"],
+            # preserve - these three hold level 0 today and must not lose
+            # vehicle_value, asset or lessor when those move to level 1
+            "Fleet Manager":       ["read", "write"],
+            "Delivery Manager":    ["read", "write"],
+            "Delivery User":       ["read"],
+        },
+    },
+    "Driver": {
+        0: {
+            "Fleet Administrator":    ["read", "write", "create"],
+            "Fleet Approver":         ["read"],
+            "Fleet Driver":           ["read"],
+            "Fleet Maintenance User": ["read"],
+        },
+    },
+    "Vehicle Log": {
+        0: {
+            # no cancel for the driver: cancelling recomputes the vehicle
+            # odometer, which is a correction, not a daily action
+            "Fleet Driver":        ["read", "write", "create", "submit"],
+            "Fleet Administrator": ["read", "write", "create", "submit", "cancel", "amend"],
+            "Fleet Approver":      ["read"],
+        },
+    },
+    "Asset Maintenance Log": {
+        0: {
+            "Fleet Driver":           ["read", "write", "create", "submit"],
+            "Fleet Maintenance User": ["read", "write", "create", "submit"],
+            "Fleet Administrator":    ["read", "write", "create", "submit", "cancel", "amend"],
+            "Fleet Manager":          ["read"],
+        },
+        1: {
+            "Fleet Maintenance User": ["read", "write"],
+            "Fleet Administrator":    ["read", "write"],
+            "Fleet Manager":          ["read"],
+            "Manufacturing User":     ["read", "write"],   # preserve
+        },
+        2: {
+            "Fleet Administrator":    ["read", "write"],
+            "Fleet Maintenance User": ["read"],
+            "Fleet Manager":          ["read"],
+            "Manufacturing User":     ["read", "write"],   # preserve
+        },
+    },
+    "Asset Repair": {
+        0: {
+            "Fleet Maintenance User": ["read", "write", "create", "submit"],
+            "Fleet Administrator":    ["read", "write", "create", "submit", "cancel"],
+            "Fleet Manager":          ["read"],
+        },
+    },
+}
+
+# Standard fields whose permlevel this app raises. GDL's own custom fields carry
+# their permlevel on the Custom Field record itself; a standard field cannot, so
+# it needs a Property Setter.
+STANDARD_FIELD_PERMLEVELS = {
+    "Vehicle": {"vehicle_value": 1},
+}
+
+
+def setup_fleet_permissions():
+    """Idempotent and additive. Grants what is missing; never revokes."""
+    granted, already, skipped = [], [], []
+
+    for doctype, levels in FLEET_PERMISSIONS.items():
+        if not frappe.db.exists("DocType", doctype):
+            skipped.append(f"{doctype} (not installed)")
+            continue
+
+        for permlevel, roles in levels.items():
+            for role, rights in roles.items():
+                if not frappe.db.exists("Role", role):
+                    skipped.append(f"{doctype}/{role} (role missing)")
+                    continue
+
+                created = add_permission(doctype, role, permlevel)
+
+                changed = False
+                for right in rights:
+                    current = frappe.db.get_value(
+                        "Custom DocPerm",
+                        {"parent": doctype, "role": role, "permlevel": permlevel},
+                        right,
+                    )
+                    if not current:
+                        update_permission_property(doctype, role, permlevel, right, 1)
+                        changed = True
+
+                (granted if (created or changed) else already).append(
+                    f"{doctype}[{permlevel}]/{role}"
+                )
+
+    for doctype, fields in STANDARD_FIELD_PERMLEVELS.items():
+        if not frappe.db.exists("DocType", doctype):
+            continue
+        for fieldname, permlevel in fields.items():
+            if frappe.get_meta(doctype).get_field(fieldname) is None:
+                skipped.append(f"{doctype}.{fieldname} (field missing)")
+                continue
+            make_property_setter(
+                doctype, fieldname, "permlevel", permlevel, "Int",
+                for_doctype=False, validate_fields_for_doctype=False,
+            )
+            frappe.db.set_value(
+                "Property Setter",
+                {"doc_type": doctype, "field_name": fieldname, "property": "permlevel"},
+                "module", MODULE,
+            )
+            granted.append(f"{doctype}.{fieldname} -> permlevel {permlevel}")
+
+    if granted:
+        frappe.clear_cache()
+
+    return {"granted": granted, "already_present": already, "skipped": skipped}
+
+
+def permission_report():
+    """What each role can do, per level. Used by the regression tests."""
+    report = {}
+    for doctype in FLEET_PERMISSIONS:
+        if not frappe.db.exists("DocType", doctype):
+            continue
+        report[doctype] = {}
+        for p in frappe.get_meta(doctype).permissions:
+            rights = [k for k in ("read", "write", "create", "submit", "cancel", "amend",
+                                  "delete", "import") if p.get(k)]
+            report[doctype].setdefault(p.permlevel, {})[p.role] = rights
+    return report
