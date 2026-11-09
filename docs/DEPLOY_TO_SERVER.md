@@ -1,6 +1,6 @@
 # Installing GDL Fleet Extension on the server
 
-Server: `94.136.184.120` · Package built 2026-11-05
+Server: `94.136.184.120` · Package built **2026-11-09**
 
 > Run these yourself. Every command is meant to be read before it is run.
 
@@ -34,7 +34,7 @@ following all happen on `install-app`:
 | Adds custom fields to `Vehicle`, `Driver`, `Employee`, `Vehicle Log`, `Asset Maintenance Log`, `Asset Repair`, `Purchase Invoice` | Custom Fields | yes |
 | Shows employee **names instead of IDs** in every Employee link, site-wide | Property Setter on Employee | yes |
 | Creates 3 workflows, notifications, a dashboard, roles, and GDL Fleet Settings | own records | yes |
-| Runs **25 patches** | data migrations | no |
+| Runs **26 patches** | data migrations | no |
 
 ### The one that deserves a decision, not a glance
 
@@ -71,12 +71,13 @@ fails without it.
 ./env/bin/python --version
 ```
 
-**This is the likely blocker.** The app's `pyproject.toml` declares
-`requires-python = ">=3.14"`. If the server reports 3.11 or 3.12, `pip` will
-refuse to install it. That version floor is not something the code actually
-needs — it came from the bench scaffold. If the server is older, tell me the
-version and I will relax the floor and rebuild the package. Do not edit it on
-the server.
+**No longer a blocker.** The package declared `requires-python = ">=3.14"`,
+which would have made `pip` refuse on the 3.11/3.12 frappe v16 is usually
+deployed on. The code was checked for anything newer than 3.10 — PEP 695
+generics, `type` statements, `itertools.batched`, `typing.Self` — and uses none
+of it, so the floor is now `>=3.10`. Anything from 3.10 up will install.
+
+Still worth printing: if it reports below 3.10, stop and tell me.
 
 ```bash
 bench --site <your-site> list-apps
@@ -109,25 +110,25 @@ A database backup is the only thing that undoes step 5 cleanly.
 From **this** machine:
 
 ```bash
-scp /home/gopynath/erpnext-v16/frappe-bench/gdl_fleet_extension-20261105.tar.gz root@94.136.184.120:/tmp/
+scp /home/gopynath/erpnext-v16/frappe-bench/gdl_fleet_extension-20261109.tar.gz root@94.136.184.120:/tmp/
 ```
 
 On the **server**, verify it arrived intact before unpacking:
 
 ```bash
-sha256sum /tmp/gdl_fleet_extension-20261105.tar.gz
+sha256sum /tmp/gdl_fleet_extension-20261109.tar.gz
 ```
 
 Expected:
 
 ```
-53047364acc3b2db3b9d9bd134280a2d25316575adaacc200356a853787d2c3a
+52f84f38ac74db474462888f1cbe9ff24da126f5ff8432d5318a052f9e077d33
 ```
 
 If it does not match, the copy is corrupt — delete it and scp again.
 
 ```bash
-mkdir -p /tmp/gdl-app && tar -xzf /tmp/gdl_fleet_extension-20261105.tar.gz -C /tmp/gdl-app
+mkdir -p /tmp/gdl-app && tar -xzf /tmp/gdl_fleet_extension-20261109.tar.gz -C /tmp/gdl-app
 cd ~/frappe-bench && bench get-app /tmp/gdl-app/gdl_fleet_extension
 ```
 
@@ -176,6 +177,8 @@ print(frappe.db.count("Vehicle"), "vehicles")
 print(frappe.db.count("Location"), "locations")
 print([r.name for r in frappe.get_all("Role", filters={"name": ("like", "Fleet%")})])
 print(frappe.get_meta("Asset Maintenance Log").get_field("vehicle").reqd)
+print(frappe.get_meta("Movement Order").default_print_format)   # Vehicle Movement Order
+print(frappe.get_meta("Vehicle Log").get_field("site").permlevel)   # 1
 ```
 
 Then open the desk and check the **GDL Fleet** workspace appears.
@@ -210,3 +213,5 @@ each stops one process the first time somebody tries it.
 - **Supplier Group on STCBL** — blocks the Purchase Invoice on a fuel claim.
 - **Fleet role assignments** — the roles are created empty. Nobody holds them
   until you assign them.
+- **A password for each fleet account.** None of them has one yet, so nobody can
+  log in to test. Set them yourself; do not ask me to.
