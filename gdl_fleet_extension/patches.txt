@@ -24,3 +24,4 @@ gdl_fleet_extension.patches.v1_6.separate_licence_notice
 gdl_fleet_extension.patches.v1_7.mto_without_fleet_manager
 gdl_fleet_extension.patches.v1_8.single_amount_per_pol_entry
 gdl_fleet_extension.patches.v1_9.simplify_maintenance_form
+gdl_fleet_extension.patches.v2_0.hide_dimensions_from_driver

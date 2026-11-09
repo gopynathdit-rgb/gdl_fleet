@@ -1,0 +1,23 @@
+{
+ "absolute_value": 0,
+ "align_labels_right": 0,
+ "creation": "2026-11-05 12:00:00.000000",
+ "css": "",
+ "custom_format": 1,
+ "default_print_language": "en",
+ "disabled": 0,
+ "doc_type": "Movement Order",
+ "docstatus": 0,
+ "doctype": "Print Format",
+ "font_size": 0,
+ "line_breaks": 0,
+ "modified": "2026-11-05 14:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "GDL Fleet",
+ "name": "Vehicle Movement Order",
+ "owner": "Administrator",
+ "print_format_builder": 0,
+ "print_format_type": "Jinja",
+ "show_section_headings": 0,
+ "standard": "Yes"
+}

@@ -100,6 +100,7 @@ VEHICLE_LOG_CUSTOM_FIELDS = {
 			"label": "Site and Accounting Dimensions",
 			"fieldtype": "Section Break",
 			"insert_after": "purpose",
+			"permlevel": 1,
 		},
 		{
 			"fieldname": "site",
@@ -108,6 +109,7 @@ VEHICLE_LOG_CUSTOM_FIELDS = {
 			"options": "Location",
 			"insert_after": "gdl_dimension_section",
 			"in_standard_filter": 1,
+			"permlevel": 1,
 		},
 		{
 			"fieldname": "department",
@@ -116,11 +118,13 @@ VEHICLE_LOG_CUSTOM_FIELDS = {
 			"options": "Department",
 			"insert_after": "site",
 			"in_standard_filter": 1,
+			"permlevel": 1,
 		},
 		{
 			"fieldname": "gdl_dimension_cb",
 			"fieldtype": "Column Break",
 			"insert_after": "department",
+			"permlevel": 1,
 		},
 		{
 			"fieldname": "cost_center",
@@ -129,6 +133,7 @@ VEHICLE_LOG_CUSTOM_FIELDS = {
 			"options": "Cost Center",
 			"insert_after": "gdl_dimension_cb",
 			"in_standard_filter": 1,
+			"permlevel": 1,
 		},
 		{
 			"fieldname": "project",
@@ -137,6 +142,7 @@ VEHICLE_LOG_CUSTOM_FIELDS = {
 			"options": "Project",
 			"insert_after": "cost_center",
 			"in_standard_filter": 1,
+			"permlevel": 1,
 		},
 		{
 			"fieldname": "task",
@@ -144,6 +150,7 @@ VEHICLE_LOG_CUSTOM_FIELDS = {
 			"fieldtype": "Link",
 			"options": "Task",
 			"insert_after": "project",
+			"permlevel": 1,
 		},
 		# --- odometer ---
 		{

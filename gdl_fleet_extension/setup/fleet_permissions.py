@@ -75,6 +75,21 @@ FLEET_PERMISSIONS = {
             # record services, not journeys.
             "Fleet Maintenance User": ["read"],
         },
+        # GDL: a driver recording the day's kilometres has no use for the site,
+        # cost centre, department, project or task. Those are how FINANCE files
+        # the journey, not how the driver records it, and they sat as five empty
+        # boxes between the driver and the odometer reading.
+        #
+        # Every role below already reached these fields at level 0. Raising the
+        # fields takes them from anyone without a level-1 row, so each of those
+        # roles is listed again here to keep exactly what it had. Fleet Driver
+        # is the one deliberately absent - that is the whole change.
+        1: {
+            "Fleet Administrator":    ["read", "write"],
+            "Fleet Manager":          ["read", "write"],   # preserve - standard role
+            "Fleet Approver":         ["read"],
+            "Fleet Maintenance User": ["read"],
+        },
     },
     "Asset Maintenance Log": {
         0: {

@@ -4,7 +4,11 @@ authors = [
     { name = "GDL", email = "gopynath.dit@gmail.com"}
 ]
 description = "GDL Fleet Extension - extends standard ERPNext 16 Fleet"
-requires-python = ">=3.14"
+# 3.10 is the real floor: the app uses PEP 604 unions (str | None) and
+# builtin generics, and nothing newer. The ">=3.14" this started with came
+# from the bench scaffold and would refuse to pip-install on a server
+# running the 3.11/3.12 that frappe v16 is commonly deployed on.
+requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [

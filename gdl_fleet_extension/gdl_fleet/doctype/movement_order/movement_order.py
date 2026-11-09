@@ -12,6 +12,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, get_datetime, now_datetime
 
+from gdl_fleet_extension.utils.odometer import get_last_odometer
+
 # A Movement Order in one of these states occupies the vehicle.
 OCCUPYING_STATUSES = ("Approved", "Dispatched")
 
@@ -27,6 +29,7 @@ class MovementOrder(Document):
 		self.validate_vehicle_available()
 		self.validate_no_overlap()
 		self.validate_location_approver()
+		self.validate_departure_odometer()
 		self.sync_status()
 
 	def before_update_after_submit(self):
@@ -34,7 +37,40 @@ class MovementOrder(Document):
 		self.validate_schedule()
 		self.validate_vehicle_available()
 		self.validate_no_overlap()
+		# The reading is entered at the gate, which is always after approval -
+		# so this check only ever runs here in practice.
+		self.validate_departure_odometer()
 		self.sync_status()
+
+	def validate_departure_odometer(self):
+		"""The reading taken as the vehicle leaves.
+
+		Deliberately NOT defaulted from the vehicle. An order is raised before
+		the journey, so a figure filled in at that point would be a guess
+		printed as a fact - and the printed order carries a ruled space for the
+		gate to write the real one. Vehicle Log defaults its start reading
+		because that genuinely IS the previous trip's end; this is an
+		observation, and there is nothing to observe yet.
+
+		What is checked is the one thing that is certainly wrong: a reading
+		below where the vehicle already stands. An odometer does not run
+		backwards, so that is a typo or the wrong vehicle.
+		"""
+		if not self.departure_odometer or not self.vehicle:
+			return
+
+		if cint(self.departure_odometer) < 0:
+			frappe.throw(_("Departure Odometer cannot be negative."))
+
+		last = get_last_odometer(self.vehicle, include_vehicle_current=True)
+		if cint(self.departure_odometer) < cint(last):
+			frappe.throw(
+				_("Departure Odometer ({0} km) is below this vehicle's last recorded "
+				  "reading ({1} km). An odometer does not run backwards - check the "
+				  "figure, or that this is the right vehicle.").format(
+					cint(self.departure_odometer), cint(last)),
+				title=_("Invalid Odometer Reading"),
+			)
 
 	def on_cancel(self):
 		self.db_set("status", "Cancelled")

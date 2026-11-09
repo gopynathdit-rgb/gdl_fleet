@@ -1,0 +1,138 @@
+{#-
+	Vehicle Movement Order - GDL's own printed form, reproduced.
+
+	Deliberate choices, so nobody "corrects" them later:
+
+	* The form carries EIGHT items and a signature block. Nothing else. An
+	  earlier draft added a logo, a ruled box, ruled value lines, the
+	  department beside the office, the internal vehicle id beside the
+	  registration and the origin beside the destination. GDL looked at it and
+	  said the document's own fields are enough, so all of that is gone. If a
+	  field is not on the paper form, it does not belong here.
+	* Items 9 and 10 of the paper form are not printed. GDL asked for both to
+	  be dropped. They were the return reading and the utilising officer's
+	  signature - filled in after the journey, on a form handed over before it.
+	* Item 7 prints the departure time, and the Departure Odometer when the
+	  order carries one. It usually will not: the sheet is printed before the
+	  vehicle moves and the reading is taken at the gate, so a blank space is
+	  printed instead, as on the paper form. Both cases are normal.
+	* Item 8 is worked out from departure to expected return. The paper form
+	  asks for days/hours, so that is what it says.
+	* The signature block is left blank to be signed, as on the original.
+-#}
+{#- An order raised without a site still belongs to the office that owns the
+    vehicle, and the form has to name one. -#}
+{%- set office = doc.site or (frappe.db.get_value("Vehicle", doc.vehicle, "site") if doc.vehicle else None) -%}
+{%- set driver_name = frappe.db.get_value("Driver", doc.driver, "full_name") if doc.driver else None -%}
+{%- set hours = frappe.utils.time_diff_in_hours(doc.expected_return, doc.departure_datetime)
+                if (doc.expected_return and doc.departure_datetime) else None -%}
+
+<div class="mo-sheet">
+
+	<div class="mo-title">VEHICLE MOVEMENT ORDER</div>
+
+	<table class="mo-auth">
+		<tr>
+			<td>Authorisation No. {{ doc.name }}</td>
+			<td class="right">Date: {{ frappe.utils.formatdate(doc.creation, "dd.MM.yy") }}</td>
+		</tr>
+	</table>
+
+	<table class="mo-items">
+		<tr>
+			<td class="l">1. Name of the office</td>
+			<td class="c">:</td>
+			<td class="v">{{ office or "" }}</td>
+		</tr>
+		<tr>
+			<td class="l">2. Pool Vehicle No.</td>
+			<td class="c">:</td>
+			<td class="v">{{ doc.vehicle or "" }}</td>
+		</tr>
+		<tr>
+			<td class="l">3. Name of the Driver &amp; his Licence No</td>
+			<td class="c">:</td>
+			<td class="v">{{ driver_name or doc.driver or "" }}{% if doc.driver_license_no %} &mdash; {{ doc.driver_license_no }}{% endif %}</td>
+		</tr>
+		<tr>
+			<td class="l">4. Place/s to visit</td>
+			<td class="c">:</td>
+			<td class="v">{{ doc.destination or "" }}</td>
+		</tr>
+		<tr>
+			<td class="l">5. Purpose of Movement</td>
+			<td class="c">:</td>
+			<td class="v">{{ doc.purpose or "" }}</td>
+		</tr>
+		<tr>
+			<td class="l">6. Officer/s to carry during the movement</td>
+			<td class="c">:</td>
+			<td class="v">
+				{%- if doc.passengers -%}
+					{%- for p in doc.passengers -%}
+						{{ p.passenger_name or p.employee or "" }}{% if p.designation %} ({{ p.designation }}){% endif %}{% if not loop.last %}, {% endif %}
+					{%- endfor -%}
+				{%- endif -%}
+			</td>
+		</tr>
+		<tr>
+			<td class="l">7. Time and km. reading on departure</td>
+			<td class="c">:</td>
+			<td class="v">
+				{%- if doc.departure_datetime -%}
+					{{ frappe.utils.format_datetime(doc.departure_datetime, "dd.MM.yy HH:mm") }}
+				{%- endif -%}
+				{%- if doc.departure_odometer %} &nbsp; {{ "{:,}".format(doc.departure_odometer) }} km{% endif -%}
+			</td>
+		</tr>
+		<tr>
+			<td class="l">8. Validity of movement order<br>&nbsp;&nbsp;&nbsp;(number of days/hours)</td>
+			<td class="c">:</td>
+			<td class="v">
+				{%- if hours is not none -%}
+					{%- set d = (hours // 24) | int -%}
+					{%- set h = (hours - d * 24) -%}
+					{%- if d -%}{{ d }} day{{ "s" if d != 1 }}{% if h >= 0.5 %} {{ "%.0f"|format(h) }} hour{{ "s" if h|round != 1 }}{% endif %}
+					{%- else -%}{{ "%.0f"|format(hours) }} hour{{ "s" if hours|round != 1 }}
+					{%- endif -%}
+				{%- endif -%}
+			</td>
+		</tr>
+	</table>
+
+	<table class="mo-signoff">
+		<tr><td>Signature (with name and designation)</td></tr>
+		<tr><td>of Authorising Officer</td></tr>
+	</table>
+
+</div>
+
+<style>
+	/* No box, no logo, no ruled lines - the form has none of them. */
+	.mo-sheet {
+		font-family: "Times New Roman", Georgia, serif;
+		font-size: 13px;
+		color: #000;
+		padding: 10px 20px 20px;
+	}
+
+	.mo-title {
+		text-align: center;
+		font-weight: bold;
+		font-size: 19px;
+		margin-bottom: 34px;
+	}
+
+	.mo-auth { width: 100%; border-collapse: collapse; margin-bottom: 26px; }
+	.mo-auth td { border: 0; padding: 0; }
+	.mo-auth .right { text-align: right; padding-right: 40px; }
+
+	.mo-items { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+	.mo-items td { border: 0; padding: 0; vertical-align: top; }
+	.mo-items .l { width: 44%; }
+	.mo-items .c { width: 18px; }
+	.mo-items .v { padding-left: 10px !important; }
+
+	.mo-signoff { width: 100%; margin-top: 70px; border-collapse: collapse; }
+	.mo-signoff td { border: 0; padding: 0; text-align: center; padding-left: 45% !important; }
+</style>
