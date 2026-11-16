@@ -734,6 +734,19 @@ class TestPOLWorkflowAndReports(IntegrationTestCase):
 			["Sl No", "Supply Memo No.", "Date", "HRS Liters", "Rate (Nu)", "Amount (Nu)"],
 		)
 
+	def test_each_column_heading_prints_on_one_line(self):
+		"""GDL circled the wrapped headings - "HRS / Liters", "Rate / (Nu)",
+		"Amount / (Nu)" - and asked for one line each. A <br> in a heading is
+		what split them, so there must not be one."""
+		doc = self.make_abstract(submit=True)
+		html = frappe.get_print("POL Abstract", doc.name, print_format="POL Abstract")
+		header = html.split("<thead>")[1].split("</thead>")[0]
+		self.assertNotIn("<br", header.lower(),
+		                 "a column heading is split across two lines again")
+		self.assertIn("HRS Liters", header)
+		self.assertIn("Rate (Nu)", header)
+		self.assertIn("Amount (Nu)", header)
+
 	def test_the_printed_total_is_the_sum_of_both_providers(self):
 		"""Collapsing two columns into one must not lose a provider's money."""
 		doc = self.make_abstract(submit=True)

@@ -105,15 +105,66 @@ A database backup is the only thing that undoes step 5 cleanly.
 
 ---
 
-## 4. Copy the app across
+## 4. Get the app onto the server
 
-From **this** machine:
+The repo is **private**, so the server cannot clone it anonymously. Give the
+server its own read-only credential - a deploy key. It is scoped to this one
+repository and puts no token in any config file.
+
+### 4a. A deploy key, on the server
+
+```bash
+ssh-keygen -t ed25519 -C "gdl-fleet-server-deploy" -f ~/.ssh/gdl_fleet_deploy -N ""
+```
+
+```bash
+cat ~/.ssh/gdl_fleet_deploy.pub
+```
+
+Copy that line into the repository (not your account):
+**github.com/gopynathdit-rgb/gdl_fleet → Settings → Deploy keys → Add deploy key**.
+Leave *Allow write access* **unticked** - the server only ever reads.
+
+Tell git to use that key for github.com:
+
+```bash
+cat >> ~/.ssh/config <<'EOF'
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/gdl_fleet_deploy
+  IdentitiesOnly yes
+EOF
+chmod 600 ~/.ssh/config
+```
+
+```bash
+ssh -T git@github.com
+```
+
+Expect `Hi gopynathdit-rgb/gdl_fleet! You've successfully authenticated, but
+GitHub does not provide shell access.` A deploy key authenticates as the
+*repository*, so the name shown is the repo, not your account.
+
+### 4b. Fetch it
+
+```bash
+cd ~/frappe-bench && bench get-app git@github.com:gopynathdit-rgb/gdl_fleet.git
+```
+
+`get-app` only puts the app on the bench and pip-installs it. **No site is
+touched yet** - nothing has changed for your users at this point.
+
+### 4c. Or, without GitHub at all
+
+The tarball route needs no credential on the server and the package is already
+built. From this machine:
 
 ```bash
 scp /home/gopynath/erpnext-v16/frappe-bench/gdl_fleet_extension-20261109.tar.gz root@94.136.184.120:/tmp/
 ```
 
-On the **server**, verify it arrived intact before unpacking:
+On the server, verify it arrived intact before unpacking:
 
 ```bash
 sha256sum /tmp/gdl_fleet_extension-20261109.tar.gz
@@ -125,17 +176,22 @@ Expected:
 52f84f38ac74db474462888f1cbe9ff24da126f5ff8432d5318a052f9e077d33
 ```
 
-If it does not match, the copy is corrupt — delete it and scp again.
-
 ```bash
 mkdir -p /tmp/gdl-app && tar -xzf /tmp/gdl_fleet_extension-20261109.tar.gz -C /tmp/gdl-app
 cd ~/frappe-bench && bench get-app /tmp/gdl-app/gdl_fleet_extension
 ```
 
-`get-app` only puts the app on the bench and pip-installs it. **No site is
-touched yet** — nothing has changed for your users at this point.
+### Updating later
 
----
+With the deploy key in place, a later update is:
+
+```bash
+cd ~/frappe-bench/apps/gdl_fleet_extension && git pull
+cd ~/frappe-bench && bench --site <your-site> migrate && bench build --app gdl_fleet_extension
+```
+
+The tarball route has no update path - you would copy a new tarball each time.
+That is the reason to prefer 4a/4b if the server will track changes.
 
 ## 5. Install onto the site
 

@@ -59,6 +59,7 @@
   "col_purch_1",
   "maintenance_po_on_completion",
   "maintenance_service_item",
+  "maintenance_expense_account",
   "maintenance_purchase_document",
   "maintenance_bill_requires_attachment",
   "maintenance_approver_role",
@@ -377,6 +378,13 @@
    "description": "The Item a workshop service is purchased as. Vehicle Service Item is a maintenance category, not an Item, so it cannot be used on a purchase order."
   },
   {
+   "fieldname": "maintenance_expense_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Maintenance Expense Account",
+   "description": "Where a workshop bill is charged when Create Purchase Invoice is used. GDL's chart carries R&M-Vehicle accounts for exactly this."
+  },
+  {
    "fieldname": "sec_insurance_purchasing",
    "fieldtype": "Section Break",
    "label": "Insurance Renewal Purchasing"
@@ -452,7 +460,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-29 14:00:00.000000",
+ "modified": "2026-11-12 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "GDL Fleet",
  "name": "GDL Fleet Settings",

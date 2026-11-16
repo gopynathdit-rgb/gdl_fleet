@@ -432,3 +432,141 @@ def retry_renewal_purchase(renewal: str):
 	return frappe.db.get_value(RENEWAL_DOCTYPE, renewal,
 	                           ["purchasing_status", "purchase_order", "purchasing_message"],
 	                           as_dict=True)
+
+
+# ---------------------------------------------------------------------------
+# Create Purchase Invoice, by hand, from a completed service
+# ---------------------------------------------------------------------------
+@frappe.whitelist()
+def get_maintenance_invoice(maintenance_log: str):
+	"""The live invoice for a service, read from the INVOICE side.
+
+	The service record deliberately stores no link to its invoice. frappe's
+	link integrity then refuses to cancel the invoice -
+
+	    Cannot delete or cancel because Purchase Invoice ... is linked with
+	    Asset Maintenance Log ...
+
+	- and Accounts cancelling a wrong invoice is exactly how a wrong invoice
+	gets fixed. POL learned this first and points the same way: the invoice
+	names the document it came from, never the reverse.
+
+	Cancelled invoices are excluded, so a service whose invoice was cancelled
+	can be billed again.
+	"""
+	return frappe.db.get_value("Purchase Invoice", {
+		"asset_maintenance_log": maintenance_log,
+		"docstatus": ("<", 2),
+	}, "name")
+
+
+@frappe.whitelist()
+def make_maintenance_invoice(maintenance_log: str):
+	"""Raise a DRAFT Purchase Invoice for a service that has been done.
+
+	GDL: "once the service log completed need here create purchase invoice
+	option here after that the account person see all the details in purchase
+	invoice page."
+
+	A button rather than automation. The old automation is a different thing
+	and stays switched off: it fired on bill approval, through an approval
+	chain nobody uses, and needed a Service Item that was never set - so every
+	completed service stopped at "Purchasing: Pending". This runs when somebody
+	asks for it, and says plainly what is missing when it cannot.
+
+	The line carries no Item. ERPNext does not require one on a purchase
+	invoice, and inventing an Item master for "vehicle service" would be a
+	second thing to maintain; an expense account is what the posting actually
+	needs. GDL's chart already has R&M-Vehicle accounts for this.
+
+	Draft on purpose. Accounts check it against the paper bill and submit it;
+	nothing here posts to the ledger or marks anything paid.
+	"""
+	frappe.has_permission("Purchase Invoice", "create", throw=True)
+	doc = frappe.get_doc(MAINTENANCE_DOCTYPE, maintenance_log)
+
+	if doc.docstatus != 1:
+		frappe.throw(_("Submit the service record first - an invoice should only "
+		               "be raised for work that is confirmed as done."),
+		             title=_("Not Submitted"))
+
+	if doc.get("maintenance_status") != "Completed":
+		frappe.throw(_("This service is {0}. Only a completed service is billed.")
+		             .format(doc.get("maintenance_status") or _("not completed")),
+		             title=_("Not Completed"))
+
+	existing = get_maintenance_invoice(doc.name)
+	if existing:
+		return existing
+
+	supplier = doc.get("service_provider")
+	amount = flt(doc.get("total_cost"))
+	company = get_purchasing_company(doc)
+	account = get_setting("maintenance_expense_account")
+
+	missing = []
+	if not supplier:
+		missing.append(_("Service Provider on this record"))
+	if not amount:
+		missing.append(_("a Total Cost above zero"))
+	if not company:
+		missing.append(_("a Company - set one on the vehicle, or Purchasing Company in GDL Fleet Settings"))
+	if not account:
+		missing.append(_("Maintenance Expense Account in GDL Fleet Settings"))
+	if missing:
+		frappe.throw(
+			_("Cannot raise the invoice yet. Still needed: {0}.").format(", ".join(missing)),
+			title=_("Not Ready"))
+
+	# A group account is a heading in the chart, not somewhere a posting can
+	# land. ERPNext refuses it deep inside the invoice save, with a message
+	# about the item rather than the setting - so it is caught here, where the
+	# setting can be named and the postable accounts underneath it offered.
+	if frappe.db.get_value("Account", account, "is_group"):
+		children = frappe.get_all(
+			"Account", filters={"name": ("descendants of", account), "is_group": 0,
+			                    "root_type": "Expense"}, pluck="name", limit=6)
+		frappe.throw(
+			_("Maintenance Expense Account is set to {0}, which is a group "
+			  "account - nothing can be posted to it. Choose one of the "
+			  "accounts beneath it in GDL Fleet Settings, for example: {1}.")
+			.format(frappe.bold(account), ", ".join(children) or _("(none found)")),
+			title=_("Group Account"))
+
+	clash = duplicate_bill(supplier, doc.get("bill_no"))
+	if clash:
+		frappe.throw(
+			_("Bill {0} from {1} is already on Purchase Invoice {2}. A service "
+			  "centre must not be paid twice for one job.").format(
+				doc.get("bill_no"), supplier, clash),
+			title=_("Already Invoiced"))
+
+	invoice = frappe.new_doc("Purchase Invoice")
+	invoice.supplier = supplier
+	invoice.company = company
+	invoice.posting_date = nowdate()
+	if doc.get("bill_no"):
+		invoice.bill_no = doc.get("bill_no")
+	if doc.get("bill_date"):
+		invoice.bill_date = doc.get("bill_date")
+	if frappe.get_meta("Purchase Invoice").get_field("asset_maintenance_log"):
+		invoice.asset_maintenance_log = doc.name
+
+	invoice.append("items", {
+		"item_name": _("Vehicle Service"),
+		"description": maintenance_description(doc),
+		"qty": 1,
+		"uom": frappe.db.get_single_value("Stock Settings", "stock_uom") or "Nos",
+		"rate": amount,
+		"expense_account": account,
+		"cost_center": doc.get("cost_center") or None,
+		"project": doc.get("project") or None,
+	})
+	invoice.flags.ignore_permissions = True
+	invoice.insert()
+
+	# purchasing_status only - NOT the invoice name. See get_maintenance_invoice
+	# for why a stored link would make the invoice impossible to cancel.
+	frappe.db.set_value(MAINTENANCE_DOCTYPE, doc.name,
+	                    "purchasing_status", "Invoiced", update_modified=False)
+	return invoice.name

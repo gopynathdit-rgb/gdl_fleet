@@ -83,8 +83,16 @@ doctype_js = {
 # Vehicle Log qualifies: hrms' on_cancel drags the vehicle odometer backwards
 # when an older log is cancelled. See overrides/vehicle_log.py.
 # ---------------------------------------------------------------------------
+# The Vehicle form's Connections strip, so a vehicle leads to its renewals.
+override_doctype_dashboards = {
+	"Vehicle": "gdl_fleet_extension.overrides.vehicle_dashboard.get_data",
+}
+
 override_doctype_class = {
 	"Vehicle Log": "gdl_fleet_extension.overrides.vehicle_log.GDLVehicleLog",
+	# Lets a service be submitted with no maintenance plan behind it - see the
+	# class for what ERPNext does otherwise.
+	"Asset Maintenance Log": "gdl_fleet_extension.overrides.asset_maintenance.GDLAssetMaintenanceLog",
 }
 
 # ---------------------------------------------------------------------------

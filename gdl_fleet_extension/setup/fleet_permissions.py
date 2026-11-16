@@ -115,17 +115,29 @@ FLEET_PERMISSIONS = {
             "Manufacturing User":     ["read", "write"],   # preserve
         },
     },
-    "Asset Repair": {
-        0: {
-            "Fleet Maintenance User": ["read", "write", "create", "submit"],
-            "Fleet Administrator":    ["read", "write", "create", "submit", "cancel"],
-            "Fleet Manager":          ["read"],
-            # OBS-004: a driver should be able to see a breakdown logged against
-            # a vehicle they drive. Read only - recording a repair stays with
-            # the maintenance user.
-            "Fleet Driver":           ["read"],
-        },
-    },
+    # Asset Repair carries NO fleet grant any more.
+    #
+    # OBS-004 gave Fleet Driver read here, and the maintenance user and the
+    # administrator the full set, on the reasonable-sounding grounds that a
+    # breakdown logged against a vehicle is fleet business. It is not usable
+    # business: `asset` is mandatory on Asset Repair and no GDL vehicle is
+    # linked to an Asset, so the form cannot be saved at all. It has never held
+    # a record.
+    #
+    # The final document settles whether that matters. Section 2.1.1.4: "All
+    # routine and corrective service activities should be recorded against the
+    # vehicle and its odometer reading" - one record for both, and the only use
+    # of the word "repair" in the whole document is "Other repair or
+    # maintenance item", a Service Type on that record.
+    #
+    # Permission is also the ONLY thing that takes a link off a workspace.
+    # frappe's desktop.get_links() filters on is_item_allowed() and never reads
+    # the `hidden` flag on a Workspace Link, so hiding the link achieved
+    # nothing. Removing the grant is what removes the menu entry.
+    #
+    # Manufacturing Manager, Quality Manager and Fleet Manager keep their own
+    # rows: those are ERPNext's, for non-vehicle assets, and none of this is
+    # their business.
     # A Supplier link that nobody may look up is a form nobody can fill in.
     #
     # POL Entry.supplier is the routing key for a fuel claim, and Asset

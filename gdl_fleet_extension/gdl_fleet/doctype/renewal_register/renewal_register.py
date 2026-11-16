@@ -87,25 +87,74 @@ class RenewalRegister(Document):
 		)
 
 	def sync_vehicle_convenience_fields(self):
-		"""Keep the Vehicle's current insurance display in step with the register."""
-		if self.renewal_type != "Insurance" or not self.vehicle:
+		"""Copy the live renewal onto the Vehicle's own display fields.
+
+		The register is the record; the Vehicle fields are a convenience copy of
+		whichever renewal is currently live. GDL asked the obvious question -
+		"in vehicle master insurance details there, then what is Renewal
+		Register?" - after seeing an Insurance Expiry on the Vehicle and a
+		separate renewal record holding the same dates.
+
+		The answer is that the register keeps the HISTORY (every policy ever
+		held, each chained to the one it supersedes, as section 4.5 requires)
+		while the Vehicle shows only what is in force today.
+
+		Until now only Insurance was copied across, so a Registration or Fitness
+		renewal left the Vehicle's own Registration Expiry and Inspection Expiry
+		blank for ever - two fields on screen that nothing ever filled.
+		"""
+		if not self.vehicle:
 			return
 
-		latest = get_current_renewal(self.vehicle, "Insurance")
-		if latest and latest.get("name") == self.name:
-			frappe.db.set_value(
-				"Vehicle", self.vehicle,
-				{
-					"insurance_company": self.provider,
-					"policy_no": self.certificate_no,
-					"start_date": self.effective_from,
-					"end_date": self.expiry_date,
-				},
-				update_modified=False,
-			)
+		mapping = VEHICLE_FIELDS_BY_TYPE.get(self.renewal_type)
+		if not mapping:
+			return		# a type the Vehicle form has no field for - register only
+
+		# Only the live record writes. An older renewal being submitted late
+		# must not overwrite the policy actually in force.
+		latest = get_current_renewal(self.vehicle, self.renewal_type)
+		if not latest or latest.get("name") != self.name:
+			return
+
+		frappe.db.set_value(
+			"Vehicle", self.vehicle,
+			{vehicle_field: self.get(renewal_field)
+			 for vehicle_field, renewal_field in mapping.items()},
+			update_modified=False,
+		)
 
 
 # ----------------------------------------------------------------------
+# Which Vehicle field each kind of renewal keeps up to date.
+#
+# A type absent from this map lives in the register alone - Emission, Permit,
+# Road Tax and Other have no field on the Vehicle form, and inventing one was
+# not asked for.
+#
+# registration_renewal_date and insurance_renewal_date: GDL were asked whether
+# these meant "renewed on" or "renew by", and answered "renew by date". The
+# date by which a certificate must be renewed is the day it expires, so both
+# take the expiry of their own renewal type.
+#
+# That makes Registration Expiry and Registration Renewal Date read alike, by
+# GDL's own definition. They are left as two fields rather than one because
+# nothing is removed from this system merely for looking redundant.
+VEHICLE_FIELDS_BY_TYPE = {
+	"Insurance": {
+		"insurance_company": "provider",
+		"policy_no": "certificate_no",
+		"start_date": "effective_from",
+		"end_date": "expiry_date",
+		"insurance_renewal_date": "expiry_date",
+	},
+	"Registration": {
+		"registration_expiry": "expiry_date",
+		"registration_renewal_date": "expiry_date",
+	},
+	"Fitness": {"inspection_expiry": "expiry_date"},
+}
+
+
 def get_primary_notice_days() -> int:
 	"""The first reminder threshold. Configurable - never hard-coded.
 

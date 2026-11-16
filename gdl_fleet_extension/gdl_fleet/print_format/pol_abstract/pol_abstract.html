@@ -48,11 +48,11 @@
 		<thead>
 			<tr>
 				<th style="width:8%">Sl No</th>
-				<th style="width:30%">Supply Memo No.</th>
-				<th style="width:16%">Date</th>
-				<th style="width:14%" class="right">HRS<br>Liters</th>
-				<th style="width:14%" class="right">Rate<br>(Nu)</th>
-				<th style="width:18%" class="right">Amount<br>(Nu)</th>
+				<th style="width:24%">Supply Memo No.</th>
+				<th style="width:15%">Date</th>
+				<th style="width:17%" class="right">HRS Liters</th>
+				<th style="width:14%" class="right">Rate (Nu)</th>
+				<th style="width:22%" class="right">Amount (Nu)</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -177,7 +177,11 @@
 
 	.pol-entries { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
 	.pol-entries th, .pol-entries td { border: 1px solid #000; padding: 3px 6px; }
-	.pol-entries th { font-weight: bold; text-align: left; vertical-align: bottom; }
+	/* Each heading on ONE line. GDL circled the wrapped headings and asked for
+	   them on a single line; the widths above leave room, and nowrap stops a
+	   narrow page or a long company name re-wrapping them anyway. */
+	.pol-entries th { font-weight: bold; text-align: left; vertical-align: bottom;
+	                  white-space: nowrap; }
 	.pol-entries th.right { text-align: left; }
 	.pol-entries .right { text-align: right; }
 	.pol-entries .center { text-align: center; }

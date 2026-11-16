@@ -119,7 +119,7 @@ a{color:var(--accent)}
       <span><b>Covers</b> 15 DocTypes, 18 reports, 3 approval workflows</span>
       <span><b>Currency</b> Ngultrum (Nu.)</span>
       <span><b>Fleet</b> 14 vehicles across 7 sites &middot; GreenDigital Limited</span>
-      <span><b>Revised</b> 4 November 2026</span>
+      <span><b>Revised</b> 12 November 2026</span>
     </div>
   </header>
 
@@ -133,7 +133,7 @@ a{color:var(--accent)}
         <li><a href="#p4"><span class="n">4</span><span>Drivers &amp; assignment</span></a></li>
         <li><a href="#p5"><span class="n">5</span><span>Daily KM</span></a></li>
         <li><a href="#p6"><span class="n">6</span><span>Service &amp; maintenance</span></a></li>
-        <li><a href="#p7"><span class="n">7</span><span>The service bill</span></a></li>
+        <li><a href="#p7"><span class="n">7</span><span>The service bill &amp; its invoice</span></a></li>
         <li><a href="#p8"><span class="n">8</span><span>Insurance &amp; renewals</span></a></li>
         <li><a href="#p9"><span class="n">9</span><span>Requesting a vehicle</span></a></li>
         <li><a href="#p10"><span class="n">10</span><span>The movement order</span></a></li>
@@ -169,7 +169,7 @@ a{color:var(--accent)}
       <tr><td><b>Vehicle Master</b></td><td>Vehicle, Driver, Fleet Vehicle Type, Driver Assignment, Renewal Register</td></tr>
       <tr><td><b>Movement</b></td><td>Movement Order Request, Movement Order</td></tr>
       <tr><td><b>Operations</b></td><td>Daily KM / Vehicle Log, POL Abstract</td></tr>
-      <tr><td><b>Service &amp; Maintenance</b></td><td>Asset Maintenance, Asset Maintenance Log, Asset Repair, Vehicle Service Item</td></tr>
+      <tr><td><b>Service &amp; Maintenance</b></td><td>Asset Maintenance Log, Vehicle Service Item<br><span class="pill">Asset Repair and Asset Maintenance are off every fleet account's menu &mdash; see Part 6</span></td></tr>
       <tr><td><b>Parts &amp; Tyres</b></td><td>Fleet Part Issue, Vehicle Tyre</td></tr>
       <tr><td><b>Setup</b></td><td>GDL Fleet Settings, Site (Location), Cost Center, Department</td></tr>
       <tr><td><b>Reports</b></td><td>All 18 fleet reports</td></tr>
@@ -292,7 +292,8 @@ a{color:var(--accent)}
       <tr><td>Raise Purchasing Document on Bill Approval</td><td class="n">off</td><td>Switched off November 2026. A service bill is a number on the record, not a purchase order. See Part 7.</td></tr>
       <tr><td>Document to Raise</td><td class="n">Purchase Invoice</td><td>Or Purchase Order then Invoice.</td></tr>
       <tr><td>Require the Bill Attachment</td><td class="n">on</td><td>No service bill without a scan of the workshop's invoice.</td></tr>
-      <tr><td>Purchasing Company &middot; Service Item &middot; Approver Role &middot; Notify Role</td><td class="n"><b>blank</b></td><td>Only needed if GDL ever switches purchasing back on. Nothing is waiting on them today.</td></tr>
+      <tr><td><b>Maintenance Expense Account</b></td><td class="n">set it</td><td>Where a workshop bill is charged by <b>Create &rsaquo; Purchase Invoice</b>. Must be postable, not a group &mdash; see Part 7.</td></tr>
+      <tr><td>Purchasing Company &middot; Service Item &middot; Approver Role &middot; Notify Role</td><td class="n"><b>blank</b></td><td>Only needed if GDL ever switches the old purchasing chain back on. The invoice button needs none of them.</td></tr>
       <tr><td colspan="3"><b>Insurance renewal purchasing</b></td></tr>
       <tr><td>Raise Purchase Order When Insurance Expires</td><td class="n">off</td><td>Off until GDL decides to automate renewals.</td></tr>
       <tr><td>Renewal Item &middot; Default Insurance Supplier</td><td class="n"><b>blank</b></td><td>Needed before the automation can run.</td></tr>
@@ -309,9 +310,11 @@ a{color:var(--accent)}
     <thead><tr><th>Blank setting</th><th>What it holds up</th></tr></thead>
     <tbody>
       <tr><td><span class="f">Bill Approver Role</span></td><td>Nothing, now. Bill approval is off &mdash; see Part 7.</td></tr>
-      <tr><td><span class="f">Purchasing Company</span> &middot; <span class="f">Maintenance Service Item</span> &middot; <span class="f">Notify Role</span></td><td>Nothing, now. They would only be needed if maintenance purchasing were switched back on.</td></tr>
+      <tr><td><span class="f">Maintenance Expense Account</span></td><td><b>Every service invoice.</b> Create &rsaquo; Purchase Invoice refuses until it names a postable account.</td></tr>
+      <tr><td><span class="f">Purchasing Company</span> &middot; <span class="f">Maintenance Service Item</span> &middot; <span class="f">Notify Role</span></td><td>Nothing, now. They belong to the old purchasing chain, which is off.</td></tr>
       <tr><td><span class="f">BOD Supplier</span> &middot; <span class="f">STCBL Supplier</span></td><td>Now set &mdash; <b>BOD</b> and <b>STCBL</b>. Both fuel providers are offered on a POL line, and a line naming any other supplier is refused on save. That rule was inert while STCBL was blank.</td></tr>
       <tr><td><span class="f">Default Maintenance Team</span></td><td>Preventive maintenance plans cannot be raised.</td></tr>
+      <tr><td><span class="f">Stock Adjustment Account</span> <small>on the <b>Company</b>, not in Fleet Settings</small></td><td>Now set &mdash; <b>52262 - Stock Adjustment</b>. Every spare part and tyre issue needs it: without it ERPNext refuses the stock movement on submit. It is blank on a company whose chart was imported rather than built by the setup wizard, which is why GDL's was.</td></tr>
       <tr><td><span class="f">Insurance Renewal Item</span> &middot; <span class="f">Default Insurance Supplier</span></td><td>Only matters if renewal purchasing is switched on. It is off.</td></tr>
     </tbody>
   </table></div></div>
@@ -382,6 +385,8 @@ a{color:var(--accent)}
     <li>Fill <span class="f">Make</span>, <span class="f">Model</span> and <span class="f">Vehicle Type</span> (Car, SUV, Bus, Truck, Utility).</li>
     <li>Set <span class="f">Ownership Type</span>. For Leased or Rented, name the <span class="f">Lessor / Rental Supplier</span>.</li>
     <li>Enter <span class="f">Opening Odometer</span>, <span class="f">Engine No</span>, <span class="f">Chassis No</span>, <span class="f">Manufacturing Year</span>, <span class="f">Capacity</span> and <span class="f">Capacity UOM</span>.</li>
+    <li>Under <b>Additional Details</b>, set <span class="f">Fuel Type</span>, <span class="f">Fuel UOM</span> and <span class="f">Fuel Tank Capacity</span> &mdash; a full tank, in that UOM.<br>
+      <span class="pill"><b>Capacity</b> and <b>Fuel Tank Capacity</b> are two different things. The first is passenger seats or load; the second is the fuel tank.</span></li>
     <li>Set <span class="f">Minimum Required Mileage (KM/L)</span> &mdash; the fuel target this vehicle is held to. See Part 12.</li>
     <li>Set the <span class="f">Site</span>, plus <span class="f">Department</span>, <span class="f">Cost Center</span> and <span class="f">Project</span> if it belongs to one.</li>
     <li><b>Save</b>. A <span class="f">Vehicle ID</span> such as <code>GDL-VEH-00003</code> is allotted and never changes.</li>
@@ -483,9 +488,36 @@ a{color:var(--accent)}
     <li>Enter the <span class="f">Closing Odometer</span>. <span class="f">Distance Travelled</span> calculates itself.</li>
     <li>Enter <span class="f">Place to Travel</span> &mdash; required. Add start location and destination if useful.</li>
     <li>Link the <span class="f">Movement Order</span> if the day's running was against one; the driver is then taken from it.</li>
-    <li>Set <span class="f">Usage</span> and any dimensions &mdash; Site, Department, Cost Center, Project.</li>
+    <li>Set <span class="f">Usage</span>.</li>
+    <li>Set the dimensions &mdash; Site, Department, Cost Center, Project, Task.<br>
+      <span class="pill">A <b>Fleet Driver does not see this section at all.</b> See below.</span></li>
     <li><b>Submit</b>. The vehicle's current odometer moves to the closing reading.</li>
   </ol>
+
+  <div class="call new"><span class="lbl">A driver does not see the dimensions &mdash; November 2026</span>
+  <p>GDL, looking at the form as a driver: <i>"in driver login i dont need this field"</i>.
+  Site, Department, Cost Center, Project and Task are how <b>finance</b> files a journey,
+  not how a driver records one, and they sat as five empty boxes between the driver and
+  the odometer reading. The whole <b>Site &amp; Accounting Dimensions</b> section is now
+  out of a driver's reach &mdash; the section heading goes with it, so there is no empty
+  gap left behind.</p>
+  <p>The same was done to the <b>POL Abstract</b>, for the same reason.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Form</th><th>Out of reach for</th><th>Still visible and editable for</th></tr></thead>
+    <tbody>
+      <tr><td><b>Vehicle Log</b><br><small>Site, Department, Cost Center, Project, Task</small></td>
+          <td><span class="pill who">Fleet Driver</span></td>
+          <td>Fleet Administrator &middot; Fleet Manager &middot; Fleet Approver &middot; Fleet Maintenance User</td></tr>
+      <tr><td><b>POL Abstract</b><br><small>Site, Department, Cost Center, Project</small></td>
+          <td><span class="pill who">Fleet Driver</span></td>
+          <td>Fleet Administrator &middot; Fleet Manager &middot; Fleet HR Approver &middot; Fleet User</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>Nothing was deleted, and no figure changed.</b> The fields still exist, still hold
+  whatever they held, and still reach the reports and the accounting dimension. They are
+  simply above a driver's permission level. If a driver must file a journey to a cost
+  centre, whoever holds one of the roles on the right fills it in afterwards &mdash; the
+  log can be edited before it is submitted.</p></div>
 
   <div class="call warn"><span class="lbl">Two guards you will meet</span>
   <p><b>One record per vehicle per day.</b> A second log for the same vehicle and date
@@ -506,13 +538,70 @@ a{color:var(--accent)}
   <p class="standfirst">Planned servicing and unplanned repairs, both against the vehicle and its odometer.</p>
   <div class="roles"><span class="pill who">Fleet Maintenance User</span></div>
 
+  <div class="call new"><span class="lbl">One record for both &mdash; November 2026</span>
+  <p>The final document, &sect;2.1.1.4, opens with the sentence that settles this:</p>
+  <p style="margin-left:14px"><i>"<b>All routine and corrective service activities</b> should be
+  recorded against the vehicle and its odometer reading."</i></p>
+  <p>One record type, not two. The only use of the word <i>repair</i> anywhere in the
+  document is <b>"Other repair or maintenance item"</b> &mdash; the twelfth
+  <span class="f">Service Type</span> in that record's own dropdown. A breakdown is
+  recorded on the service record, with that Service Type.</p>
+  <p><b>Asset Repair is therefore off the fleet menu</b> &mdash; and so is
+  <b>Asset Maintenance</b>, ERPNext's maintenance plan. Neither could be used anyway:
+  both require an <span class="f">Asset</span>, no GDL vehicle is linked to one (0 of
+  14), and Asset Maintenance also requires a Maintenance Team that has never been set.
+  Between them they had never held a record.</p>
+  <p><b>They are off the menu by permission, not by a hidden flag.</b> The three fleet
+  roles &mdash; Fleet Driver, Fleet Maintenance User and Fleet Administrator &mdash; no
+  longer hold any permission on Asset Repair, and none ever held one on Asset
+  Maintenance. Every fleet account now opens the workspace and sees neither.</p>
+  <div class="call warn"><span class="lbl">Administrator will still see both</span>
+  <p>There is no way to take a menu entry off the Administrator account short of
+  switching the DocType off for the whole site, which would also take it from Accounts.
+  <b>Checking this as Administrator will always show both entries.</b> Log in as a fleet
+  user to see the real menu.</p>
+  <p>This is worth stating because the first attempt got it wrong. ERPNext's desk builds
+  a workspace's links by asking only <i>may this user open it?</i> &mdash; it never reads
+  the <span class="f">hidden</span> tick on the link. Ticking <span class="f">hidden</span>
+  changed a database flag and nothing on screen.</p></div>
+  <p>Nothing depended on the plan. GDL's periodic maintenance runs on its own data, and
+  it was checked before the access was withdrawn:</p>
+  <div class="tw"><table>
+    <tbody>
+      <tr><td>Asset Maintenance records</td><td class="n">0</td></tr>
+      <tr><td>GDL Fleet Maintenance Rule</td><td class="n">12</td></tr>
+      <tr><td>Service Due report</td><td class="n">runs, with its own columns</td></tr>
+      <tr><td>Notifications</td><td class="n">Maintenance Due &middot; Maintenance Overdue</td></tr>
+    </tbody>
+  </table></div>
+  <p>Next service date and KM are worked out from those rules by the service record
+  itself, not by a plan &mdash; so maintenance scheduling, service due monitoring and
+  overdue tracking are all still answered.</p>
+  <p>Withdrawn, not deleted &mdash; the DocTypes, their fields, their code and any record
+  ever written stay exactly where they are; nothing was lost, because neither had ever
+  held one. ERPNext's own roles keep their access: <b>Manufacturing Manager</b> and
+  <b>Quality Manager</b> can still raise an Asset Repair against the building, the
+  furniture and anything else on the asset register, and Fleet Manager can still read
+  one. If GDL ever puts its vehicles on that register, the fleet roles are re-granted in
+  one step &mdash; nothing has to be rebuilt.</p></div>
+
   <div class="tw"><table>
     <thead><tr><th>Use</th><th>When</th><th>Carries</th></tr></thead>
     <tbody>
-      <tr><td><b>Asset Maintenance Log</b></td><td>Routine and corrective servicing</td><td>Several service items in one visit, each with part, quantity and cost &mdash; plus the workshop's invoice number and a scan of it.</td></tr>
-      <tr><td><b>Asset Repair</b></td><td>Breakdown, accident, corrective job</td><td>One service type, downtime, and cost from the parts consumed.</td></tr>
+      <tr><td><b>Asset Maintenance Log</b></td><td><b>All</b> servicing &mdash; routine and corrective alike</td><td>Several service items in one visit, each with part, quantity and cost &mdash; plus the workshop's invoice number and a scan of it.</td></tr>
     </tbody>
   </table></div>
+
+  <div class="call rule"><span class="lbl">Recording a breakdown</span>
+  <p>Exactly as you record a service, with <span class="f">Service Type</span> set to
+  <b>Other repair or maintenance item</b> and what happened written in
+  <b>Service Description</b>. The cost, the workshop and the bill go in the same places,
+  and <b>Create &rsaquo; Purchase Invoice</b> works the same way (Part 7).</p>
+  <p>What the document does not ask for, and this therefore does not track: downtime
+  between failure and completion, parts issued from your own stock against the repair,
+  and capitalising a repair into the vehicle's book value. The words <i>breakdown</i>,
+  <i>accident</i>, <i>downtime</i>, <i>capitalisation</i> and <i>fixed asset</i> appear
+  nowhere in the document.</p></div>
 
   <div class="call new"><span class="lbl">The form was cut back &mdash; November 2026</span>
   <p>The service record now holds exactly what the final document asks for in
@@ -536,6 +625,18 @@ a{color:var(--accent)}
     </tbody>
   </table></div>
 
+  <div class="call new"><span class="lbl">A service can now be submitted on its own &mdash; November 2026</span>
+  <p>ERPNext builds Asset Maintenance Log as a child of a maintenance plan. Its
+  <span class="f">on_submit</span> loads an Asset Maintenance Task without checking one
+  exists, so a service recorded on its own could be <b>saved and never submitted</b> &mdash;
+  it died on <i>"Asset Maintenance Task None not found"</i>.</p>
+  <p>GDL records services as they happen: a driver takes the vehicle in, it is
+  serviced, the visit is written down. There is no plan behind that, and none of GDL's
+  vehicles is linked to an Asset. A standalone service now submits.</p>
+  <p>When a plan <i>is</i> behind the log &mdash; a preventive service raised from a
+  schedule &mdash; ERPNext's own behaviour runs untouched, and the task's next due date
+  still rolls forward.</p></div>
+
   <h3>Recording a service</h3>
   <ol class="steps">
     <li>Open <span class="path">Service &amp; Maintenance &rsaquo; Asset Maintenance Log</span>.</li>
@@ -547,17 +648,27 @@ a{color:var(--accent)}
     <li>Check <span class="f">Next Service Date</span> and <span class="f">Next Service KM</span>, worked out from the maintenance rules in Part 2.</li>
     <li>Write what was done in <b>Service Description</b>.</li>
     <li>If an outside workshop did the work, fill the <b>Service Bill</b> section &mdash; see Part 7.</li>
-    <li><b>Submit</b>.</li>
+    <li><b>Submit</b>. <span class="f">Status</span> is already <b>Completed</b>, so there is nothing to change first.</li>
   </ol>
 
   <div class="call rule"><span class="lbl">Why the Vehicle is now required</span>
   <p>A service record with no vehicle joins no service history and appears on no due
   list. It was possible to save one. It is not any more.</p></div>
 
-  <p>For a repair, use <span class="path">Asset Repair</span> with the
-  <span class="f">Repair / Failure Date</span>, <span class="f">Maintenance Category</span>
-  (Corrective, Preventive, Accident) and the parts consumed. The repair cost is
-  derived by ERPNext from those parts and the invoices, so it is not typed in.</p>
+  <div class="call rule"><span class="lbl">Status starts at Completed, and why that is not a DocType default</span>
+  <p>A driver writes this down <i>after</i> the vehicle has been serviced, so the work
+  is done before the form is opened. ERPNext starts at <b>Planned</b>, which then
+  refuses to submit &mdash; <i>"Maintenance Status has to be Cancelled or Completed to
+  Submit"</i> &mdash; and sends the driver hunting for a field to change.</p>
+  <p>It is set on the <b>form</b>, for a new record with no plan behind it, and
+  deliberately <b>not</b> as a default on the DocType. A DocType default also reaches
+  ERPNext's <span class="f">sync_maintenance_tasks()</span>, which creates a log for
+  every <i>scheduled</i> task &mdash; work that has not happened and has no completion
+  date. Those were then refused, and a maintenance plan could not be saved at all.
+  Fourteen tests caught it.</p>
+  <p>For the same reason <span class="f">Service Date</span> is required only
+  <i>once the status is Completed</i>, not always. <b>Planned</b> is still there for
+  anyone scheduling ahead.</p></div>
 
   <p>To stay ahead, run <b>Service Due</b> &mdash; it lists everything approaching by date
   or kilometres and highlights overdue items. Notifications also go out 14 days
@@ -566,25 +677,24 @@ a{color:var(--accent)}
 
 <!-- 7 -->
 <section id="p7">
-  <h2 class="part"><span class="num">07</span>The service bill</h2>
-  <p class="standfirst">A vehicle goes to an outside workshop and comes back with a bill. The bill number, its date and a scan of it live on the same service record as the work.</p>
-  <div class="roles"><span class="pill who">Fleet Maintenance User</span><span class="pill who">Fleet Administrator</span></div>
+  <h2 class="part"><span class="num">07</span>The service bill &amp; its invoice</h2>
+  <p class="standfirst">A vehicle goes to an outside workshop and comes back with a bill. The bill lives on the service record; one button turns it into a Purchase Invoice for Accounts.</p>
+  <div class="roles"><span class="pill who">Fleet Maintenance User</span><span class="pill who">Fleet Administrator</span><span class="pill who">Accounts</span></div>
 
-  <div class="call new"><span class="lbl">Simplified &mdash; November 2026</span>
-  <p>This part used to describe a four-step chain: submit the bill, have it approved by
-  a Bill Approver, raise a Purchase Order and Invoice from the approval, then watch the
-  payment status. The final document asks for an <b>Invoice/Reference No</b> on the
-  service record &mdash; not a procurement chain &mdash; so the chain is switched off.</p>
-  <p>It could not run anyway. Raising a purchase document needs a <span class="f">Purchasing
-  Company</span> and a <span class="f">Maintenance Service Item</span>, and neither has ever
-  been set, so every completed service stopped at <i>Purchasing: Pending</i> with an error
-  nobody could clear. One record on staging was sitting there; it has been cleared.</p>
-  <p><b>Nothing was deleted.</b> The fields, the approval code and the purchasing code are
-  all still in place. Switching <span class="f">Raise Purchasing Document on Bill
-  Approval</span> back on in GDL Fleet Settings, with those two settings filled in,
-  brings the whole chain back.</p></div>
+  <div class="call new"><span class="lbl">One button, not a chain &mdash; November 2026</span>
+  <p>This part used to describe four steps: submit the bill, have it approved by a Bill
+  Approver, raise a Purchase Order and Invoice from the approval, then watch the payment
+  status. That chain is off, and its buttons are gone with it rather than left on screen
+  acting on a status nothing maintains.</p>
+  <p>It could not run anyway. It needed a <span class="f">Maintenance Service Item</span>
+  nobody had set, so every completed service stopped at <i>Purchasing: Pending</i> with an
+  error only the record could see.</p>
+  <p>In its place: <b>Create &rsaquo; Purchase Invoice</b>, pressed when somebody wants it.
+  <b>Nothing was deleted</b> &mdash; the approval and purchasing code is all still there, and
+  switching <span class="f">Raise Purchasing Document on Bill Approval</span> back on brings
+  the chain back.</p></div>
 
-  <h3>Recording the bill</h3>
+  <h3>Step 1 &mdash; record the bill</h3>
   <ol class="steps">
     <li>Open the maintenance log for that visit.</li>
     <li>Set the <span class="f">Service Provider</span> &mdash; the workshop, as a Supplier.</li>
@@ -595,22 +705,79 @@ a{color:var(--accent)}
     <li><b>Submit</b>.</li>
   </ol>
 
-  <div class="call rule"><span class="lbl">The invoice number is asked for once</span>
-  <p>It used to appear both on the record and on every service line. There is one
-  <span class="f">Invoice / Reference No</span> now, on the record.</p></div>
+  <h3>Step 2 &mdash; raise the invoice</h3>
+  <p>On a <b>submitted</b> service whose status is <b>Completed</b>, click
+  <b>Create &rsaquo; Purchase Invoice</b>. A <b>draft</b> invoice opens, carrying:</p>
+  <div class="tw"><table>
+    <thead><tr><th>On the invoice</th><th>From</th></tr></thead>
+    <tbody>
+      <tr><td>Supplier</td><td><span class="f">Service Provider</span></td></tr>
+      <tr><td>Amount</td><td><span class="f">Total Cost</span></td></tr>
+      <tr><td>Bill No &middot; Bill Date</td><td><span class="f">Invoice / Reference No</span> &middot; <span class="f">Bill Date</span></td></tr>
+      <tr><td>Description</td><td>the service items, the vehicle, the service date and the odometer reading &mdash; so Accounts can see what they are paying for</td></tr>
+      <tr><td>Cost Center &middot; Project</td><td>carried from the service record</td></tr>
+      <tr><td><span class="f">Service Record</span></td><td>a link back to the maintenance log</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call"><span class="lbl">A draft, on purpose</span>
+  <p>Accounts check it against the paper bill and submit it. Nothing here posts to the
+  ledger, and nothing marks anything paid.</p></div>
+
+  <h3>Step 3 &mdash; Accounts pay it</h3>
+  <div class="roles"><span class="pill who">Accounts</span></div>
+  <p>Accounts open the Purchase Invoice, check it, submit it and pay it through a
+  Payment Entry in the normal way. The <span class="f">Service Record</span> field takes
+  them straight back to the service it came from.</p>
+
+  <h3>What the button refuses</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Situation</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td>Service not submitted, or not Completed</td><td>No button. Bill work that is confirmed done, not work somebody typed in.</td></tr>
+      <tr><td>Already invoiced</td><td>No second Create. The record says <i>Invoiced on &hellip;</i> and offers <b>View Purchase Invoice</b> instead.</td></tr>
+      <tr><td>Pressed twice</td><td>Returns the same invoice rather than making another.</td></tr>
+      <tr><td>Same bill number, same workshop, already on an invoice</td><td>Refused by name. A service centre must not be paid twice for one job.</td></tr>
+      <tr><td>Invoice cancelled</td><td>The service can be billed again &mdash; the work still happened.</td></tr>
+      <tr><td>No Maintenance Expense Account set</td><td>Refused, naming that setting. The old automation failed into a hidden field; this one says so.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="call stop"><span class="lbl">Set this before the first invoice</span>
+  <p><span class="path">GDL Fleet Settings &rsaquo; Maintenance Expense Account</span> is
+  where a workshop bill is charged. Until it is set, the button refuses and names it.</p>
+  <p>It must be an account you can <b>post</b> to, not a group. GDL's chart has
+  <b>52221 - R&amp;M-Vehicle (M)</b> and <b>52222 - R&amp;M-Vehicle (S)</b> for exactly this.
+  Setting it to their parent, <i>52 - Expense - Running and Maintenance Costs</i>, is
+  refused: nothing posts to a heading. Which of the two a workshop bill belongs in is a
+  finance decision, so the field is left for GDL to set.</p></div>
+
+  <div class="call rule"><span class="lbl">No Service Item needed</span>
+  <p>The invoice line carries a description and an expense account, not an Item. That is
+  what the posting actually needs, and inventing an Item master for "vehicle service"
+  would be a second thing to maintain &mdash; it was also exactly what stopped the old
+  automation from ever running.</p></div>
+
+  <div class="call warn"><span class="lbl">Why the link lives on the invoice</span>
+  <p>The service record stores <b>no</b> link to its invoice. A link held this way round
+  makes frappe refuse to cancel the invoice &mdash; <i>"Cannot delete or cancel because
+  Purchase Invoice &hellip; is linked with Asset Maintenance Log &hellip;"</i> &mdash; and
+  cancelling a wrong invoice is exactly how Accounts fix one.</p>
+  <p>So the invoice names the service, through its <span class="f">Service Record</span>
+  field, and the service form asks the invoice side which invoice belongs to it. POL
+  points the same way for the same reason.</p></div>
+
+  <div class="call warn"><span class="lbl">Who sees which button</span>
+  <p><b>Create &rsaquo; Purchase Invoice</b> shows only for someone who may raise a Purchase
+  Invoice. <b>View Purchase Invoice</b> shows only for someone who may open one &mdash; a
+  Fleet Driver cannot, and a link that errors is worse than no link. The headline saying
+  the service is invoiced is shown to everyone.</p></div>
 
   <div class="call warn"><span class="lbl">Who may enter costs</span>
   <p>A Fleet Driver can record <b>the service</b> &mdash; vehicle, odometer, date and the
   work done &mdash; but the cost and bill fields sit above a driver's permission level
   and are greyed out for them. The person who took the vehicle in is not the person
   who records what it cost. That separation is deliberate and is unchanged.</p></div>
-
-  <h3>Paying it</h3>
-  <div class="roles"><span class="pill who">Accounts</span></div>
-  <p>Accounts raise the Purchase Invoice for the workshop in the normal way, outside
-  the fleet module, and pay it through a Payment Entry. The service record carries the
-  bill number, the date, the scan and the cost, which is what Accounts need to match
-  it &mdash; and what the final document asks the record to hold.</p>
 </section>
 
 <!-- 8 -->
@@ -627,6 +794,46 @@ a{color:var(--accent)}
     <li>Enter the <span class="f">Premium / Fee</span>, <span class="f">Effective From</span> and <span class="f">Expiry Date</span>.</li>
     <li>Attach the scanned certificate and <b>Submit</b>.</li>
   </ol>
+
+  <div class="call new"><span class="lbl">The register and the Vehicle's own fields &mdash; November 2026</span>
+  <p>GDL, seeing an <b>Insurance Expiry</b> on the Vehicle and a Renewal Register record
+  holding the same dates, asked the obvious question: <i>"in vehicle master insurance
+  details there, then what is Renewal Register?"</i></p>
+  <p><b>The register is the record. The Vehicle shows only what is in force today.</b>
+  The register keeps every policy and certificate ever held, each chained to the one it
+  replaced, because section 4.5 requires the history to be retained. A vehicle has one
+  current insurance, so the Vehicle form carries one set of fields &mdash; and the
+  register writes them on submit. <b>You never type them on the Vehicle.</b></p>
+  <div class="tw"><table>
+    <thead><tr><th>Renewal Type</th><th>Writes, on the Vehicle</th></tr></thead>
+    <tbody>
+      <tr><td><b>Insurance</b></td><td>Insurance Company &middot; Policy No &middot; Insurance Start Date &middot; Insurance Expiry</td></tr>
+      <tr><td><b>Registration</b></td><td>Registration Expiry</td></tr>
+      <tr><td><b>Fitness</b></td><td>Inspection Expiry</td></tr>
+      <tr><td>Emission &middot; Permit &middot; Road Tax &middot; Other</td><td><i>Nothing</i> &mdash; the Vehicle form has no field for these. They live in the register alone, and are still reminded on and still reported.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Only Insurance did this before November 2026, so a Registration or Fitness renewal
+  left those two fields blank for ever &mdash; boxes on screen that nothing ever filled.
+  Records already submitted were brought into step automatically.</p>
+  <p><b>Only the live renewal writes.</b> Submitting a lapsed policy late cannot drag the
+  Vehicle back to it.</p>
+  <p><b>Registration Renewal Date</b> and <b>Insurance Renewal Date</b> are the
+  <b>renew-by</b> date &mdash; GDL's own definition, given when asked whether they meant
+  <i>renewed on</i> or <i>renew by</i>. The day a certificate must be renewed by is the
+  day it expires, so each takes the expiry of its own renewal type: Insurance fills
+  Insurance Renewal Date, Registration fills Registration Renewal Date. Fitness fills
+  neither &mdash; there is no Inspection Renewal Date, and it must not borrow a field
+  belonging to another certificate.</p>
+  <p class="pill">This makes <b>Registration Expiry</b> and <b>Registration Renewal
+  Date</b> read alike. That follows from the definition. They are kept as two fields
+  because nothing here is removed merely for looking redundant.</p></div>
+
+  <div class="call new"><span class="lbl">Getting from a vehicle to its renewals</span>
+  <p>Open the vehicle and look at the <b>Connections</b> strip: <b>Renewals</b> lists
+  every Renewal Register record for it, and <b>+</b> starts a new one with the vehicle
+  already filled in. Before this you had to open the Renewal Register list and filter it
+  by hand.</p></div>
 
   <div class="call rule"><span class="lbl">Renewing</span>
   <p><b>Do not edit the old record.</b> Create a new entry for the new period and set
@@ -791,6 +998,10 @@ a{color:var(--accent)}
       blank, and the order will not save until both are set. That is the control: the
       MTO decides which vehicle goes, not the requester.</span></li>
     <li>Set <span class="f">Departure Date &amp; Time</span> and <span class="f">Expected Return</span>.</li>
+    <li>Enter the <span class="f">Departure Odometer (km)</span> &mdash; the reading as the
+      vehicle leaves.<br>
+      <span class="pill">It can be filled in <b>after</b> the order is approved, so the
+      order does not have to wait at the gate for a number nobody has yet.</span></li>
     <li>Check the <b>Passengers</b> table &mdash; anyone the requester named is already there. Add or correct as needed.</li>
     <li>Click <b>Submit for Approval</b>, then <b>Approve</b>.</li>
   </ol>
@@ -809,6 +1020,42 @@ a{color:var(--accent)}
       <tr><td>&mdash;</td><td>Driver Assignment, Driver's Employee and Licence No., from the driver</td></tr>
     </tbody>
   </table></div>
+
+  <h3>Printing the movement order</h3>
+
+  <div class="call new"><span class="lbl">Your own form, as a PDF &mdash; November 2026</span>
+  <p>Open an order and click the <b>printer icon</b> in the right-hand sidebar &mdash; or
+  <kbd>Ctrl</kbd>+<kbd>P</kbd>, or <b>&ctdot; &rsaquo; Print</b>. It opens on
+  <b>Vehicle Movement Order</b> without anyone choosing it from the dropdown, because
+  that format is set as the order's default. <b>PDF</b> downloads the same sheet.</p>
+  <p>It is GDL's own paper form reproduced &mdash; the <b>same eight numbered items in the
+  same order</b>, with the authorisation number and date across the top and the
+  authorising officer's signature block at the foot, left blank to be signed.</p>
+  <div class="tw"><table>
+    <thead><tr><th>On the printed form</th><th>Filled from</th></tr></thead>
+    <tbody>
+      <tr><td>1. Name of the office</td><td><span class="f">Location</span>, or the vehicle's own site if the order has none</td></tr>
+      <tr><td>2. Pool Vehicle No.</td><td><span class="f">Vehicle</span> &mdash; the registration</td></tr>
+      <tr><td>3. Name of the Driver &amp; his Licence No</td><td><span class="f">Driver</span> and <span class="f">Driver's Licence No.</span></td></tr>
+      <tr><td>4. Place/s to visit</td><td><span class="f">Destination</span></td></tr>
+      <tr><td>5. Purpose of Movement</td><td><span class="f">Purpose</span></td></tr>
+      <tr><td>6. Officer/s to carry during the movement</td><td>the <b>Passengers</b> table</td></tr>
+      <tr><td>7. Time and km. reading on departure</td><td><span class="f">Departure Date &amp; Time</span>, and <span class="f">Departure Odometer</span> if it has been entered</td></tr>
+      <tr><td>8. Validity of movement order</td><td>worked out, departure to expected return, in days and hours</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>Items 9 and 10 of the paper form are not printed.</b> GDL asked for both to be
+  dropped: they were the return reading and the utilising officer's signature, which are
+  filled in <i>after</i> the journey on a form handed over <i>before</i> it.</p>
+  <p><b>A blank space at item 7 is normal.</b> The sheet is usually printed before the
+  vehicle moves and the reading is taken at the gate, so the form prints the departure
+  time with the space beside it empty &mdash; exactly as the paper form is used. If the
+  odometer has been entered it prints; the field can be filled in after approval, so an
+  order dispatched and read at the gate can be reprinted with the figure on it.</p>
+  <p>Nothing is on the sheet that is not on GDL's paper form. An earlier draft added a
+  logo, a ruled outer box, ruled value lines, the department beside the office, the
+  internal vehicle id beside the registration and the origin beside the destination. GDL
+  looked at it and said the document's own fields are enough, so all of it came off.</p></div>
 
   <h3>The chain</h3>
   <div class="tw"><table>
@@ -1286,28 +1533,28 @@ Closing Bal. BOD    = 0 + 15,000 &minus; 0          = <b>Nu. 15,000.00</b>
     </tbody>
   </table></div>
 
-  <h3>Service bills and purchasing</h3>
+  <h3>Service bills and the invoice button</h3>
   <div class="tw"><table>
     <thead><tr><th>Message</th><th>What to do</th></tr></thead>
     <tbody>
-      <tr><td><span class="err">The bill cannot be submitted yet. Still needed: …</span></td><td>Supply exactly what it names &mdash; service centre, bill number, bill date, total, or the attachment.</td></tr>
+      <tr><td><span class="err">Maintenance Status has to be Cancelled or Completed to Submit</span></td><td>Set <span class="f">Status</span> to <b>Completed</b>. A new record already starts there; an older one may not.</td></tr>
+      <tr><td><span class="err">Asset Maintenance Task None not found</span></td><td>Should not happen any more &mdash; a service with no maintenance plan behind it now submits (Part 6). If you see it, the app is out of date on that site.</td></tr>
+      <tr><td><span class="err">Please select Completion Date for Completed Asset Maintenance Log</span></td><td>Fill <span class="f">Service Date</span>. It is required once the status is Completed.</td></tr>
+      <tr><td><span class="err">Cannot raise the invoice yet. Still needed: …</span></td><td>Supply exactly what it names &mdash; Service Provider, a Total Cost above zero, a Company, or the Maintenance Expense Account.</td></tr>
+      <tr><td><span class="err">Maintenance Expense Account is set to … which is a group account</span></td><td>Choose an account you can post to. The message lists the ones beneath it; for a workshop bill that is <b>52221</b> or <b>52222 - R&amp;M-Vehicle</b>.</td></tr>
       <tr><td><span class="err">Bill … from … is already on Purchase Invoice …</span></td><td>That bill has already been presented. Open the named invoice before entering it again.</td></tr>
-      <tr><td><span class="err">You are not allowed to approve service bills. The approver role is not configured.</span></td><td>Set <span class="f">Bill Approver Role</span> in GDL Fleet Settings (Part 2).</td></tr>
-      <tr><td><span class="err">Only a submitted bill can be approved. This one is Draft.</span></td><td>The driver has not clicked <b>Submit Bill</b> yet.</td></tr>
-      <tr><td><span class="err">This bill has already been approved.</span></td><td>Nothing to do. Check <span class="f">Payment Status</span> for where it stands.</td></tr>
+      <tr><td><span class="err">Submit the service record first</span></td><td>An invoice is only raised for work confirmed as done. Submit the log, then the button appears.</td></tr>
+      <tr><td><b>No Create button at all</b></td><td>Either the service is not submitted, or its status is not Completed, or you do not hold a role that may raise a Purchase Invoice.</td></tr>
+      <tr><td><b>It says "Invoiced on …" instead</b></td><td>That service already has a live invoice. Use <b>View Purchase Invoice</b>. To start again, cancel that invoice &mdash; the button comes back.</td></tr>
     </tbody>
   </table></div>
 
-  <div class="call warn"><span class="lbl">"The bill was approved but no invoice appeared"</span>
-  <p>Read <span class="f">Purchasing Note</span> on the record. It is filled in every
-  time and says which of these it was:</p>
-  <ul>
-    <li><b>Purchasing is switched off.</b> <span class="f">Raise Purchasing Document on Bill Approval</span> is unticked, so the note reads <i>"record it in Accounts directly"</i>. That is a setting, not a fault.</li>
-    <li><b>A setting is missing.</b> Purchasing Company or Maintenance Service Item is blank. Fill it in and click <b>Retry Purchasing</b>.</li>
-    <li><b>ERPNext refused the document.</b> The note carries the reason. Correct it and retry.</li>
-  </ul>
-  <p>The status is <span class="f">Failed</span> only in the last two cases. <b>Not
-  Required</b> means the system did what it was configured to do.</p></div>
+  <div class="call warn"><span class="lbl">Messages from the old purchasing chain</span>
+  <p><i>"You are not allowed to approve service bills"</i>, <i>"Only a submitted bill can
+  be approved"</i> and the <span class="f">Purchasing Note</span> wording all belong to the
+  approval chain that was switched off in November 2026. You should not meet them. If you
+  do, the chain has been switched back on in GDL Fleet Settings &mdash; which is a
+  deliberate act, not a fault.</p></div>
 
   <h3>POL and mileage</h3>
   <div class="tw"><table>
@@ -1334,8 +1581,24 @@ Closing Bal. BOD    = 0 + 15,000 &minus; 0          = <b>Nu. 15,000.00</b>
       <tr><td><span class="err">Tyre with Serial No … is already recorded as fitted on …</span></td><td>Remove it from the other vehicle first.</td></tr>
       <tr><td><span class="err">Removed odometer (…) cannot be less than the fitted odometer (…)</span></td><td>Check the removal reading.</td></tr>
       <tr><td><span class="err">Row …: a tyre needs a Position.</span></td><td>Set Front Left, Rear Right and so on.</td></tr>
+      <tr><td><span class="err">… is a group warehouse, and stock cannot be issued from one.</span></td><td>Pick the warehouse the parts are really held in &mdash; <b>Head Office - WH</b>, <b>JAM - WH</b>, <b>DOC - WH</b> or <b>Stores</b>. <i>All Warehouses</i> is a heading, not a store.</td></tr>
+      <tr><td><span class="err">Company … has no Stock Adjustment Account, so ERPNext cannot post the issue.</span></td><td>Set it on the Company record. On GDL's chart it is <b>52262 - Stock Adjustment</b>. One setting, once per company.</td></tr>
+      <tr><td><span class="err">Not Enough Stock &mdash; Row …: … 0 in stock, 1 being issued.</span></td><td>A <b>warning</b>, not a refusal &mdash; the record still saves. Receive the part into that warehouse with a <b>Material Receipt</b> Stock Entry before you submit, or the submit is refused.</td></tr>
     </tbody>
   </table></div>
+
+  <div class="call new"><span class="lbl">Three checks moved to the draft &mdash; November 2026</span>
+  <p>Issuing a part raises a standard ERPNext <b>Material Issue</b>, and ERPNext refuses
+  one for reasons that name neither this document nor anything visible on it. GDL met the
+  worst of them on pressing Submit:</p>
+  <p style="margin-left:14px"><i>"Please enter <b>Difference Account</b> or set default
+  <b>Stock Adjustment Account</b> for company GreenDigital Limited"</i></p>
+  <p>&mdash; an accounts message, on a form with no accounts on it, about a setting on the
+  Company record. Behind it waited two more: the source warehouse was a <b>group</b>, and
+  the tyre had <b>no stock anywhere</b>.</p>
+  <p>All three are now checked <b>while the record is still a draft</b>, each naming what
+  to do. Nothing about the stock movement changed &mdash; it is still a standard Stock
+  Entry, exactly as the document asks.</p></div>
 </section>
 
 <!-- 16 -->
@@ -1368,7 +1631,7 @@ Closing Bal. BOD    = 0 + 15,000 &minus; 0          = <b>Nu. 15,000.00</b>
       <tr><td>Movement Order Request</td><td>Draft &middot; Pending Review &middot; Accepted &middot; Rejected &middot; Cancelled</td></tr>
       <tr><td>Movement Order</td><td>Draft &middot; Pending Approval &middot; Approved &middot; Dispatched &middot; Completed &middot; Rejected &middot; Cancelled<br><small>The five-stage chain adds Pending Validation, Pending Review, Pending MTO/CEO and Pending FAS. Those states exist but are unreachable unless it is switched on.</small></td></tr>
       <tr><td>POL Abstract</td><td>Draft &middot; Submitted &middot; Approved &middot; Rejected &middot; Cancelled</td></tr>
-      <tr><td>Service bill</td><td>Not in use &mdash; bill approval was switched off in November 2026 (Part 7). The states remain on the record for anything already stamped with one.</td></tr>
+      <tr><td>Service bill</td><td>Not in use &mdash; bill approval was switched off in November 2026. A completed service is invoiced with one button instead (Part 7). The states remain on the record for anything already stamped with one.</td></tr>
       <tr><td>Purchasing (bill or renewal)</td><td>Not Required &middot; Pending &middot; Ordered &middot; Failed</td></tr>
       <tr><td>Payment</td><td>Not Invoiced &middot; Unpaid &middot; Partly Paid &middot; Paid &middot; Overdue &middot; Cancelled</td></tr>
       <tr><td>Renewal Register</td><td>Valid &middot; Due Soon &middot; Expired &middot; Renewed</td></tr>

@@ -8,6 +8,10 @@ already does both through ERPNext.
 """
 
 import frappe
+
+from erpnext.assets.doctype.asset_maintenance_log.asset_maintenance_log import (
+	AssetMaintenanceLog,
+)
 from frappe import _
 from frappe.utils import cint, flt
 
@@ -153,3 +157,35 @@ def maintenance_log_purchasing(doc, method=None):
 	)
 
 	process_maintenance_completion(doc, method)
+
+
+# ---------------------------------------------------------------------------
+# The standalone service record
+# ---------------------------------------------------------------------------
+class GDLAssetMaintenanceLog(AssetMaintenanceLog):
+	"""Lets a service be recorded without a maintenance plan behind it.
+
+	ERPNext's Asset Maintenance Log is built as a child of an Asset Maintenance
+	plan: on_submit calls update_maintenance_task(), which does
+
+	    frappe.get_doc("Asset Maintenance Task", self.task)
+
+	with no check that a task exists. GDL records services as they happen - a
+	driver takes the vehicle in, it is serviced, the visit is written down -
+	and there is no plan or task behind that. Submitting such a record died on
+	"Asset Maintenance Task None not found", so a standalone service could be
+	saved and never submitted.
+
+	Blueprint 2.1.1.4 asks for a service record against the vehicle and its
+	odometer. It says nothing about maintenance plans, and 0 of GDL's vehicles
+	are linked to an Asset.
+
+	When a plan IS behind the log - a preventive service raised from a
+	schedule - ERPNext's own behaviour runs untouched, so nothing is lost.
+	"""
+
+	def update_maintenance_task(self):
+		if not (self.get("task") and self.get("asset_maintenance")):
+			# A service with no plan behind it. Nothing to roll forward.
+			return
+		super().update_maintenance_task()

@@ -124,6 +124,17 @@ VEHICLE_CUSTOM_FIELDS = {
 			"description": "Seats, Tonne, Litre and so on.",
 		},
 		{
+			# Deliberately NOT part of "Capacity" above, which is passenger seats
+			# or load. This is the fuel tank, and it sits beside Fuel Type and
+			# Fuel UOM in Additional Details where somebody looking for it will
+			# actually look.
+			"fieldname": "fuel_tank_capacity",
+			"label": "Fuel Tank Capacity",
+			"fieldtype": "Float",
+			"insert_after": "uom",
+			"description": "A full tank, in the Fuel UOM above.",
+		},
+		{
 			"fieldname": "manufacturing_year",
 			"label": "Manufacturing Year",
 			"fieldtype": "Int",

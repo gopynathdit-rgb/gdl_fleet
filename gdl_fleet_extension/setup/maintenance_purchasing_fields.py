@@ -91,10 +91,27 @@ FIELDS = [
 ]
 
 
+PURCHASE_INVOICE_FIELDS = [
+	{"fieldname": "asset_maintenance_log", "label": "Service Record",
+	 "fieldtype": "Link", "options": "Asset Maintenance Log",
+	 "insert_after": "bill_date", "read_only": 1, "module": "GDL Fleet",
+	 "description": "The vehicle service this bill was raised from."},
+]
+
+
 def setup_maintenance_purchasing_fields():
 	for field in FIELDS:
 		if frappe.db.exists("Custom Field",
 		                    {"dt": "Asset Maintenance Log", "fieldname": field["fieldname"]}):
 			continue
 		create_custom_field("Asset Maintenance Log", field, ignore_validate=True)
+
+	# Accounts open the invoice, not the service record, so the invoice has to
+	# say which service it is for and link back to it.
+	for field in PURCHASE_INVOICE_FIELDS:
+		if frappe.db.exists("Custom Field",
+		                    {"dt": "Purchase Invoice", "fieldname": field["fieldname"]}):
+			continue
+		create_custom_field("Purchase Invoice", field, ignore_validate=True)
+
 	return True

@@ -236,3 +236,33 @@ class TestVehicleExtension(IntegrationTestCase):
 			"last_odometer",
 		):
 			self.assertTrue(meta.get_field(standard_field), f"standard field {standard_field} missing")
+
+
+class TestFuelTankCapacity(IntegrationTestCase):
+	"""GDL: "in vehicle master need to add tank capacity filed"."""
+
+	def test_the_field_exists_and_holds_a_fraction(self):
+		field = frappe.get_meta("Vehicle").get_field("fuel_tank_capacity")
+		self.assertIsNotNone(field, "Fuel Tank Capacity is not on the Vehicle form")
+		self.assertEqual(field.fieldtype, "Float",
+		                 "a tank is not a whole number of litres")
+		self.assertEqual(field.label, "Fuel Tank Capacity")
+
+	def test_it_sits_with_the_other_fuel_fields(self):
+		"""Beside Fuel Type and Fuel UOM, where somebody looking for it looks -
+		not beside Capacity, which is passenger seats."""
+		names = [f.fieldname for f in frappe.get_meta("Vehicle").fields]
+		self.assertEqual(names[names.index("uom") + 1], "fuel_tank_capacity")
+
+	def test_it_is_not_the_same_thing_as_capacity(self):
+		"""Capacity is seats or load. Confusing the two would put a bus's 30
+		seats into the fuel calculations."""
+		meta = frappe.get_meta("Vehicle")
+		self.assertEqual(meta.get_field("capacity").fieldtype, "Int")
+		self.assertIn("seats", (meta.get_field("capacity").description or "").lower())
+
+	def test_a_vehicle_stores_what_is_entered(self):
+		vehicle = new_vehicle(fuel_tank_capacity=62.5)
+		vehicle.insert()
+		self.assertEqual(
+			frappe.db.get_value("Vehicle", vehicle.name, "fuel_tank_capacity"), 62.5)

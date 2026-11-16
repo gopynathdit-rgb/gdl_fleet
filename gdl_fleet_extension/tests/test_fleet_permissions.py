@@ -106,7 +106,8 @@ class TestRolesCanWork(IntegrationTestCase):
 				frappe.has_permission("Asset Maintenance Log", ptype, user=user),
 				f"Fleet Maintenance User cannot {ptype} an Asset Maintenance Log",
 			)
-		self.assertTrue(frappe.has_permission("Asset Repair", "create", user=user))
+		# Asset Repair deliberately NOT asserted here: it is no longer granted
+		# to any fleet role. See TestAssetRepairWithdrawn below.
 
 	def test_rt05_manager_can_read_every_fleet_report(self):
 		user = user_with_only("Fleet Manager")
@@ -419,15 +420,10 @@ class TestObservationFixes(IntegrationTestCase):
 		for ptype in ("write", "create", "submit"):
 			self.assertFalse(frappe.has_permission("Vehicle Log", ptype, user=user))
 
-	def test_obs004_driver_can_read_asset_repair(self):
-		"""A driver should see a breakdown logged against a vehicle they drive."""
-		self.assertEqual(rights("Asset Repair", "Fleet Driver", 0), ["read"])
-
-	def test_obs004_driver_still_cannot_record_a_repair(self):
-		user = user_with_only("Fleet Driver")
-		self.assertTrue(frappe.has_permission("Asset Repair", "read", user=user))
-		for ptype in ("write", "create", "submit"):
-			self.assertFalse(frappe.has_permission("Asset Repair", ptype, user=user))
+	# OBS-004 is withdrawn. The two tests that stood here asserted a Fleet
+	# Driver could read an Asset Repair. GDL asked for that access to be taken
+	# off all three fleet roles; see TestAssetRepairWithdrawn below for what
+	# replaced them.
 
 
 # ---------------------------------------------------------------------------
@@ -482,3 +478,54 @@ class TestMTOWithoutFleetManager(IntegrationTestCase):
 		from gdl_fleet_extension.setup.gdl_fleet_rollout import MTO_ROLES
 		self.assertNotIn("Fleet Manager", MTO_ROLES)
 		self.assertIn("Fleet Approver", MTO_ROLES)
+
+
+# ---------------------------------------------------------------------------
+# Asset Repair — access withdrawn from the fleet roles
+# ---------------------------------------------------------------------------
+class TestAssetRepairWithdrawn(IntegrationTestCase):
+	"""GDL asked for Asset Repair to come off the fleet menu.
+
+	The requirement document names repair exactly once - as "Other repair or
+	maintenance item", the 12th Service Type on the maintenance log - and never
+	asks for ERPNext's Asset Repair form. That form is also unusable here: its
+	`asset` field is mandatory and no GDL vehicle has an Asset record.
+
+	This matters as a test because `hidden` on a Workspace Link does nothing.
+	frappe's desk/desktop.py get_links() filters workspace entries on
+	is_item_allowed() alone and never reads that flag, so permission is the
+	only thing that removes an entry. If a later change re-grants any of these
+	roles, the menu entry comes back and this test is what notices.
+	"""
+
+	FLEET_ROLES = ("Fleet Driver", "Fleet Maintenance User", "Fleet Administrator")
+
+	def test_no_fleet_role_reaches_asset_repair(self):
+		for role in self.FLEET_ROLES:
+			self.assertIsNone(
+				rights("Asset Repair", role, 0),
+				f"{role} has an Asset Repair permission row again",
+			)
+
+	def test_no_fleet_account_can_do_anything_with_a_repair(self):
+		for role in self.FLEET_ROLES:
+			user = user_with_only(role)
+			for ptype in ("read", "write", "create", "submit", "delete"):
+				self.assertFalse(
+					frappe.has_permission("Asset Repair", ptype, user=user),
+					f"{role} can still {ptype} an Asset Repair",
+				)
+
+	def test_the_app_no_longer_asks_for_asset_repair(self):
+		"""The grant is gone from the source, not just from this database -
+		otherwise the next install would put it straight back."""
+		self.assertNotIn("Asset Repair", FLEET_PERMISSIONS)
+
+	def test_erpnexts_own_roles_keep_their_access(self):
+		"""Removing the fleet grant must not touch the roles that maintain
+		non-vehicle assets. GDL has a building and furniture on the register."""
+		for role in ("Manufacturing Manager", "Quality Manager"):
+			self.assertIsNotNone(
+				rights("Asset Repair", role, 0),
+				f"{role} lost its standard Asset Repair access",
+			)

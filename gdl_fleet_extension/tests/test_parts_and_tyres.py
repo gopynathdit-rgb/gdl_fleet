@@ -229,3 +229,154 @@ class TestVehicleTyreLifecycle(IntegrationTestCase):
 		rows = [r for r in result[1] if r["vehicle"] == self.vehicle.name]
 		self.assertTrue(rows)
 		self.assertEqual(rows[0]["km_so_far"], 20000)
+
+
+class TestPartIssueStockSetup(IntegrationTestCase):
+	"""The setup a Material Issue needs, checked on the fleet form.
+
+	GDL pressed Submit on a part issue and got ERPNext's own refusal:
+	"Please enter Difference Account or set default Stock Adjustment Account
+	for company GreenDigital Limited" - a message naming neither this document
+	nor anything visible on it. Their source warehouse was also a group, and
+	the tyre had no stock anywhere, so two more refusals waited behind it.
+
+	These checks run on validate, so all three are answered while the record
+	is still a draft.
+	"""
+
+	def setUp(self):
+		from gdl_fleet_extension.tests.test_vehicle_extension import get_test_company
+		self.company = get_test_company()
+		self.vehicle = new_vehicle(last_odometer=50000, company=self.company)
+		self.vehicle.insert()
+		self.part = make_item("GDL-TEST-STOCKSETUP-PART")
+
+	def _issue(self, **kwargs):
+		values = {
+			"doctype": "Fleet Part Issue", "vehicle": self.vehicle.name,
+			"issue_date": nowdate(), "odometer": 50000,
+			"purpose": "Routine Replacement",
+			"items": [{"item_code": self.part, "qty": 1, "rate": 100}],
+		}
+		values.update(kwargs)
+		doc = frappe.get_doc(values)
+		doc.flags.ignore_permissions = True
+		return doc
+
+	def _warehouse(self, name, is_group=0, parent=None):
+		abbr = frappe.get_cached_value("Company", self.company, "abbr")
+		full = f"{name} - {abbr}"
+		if frappe.db.exists("Warehouse", full):
+			return full
+		doc = frappe.get_doc({
+			"doctype": "Warehouse", "warehouse_name": name,
+			"company": self.company, "is_group": is_group,
+		})
+		if parent:
+			doc.parent_warehouse = parent
+		doc.flags.ignore_permissions = True
+		doc.insert()
+		return doc.name
+
+	def test_a_group_warehouse_is_refused_with_a_clear_message(self):
+		group = self._warehouse("GDL Test Group WH", is_group=1)
+		with self.assertRaises(frappe.ValidationError) as cm:
+			self._issue(source_warehouse=group).insert()
+		self.assertIn("group warehouse", str(cm.exception).lower())
+
+	def test_a_missing_stock_adjustment_account_is_refused_by_name(self):
+		warehouse = self._warehouse("GDL Test Setup WH")
+		original = frappe.db.get_value("Company", self.company, "stock_adjustment_account")
+		perpetual = frappe.db.get_value("Company", self.company, "enable_perpetual_inventory")
+		try:
+			frappe.db.set_value("Company", self.company, "enable_perpetual_inventory", 1)
+			frappe.db.set_value("Company", self.company, "stock_adjustment_account", None)
+			frappe.clear_cache()
+			with self.assertRaises(frappe.ValidationError) as cm:
+				self._issue(source_warehouse=warehouse).insert()
+			self.assertIn("Stock Adjustment Account", str(cm.exception))
+		finally:
+			frappe.db.set_value("Company", self.company, "stock_adjustment_account", original)
+			frappe.db.set_value("Company", self.company, "enable_perpetual_inventory", perpetual)
+			frappe.clear_cache()
+
+	def test_a_properly_set_up_issue_saves(self):
+		"""The guard must not stand in the way of a correct record."""
+		warehouse = self._warehouse("GDL Test Setup WH")
+		self.assertTrue(frappe.db.get_value("Company", self.company, "stock_adjustment_account"),
+		                "fixture company has no Stock Adjustment Account - test proves nothing")
+		doc = self._issue(source_warehouse=warehouse)
+		doc.insert()
+		self.assertEqual(doc.docstatus, 0)
+
+	def test_short_stock_warns_rather_than_refusing(self):
+		"""The parts may arrive before anyone submits, so this must not block."""
+		warehouse = self._warehouse("GDL Test Setup WH")
+		doc = self._issue(source_warehouse=warehouse)
+		doc.insert()          # no stock received for this item at all
+		self.assertEqual(doc.docstatus, 0)
+
+	def test_submitting_without_stock_is_refused_by_name(self):
+		"""A warning in the draft becomes a refusal at submit. GDL got here and
+		met ERPNext's "Valuation Rate Missing" instead, whose first suggestion
+		would have issued the tyre at no value."""
+		warehouse = self._warehouse("GDL Test Setup WH")
+		doc = self._issue(source_warehouse=warehouse)
+		doc.insert()
+		with self.assertRaises(frappe.ValidationError) as cm:
+			doc.submit()
+		message = str(cm.exception)
+		self.assertIn("being issued", message)
+		self.assertIn("Material Receipt", message)
+		self.assertEqual(frappe.db.get_value("Fleet Part Issue", doc.name, "docstatus"), 0)
+
+	def test_stock_received_at_no_rate_is_refused(self):
+		"""In stock, but valued at nothing - ERPNext cannot post the issue."""
+		warehouse = self._warehouse("GDL Test Setup WH")
+		item = make_item("GDL-TEST-NORATE-PART")
+		frappe.db.set_value("Item", item, "valuation_rate", 0)
+		bin_name = frappe.db.get_value("Bin", {"item_code": item, "warehouse": warehouse})
+		if not bin_name:
+			b = frappe.get_doc({"doctype": "Bin", "item_code": item, "warehouse": warehouse})
+			b.flags.ignore_permissions = True
+			b.insert()
+			bin_name = b.name
+		frappe.db.set_value("Bin", bin_name, {"actual_qty": 10, "valuation_rate": 0})
+		doc = self._issue(source_warehouse=warehouse,
+		                  items=[{"item_code": item, "qty": 1, "rate": 100}])
+		doc.insert()
+		with self.assertRaises(frappe.ValidationError) as cm:
+			doc.submit()
+		self.assertIn("no valuation", str(cm.exception))
+
+	def _receive(self, item_code, qty, warehouse, rate=500):
+		"""A Material Receipt in THIS test's company.
+
+		fleet_fixtures.receive_stock() is hard-wired to its own company, while
+		get_test_company() returns whichever company happens to be first on the
+		site - they are not the same one, and a warehouse from one company in a
+		stock entry for another is refused by ERPNext.
+		"""
+		entry = frappe.get_doc({
+			"doctype": "Stock Entry", "stock_entry_type": "Material Receipt",
+			"purpose": "Material Receipt", "company": self.company,
+			"items": [{"item_code": item_code, "qty": qty,
+			           "t_warehouse": warehouse, "basic_rate": rate}],
+		})
+		entry.flags.ignore_permissions = True
+		entry.insert()
+		entry.submit()
+		return entry
+
+	def test_a_stocked_part_still_issues(self):
+		"""The guard must not stand in the way of a real issue."""
+		warehouse = self._warehouse("GDL Test Setup WH")
+		item = make_item("GDL-TEST-INSTOCK-PART")
+		self._receive(item, 5, warehouse, rate=500)
+		doc = self._issue(source_warehouse=warehouse,
+		                  items=[{"item_code": item, "qty": 1, "rate": 500}])
+		doc.insert()
+		doc.submit()
+		self.assertEqual(doc.docstatus, 1)
+		self.assertTrue(doc.stock_entry, "no Stock Entry was raised")
+		self.assertEqual(frappe.db.get_value("Stock Entry", doc.stock_entry, "docstatus"), 1)
