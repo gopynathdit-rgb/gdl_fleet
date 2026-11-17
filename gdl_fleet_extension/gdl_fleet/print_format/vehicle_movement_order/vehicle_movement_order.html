@@ -150,13 +150,16 @@
 	   unreliable - a header that collapses on paper is worse than a plain one. */
 	.gdl-ph {
 		border-bottom: 1px solid #000;
-		padding-bottom: 4px; margin-bottom: 10px;
-		line-height: 28px;
+		padding-bottom: 5px; margin-bottom: 10px;
+		line-height: 40px;
 	}
 	.gdl-ph-logo, .gdl-ph-mark, .pol-wordmark, .gdl-ph-name {
 		display: inline-block; vertical-align: middle;
 	}
-	.gdl-ph-logo { max-height: 28px; width: auto; margin-right: 8px; }
+	/* 40px, not 28. GDL's mark carries a second line - "(a GIDC company)" -
+	   which is unreadable much below this. width:auto keeps the proportions;
+	   a fixed width would squash it. */
+	.gdl-ph-logo { max-height: 40px; width: auto; margin-right: 10px; }
 	.gdl-ph-mark, .gdl-ph .pol-wordmark {
 		font-weight: bold; font-size: 17px; letter-spacing: 1px; margin-right: 8px;
 	}
