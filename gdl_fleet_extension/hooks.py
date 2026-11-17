@@ -83,6 +83,15 @@ doctype_js = {
 # Vehicle Log qualifies: hrms' on_cancel drags the vehicle odometer backwards
 # when an older log is cancelled. See overrides/vehicle_log.py.
 # ---------------------------------------------------------------------------
+# Callable straight from a print format template. A jinja method rather than a
+# whitelisted endpoint: the print formats are the only caller, and whitelisting
+# would publish an API route for no reason.
+jinja = {
+	"methods": [
+		"gdl_fleet_extension.utils.branding.company_logo_data_uri",
+	],
+}
+
 # The Vehicle form's Connections strip, so a vehicle leads to its renewals.
 override_doctype_dashboards = {
 	"Vehicle": "gdl_fleet_extension.overrides.vehicle_dashboard.get_data",

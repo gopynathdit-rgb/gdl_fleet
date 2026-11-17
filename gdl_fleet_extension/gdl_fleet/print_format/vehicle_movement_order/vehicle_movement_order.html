@@ -26,6 +26,24 @@
 {%- set driver_name = frappe.db.get_value("Driver", doc.driver, "full_name") if doc.driver else None -%}
 {%- set hours = frappe.utils.time_diff_in_hours(doc.expected_return, doc.departure_datetime)
                 if (doc.expected_return and doc.departure_datetime) else None -%}
+{%- set company = doc.get("company") or (frappe.db.get_value("Vehicle", doc.vehicle, "company") if doc.vehicle else None) -%}
+{%- set logo = company_logo_data_uri(company) -%}
+
+{#- Header and footer. frappe pulls #header-html and #footer-html out of the
+    rendered page and hands them to wkhtmltopdf as --header-html/--footer-html,
+    so they repeat on EVERY page rather than printing once (see
+    prepare_header_footer() in frappe/utils/pdf.py). The .page and .topage
+    spans are filled in by wkhtmltopdf itself. In the on-screen print preview
+    nothing is extracted, so they simply render here, top and bottom. -#}
+<div id="header-html" class="gdl-ph">
+	{%- if logo -%}
+		<img class="gdl-ph-logo" src="{{ logo }}" alt="{{ company }}">
+	{%- else -%}
+		{#- No logo file on this site. A wordmark beats an empty box. -#}
+		<span class="gdl-ph-mark">{{ frappe.db.get_value("Company", company, "abbr") or "GDL" }}</span>
+	{%- endif -%}
+	<span class="gdl-ph-name">{{ company or "" }}</span>
+</div>
 
 <div class="mo-sheet">
 
@@ -107,7 +125,41 @@
 
 </div>
 
+<div id="footer-html" class="gdl-pf">
+	{#- Page numbers are written by wkhtmltopdf into .page / .topage at PDF
+	    time, so they are EMPTY in the on-screen preview - "Page  of  " reads
+	    like a fault. frappe strips the visible-pdf class in the PDF only
+	    (toggle_visible_pdf), so the CSS below hides this part on screen and
+	    shows it on paper. -#}
+	<span class="visible-pdf">Page <span class="page"></span> of <span class="topage"></span>
+	&nbsp;&middot;&nbsp; </span>Printed {{ frappe.utils.formatdate(frappe.utils.nowdate(), "dd.MM.yyyy") }}
+</div>
+
 <style>
+	/* --- repeating page header and footer ------------------------------ */
+	/* inline-block, not flex: wkhtmltopdf is old WebKit and its flexbox is
+	   unreliable - a header that collapses on paper is worse than a plain one. */
+	.gdl-ph {
+		border-bottom: 1px solid #000;
+		padding-bottom: 4px; margin-bottom: 10px;
+		line-height: 28px;
+	}
+	.gdl-ph-logo, .gdl-ph-mark, .pol-wordmark, .gdl-ph-name {
+		display: inline-block; vertical-align: middle;
+	}
+	.gdl-ph-logo { max-height: 28px; width: auto; margin-right: 8px; }
+	.gdl-ph-mark, .gdl-ph .pol-wordmark {
+		font-weight: bold; font-size: 17px; letter-spacing: 1px; margin-right: 8px;
+	}
+	.gdl-ph-name { font-size: 13px; font-weight: bold; letter-spacing: .3px; }
+	.gdl-pf {
+		border-top: 1px solid #000;
+		padding-top: 4px; margin-top: 10px;
+		font-size: 9px; text-align: center; color: #000;
+	}
+	/* Shown on paper only - see the note in the footer. */
+	.gdl-pf .visible-pdf { display: none; }
+
 	/* No box, no logo, no ruled lines - the form has none of them. */
 	.mo-sheet {
 		font-family: "Times New Roman", Georgia, serif;
