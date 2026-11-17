@@ -203,24 +203,43 @@ class TestPolSheetAlignment(IntegrationTestCase):
 		the title off-centre with nothing to balance."""
 		self.assertNotIn("padding-left: 90px", self.rendered())
 
-	def test_the_summary_cells_are_middle_aligned(self):
-		"""Each label level with its grey box.
-
-		No !important any more. That was there to beat Bootstrap's `.label`,
-		which set vertical-align: baseline on these cells - and it won for that
-		one property while three others still applied. Renaming the class
-		removed the fight, so the plain rule is enough.
-		"""
+	def test_the_summary_is_laid_out_like_the_movement_order(self):
+		"""GDL compared the two documents and asked for this one to match:
+		label, a colon in a column of its own, then the value."""
 		html = self.rendered()
-		self.assertRegex(html, r"\.pol-sheet \.pol-summary td \{[^}]*vertical-align: middle")
-		self.assertNotIn("vertical-align: middle !important", html)
+		self.assertIn('class="pol-colon"', html)
+		self.assertIn('class="pol-value"', html)
+		for rule, width in (("pol-label", "44%"), ("pol-colon", "18px")):
+			self.assertRegex(
+				html, rf"\.pol-sheet \.pol-summary \.{rule} \{{[^}}]*width: {width}",
+				f"{rule} has no fixed width, so the columns cannot line up")
 
-	def test_the_grey_boxes_keep_their_padding(self):
-		"""Every .pol-summary rule must be scoped the same way. Scoping only
-		the `td` rule made it outrank the box rule and flattened the boxes - a
-		regression introduced while fixing the alignment."""
+	def test_every_colon_and_value_starts_in_the_same_place(self):
+		"""A fixed-width label and colon column is the whole mechanism. If a
+		label were allowed to size itself, each row would start somewhere
+		different - which is what the layout before this did."""
 		html = self.rendered()
-		self.assertRegex(html, r"\.pol-sheet \.pol-summary \.pol-box \{[^}]*padding: 2px 6px")
+		rows = re.findall(r"<tr>(.*?)</tr>", html.split('class="pol-summary"')[1], re.S)
+		summary_rows = [r for r in rows if "pol-colon" in r]
+		self.assertGreaterEqual(len(summary_rows), 11, "summary rows are missing")
+		for row in summary_rows:
+			cells = re.findall(r'<td class="([^"]+)"', row)
+			self.assertEqual(cells, ["pol-label", "pol-colon", "pol-value", "pol-unit"],
+			                 "a summary row does not have the same four columns")
+
+	def test_the_grey_boxes_are_gone(self):
+		"""They mirrored GDL's printed POL form. GDL chose the movement
+		order's plainer layout instead, knowing it steps away from the paper
+		original - so this is deliberate, not a regression."""
+		html = self.rendered()
+		self.assertNotIn("pol-box", html)
+		self.assertNotIn("#d9d9d9", html)
+
+	def test_the_label_no_longer_carries_its_own_colon(self):
+		"""The colon has a column now. Leaving it in the text too would print
+		"Opening Km :- :"."""
+		html = self.rendered()
+		self.assertNotRegex(html, r'<td class="pol-label">[^<]*:-?\s*</td>')
 
 
 class TestPrintFormatClassNames(IntegrationTestCase):
@@ -326,3 +345,75 @@ class TestPrintFormatClassNames(IntegrationTestCase):
 		                "the scan cannot see Bootstrap's .label at all")
 		self.assertFalse(self.defined_in_stylesheet("pol-label"),
 		                 "the prefixed name should NOT collide")
+
+
+class TestMovementOrderLayout(IntegrationTestCase):
+	"""The signature block at the foot of the movement order."""
+
+	def rendered(self):
+		name = a_document("Movement Order")
+		if not name:
+			self.skipTest("no Movement Order on this site")
+		return frappe.get_print("Movement Order", name,
+		                        print_format="Vehicle Movement Order")
+
+	def test_the_signature_lines_share_a_left_edge(self):
+		"""They were one cell with `text-align: center` inside a 45% left
+		padding, so each line centred in whatever space was left over. Being
+		different lengths, the two lines started in different places and the
+		block read as ragged."""
+		html = self.rendered()
+		self.assertIn("mo-signoff-block", html)
+		self.assertRegex(html, r"\.mo-signoff \.mo-signoff-block \{[^}]*text-align: left")
+		self.assertNotRegex(html, r"\.mo-signoff td \{[^}]*text-align: center")
+		self.assertNotRegex(html, r"\.mo-signoff[^}]*padding-left: \d+%")
+
+	def test_both_lines_are_still_there(self):
+		html = self.rendered()
+		self.assertIn("Signature (with name and designation)", html)
+		self.assertIn("of Authorising Officer", html)
+
+	def test_it_still_sits_on_the_right(self):
+		"""Right-hand placement was deliberate - it is where the paper form
+		puts it. Only the ragged edge was the fault."""
+		self.assertRegex(self.rendered(),
+		                 r"\.mo-signoff \.mo-signoff-gap \{[^}]*width: \d+%")
+
+
+class TestNoForcedCss(IntegrationTestCase):
+	"""No !important in a print format stylesheet.
+
+	Every one of them here was unnecessary - a class selector already outranks
+	a bare element selector. They matter because forcing a property is how the
+	POL label problem stayed hidden: `vertical-align: middle !important` beat
+	one of the four rules Bootstrap's `.label` was applying and left the other
+	three in place, which looked like progress twice over.
+
+	If a property genuinely has to be forced one day, the thing to do is work
+	out what is fighting it - usually a class name collision.
+	"""
+
+	def test_no_important_in_any_print_format(self):
+		import os
+		import re as _re
+
+		import gdl_fleet_extension
+		root = os.path.join(os.path.dirname(gdl_fleet_extension.__file__),
+		                    "gdl_fleet", "print_format")
+		checked = 0
+		for folder in sorted(os.listdir(root)):
+			path = os.path.join(root, folder, f"{folder}.html")
+			if not os.path.isfile(path):
+				continue
+			checked += 1
+			with open(path, encoding="utf-8") as f:
+				source = f.read()
+			# comments explain the rule and name it; they apply nothing
+			source = _re.sub(r"/\*.*?\*/", "", source, flags=_re.S)
+			source = _re.sub(r"\{#-.*?-#\}", "", source, flags=_re.S)
+			with self.subTest(print_format=folder):
+				self.assertNotIn("!important", source,
+				                 f"{folder} forces a CSS property. Find what is "
+				                 f"overriding it instead - a class name that collides "
+				                 f"with the stylesheet frappe ships is the usual cause.")
+		self.assertGreater(checked, 0, "no print formats were scanned")

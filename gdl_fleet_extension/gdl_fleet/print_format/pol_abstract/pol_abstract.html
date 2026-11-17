@@ -92,58 +92,69 @@
 
 	<table class="pol-summary">
 		<tr>
-			<td class="pol-label">Total Fuel recoupment(BOD) :-</td>
-			<td class="pol-box">{{ "{:,.2f}".format(doc.recoupment_bod or 0) }}</td>
+			<td class="pol-label">Total Fuel recoupment(BOD)</td>
+			<td class="pol-colon">:</td>
+			<td class="pol-value">{{ "{:,.2f}".format(doc.recoupment_bod or 0) }}</td>
 			<td class="pol-unit">Nu.</td>
 		</tr>
 		<tr>
-			<td class="pol-label">Total Fuel recoupment(STCBL) :</td>
-			<td class="pol-box">{{ "{:,.2f}".format(doc.recoupment_stcbl or 0) }}</td>
+			<td class="pol-label">Total Fuel recoupment(STCBL)</td>
+			<td class="pol-colon">:</td>
+			<td class="pol-value">{{ "{:,.2f}".format(doc.recoupment_stcbl or 0) }}</td>
 			<td class="pol-unit">Nu.</td>
 		</tr>
 		<tr>
-			<td class="pol-label">Opening {{ basis }}:-</td>
-			<td class="pol-box">{{ "{:,.2f}".format(doc.opening_km or 0) }}</td>
+			<td class="pol-label">Opening {{ basis }}</td>
+			<td class="pol-colon">:</td>
+			<td class="pol-value">{{ "{:,.2f}".format(doc.opening_km or 0) }}</td>
 			<td class="pol-unit">{{ basis.lower() }}</td>
 		</tr>
 		<tr>
-			<td class="pol-label">Closing {{ basis }}:-</td>
-			<td class="pol-box">{{ "{:,.2f}".format(doc.closing_km or 0) }}</td>
+			<td class="pol-label">Closing {{ basis }}</td>
+			<td class="pol-colon">:</td>
+			<td class="pol-value">{{ "{:,.2f}".format(doc.closing_km or 0) }}</td>
 			<td class="pol-unit">{{ basis.lower() }}</td>
 		</tr>
 		<tr>
-			<td class="pol-label">Total {{ basis }}:-</td>
-			<td class="pol-box">{{ "{:,.2f}".format(doc.total_km or 0) }}</td>
+			<td class="pol-label">Total {{ basis }}</td>
+			<td class="pol-colon">:</td>
+			<td class="pol-value">{{ "{:,.2f}".format(doc.total_km or 0) }}</td>
 			<td class="pol-unit">{{ basis.lower() }}</td>
 		</tr>
 		<tr>
-			<td class="pol-label">Previous tank balance:-</td>
-			<td class="pol-box">{{ "{:,.2f}".format(doc.previous_tank_balance or 0) }}</td>
+			<td class="pol-label">Previous tank balance</td>
+			<td class="pol-colon">:</td>
+			<td class="pol-value">{{ "{:,.2f}".format(doc.previous_tank_balance or 0) }}</td>
 			<td class="pol-unit">ltrs</td>
 		</tr>
 		<tr>
-			<td class="pol-label">Present tank balance:-</td>
-			<td class="pol-box">{{ "{:,.2f}".format(doc.present_tank_balance or 0) }}</td>
+			<td class="pol-label">Present tank balance</td>
+			<td class="pol-colon">:</td>
+			<td class="pol-value">{{ "{:,.2f}".format(doc.present_tank_balance or 0) }}</td>
 			<td class="pol-unit">ltrs</td>
 		</tr>
 		<tr>
-			<td class="pol-label">Fuel book balance(BOD):-</td>
-			<td class="pol-box">{{ "{:,.2f}".format(doc.fuel_book_balance_bod or 0) }}</td>
+			<td class="pol-label">Fuel book balance(BOD)</td>
+			<td class="pol-colon">:</td>
+			<td class="pol-value">{{ "{:,.2f}".format(doc.fuel_book_balance_bod or 0) }}</td>
 			<td class="pol-unit">Nu/chh.</td>
 		</tr>
 		<tr>
-			<td class="pol-label">Fuel book balance(STCBL):-</td>
-			<td class="pol-box">{{ "{:,.2f}".format(doc.fuel_book_balance_stcbl or 0) }}</td>
+			<td class="pol-label">Fuel book balance(STCBL)</td>
+			<td class="pol-colon">:</td>
+			<td class="pol-value">{{ "{:,.2f}".format(doc.fuel_book_balance_stcbl or 0) }}</td>
 			<td class="pol-unit">Nu/chh.</td>
 		</tr>
 		<tr>
-			<td class="pol-label">Total fuel consumed:-</td>
-			<td class="pol-box">{{ "{:,.2f}".format(doc.total_fuel_consumed or 0) }}</td>
+			<td class="pol-label">Total fuel consumed</td>
+			<td class="pol-colon">:</td>
+			<td class="pol-value">{{ "{:,.2f}".format(doc.total_fuel_consumed or 0) }}</td>
 			<td class="pol-unit">ltrs</td>
 		</tr>
 		<tr>
 			<td class="pol-label">Performance per litre</td>
-			<td class="pol-box">
+			<td class="pol-colon">:</td>
+			<td class="pol-value">
 				{%- if doc.performance_per_litre -%}
 					{{ ("{:,.%df}" % perf_precision).format(doc.performance_per_litre) }}
 				{%- else -%}
@@ -237,7 +248,15 @@
 	.pol-entries .center { text-align: center; }
 	.pol-total td { border-top: 1px solid #000; }
 
-	.pol-summary { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+	/* Laid out like the movement order's numbered items: label, a colon in a
+	   column of its own, then the value - so every colon and every figure
+	   starts at the same place down the sheet. GDL asked for this looking at
+	   the two documents side by side.
+
+	   The grey ruled boxes that used to hold the figures are gone with it.
+	   They mirrored GDL's printed POL form; GDL chose the movement order's
+	   plainer layout over that, knowing it steps away from the paper original. */
+	.pol-summary { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
 	/* frappe's own print stylesheet top-aligns every table cell, and wins on
 	   specificity - which left each label floating above its grey box instead
 	   of level with it. Scoped to the sheet and forced. */
@@ -256,22 +275,13 @@
 	   vertical-align with !important, which beat exactly one of the four.
 	   Nothing here uses an un-prefixed class name now. */
 	.pol-sheet .pol-summary td {
-		padding: 0; vertical-align: middle;
+		padding: 0; vertical-align: top;
 		font-size: 12px; line-height: 18px;
 	}
-	.pol-sheet .pol-summary .pol-label {
-		width: 42%; font-weight: bold; padding: 0 0 0 4px;
-	}
-	/* The grey, ruled value boxes of the paper form. */
-	.pol-sheet .pol-summary .pol-box {
-		width: 16%;
-		border: 1px solid #000;
-		background: #d9d9d9;
-		text-align: right;
-		padding: 2px 6px;
-		font-weight: bold;
-	}
-	.pol-sheet .pol-summary .pol-unit { width: 42%; padding: 0 0 0 8px; }
+	.pol-sheet .pol-summary .pol-label { width: 44%; padding-left: 4px; }
+	.pol-sheet .pol-summary .pol-colon { width: 18px; }
+	.pol-sheet .pol-summary .pol-value { width: 20%; padding-left: 10px; }
+	.pol-sheet .pol-summary .pol-unit  { padding-left: 10px; }
 
 	.pol-signoff { width: 100%; margin-top: 34px; }
 	.pol-signoff td { width: 50%; padding-top: 3px; font-weight: bold; }

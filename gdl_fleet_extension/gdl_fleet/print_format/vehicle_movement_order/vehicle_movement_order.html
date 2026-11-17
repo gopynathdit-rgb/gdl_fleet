@@ -118,9 +118,18 @@
 		</tr>
 	</table>
 
+	{#- Two cells, not one cell with a percentage indent. The old version
+	    centred each line inside whatever space a 45% left padding left over,
+	    so the two lines - being different lengths - started in different
+	    places and the block read as ragged. They share a left edge now. -#}
 	<table class="mo-signoff">
-		<tr><td>Signature (with name and designation)</td></tr>
-		<tr><td>of Authorising Officer</td></tr>
+		<tr>
+			<td class="mo-signoff-gap"></td>
+			<td class="mo-signoff-block">
+				<div>Signature (with name and designation)</div>
+				<div>of Authorising Officer</div>
+			</td>
+		</tr>
 	</table>
 
 </div>
@@ -183,8 +192,14 @@
 	.mo-items td { border: 0; padding: 0; vertical-align: top; }
 	.mo-items .l { width: 44%; }
 	.mo-items .c { width: 18px; }
-	.mo-items .v { padding-left: 10px !important; }
+	/* No !important: a class selector already outranks the bare `td` rule
+	   above it. The ones that were here masked nothing - but an !important
+	   that is not needed is the habit that hid the POL label problem behind
+	   a forced vertical-align, so they are gone. */
+	.mo-items .v { padding-left: 10px; }
 
 	.mo-signoff { width: 100%; margin-top: 70px; border-collapse: collapse; }
-	.mo-signoff td { border: 0; padding: 0; text-align: center; padding-left: 45% !important; }
+	.mo-signoff td { border: 0; padding: 0; vertical-align: top; }
+	.mo-signoff .mo-signoff-gap { width: 52%; }
+	.mo-signoff .mo-signoff-block { text-align: left; white-space: nowrap; }
 </style>
