@@ -39,6 +39,10 @@ after_migrate = "gdl_fleet_extension.setup.install.after_migrate"
 doc_events = {
 	"Vehicle": {
 		"validate": "gdl_fleet_extension.overrides.vehicle.validate",
+		# Insurance and registration details typed on the Vehicle reach the
+		# Renewal Register. on_update, not validate: the record has to exist
+		# before a renewal can point at it.
+		"on_update": "gdl_fleet_extension.overrides.vehicle_renewals.on_update",
 	},
 	# Phase 7 - preventive service record (standard erpnext Assets module)
 	"Asset Maintenance Log": {

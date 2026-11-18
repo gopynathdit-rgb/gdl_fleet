@@ -238,10 +238,25 @@ VEHICLE_CUSTOM_FIELDS = {
 			"insert_after": "gdl_compliance_cb",
 		},
 		{
+			# HIDDEN, not deleted. GDL's client, looking at the Vehicle form:
+			# "There are 2 Insurance Renewals. u can remove one."
+			#
+			# They were right - this and `end_date` (Insurance Expiry) are the
+			# same fact. GDL had already defined a renewal date as the
+			# "renew by" date, and the day a policy must be renewed by is the
+			# day it expires, so the two always printed the same value in two
+			# places on one screen.
+			#
+			# Insurance Expiry is the one kept: it sits in Insurance Details
+			# with the company and the policy number, which is where somebody
+			# looks for it. This one sat under Registration and Compliance.
+			#
+			# The column and its data stay. Clearing the tick brings it back.
 			"fieldname": "insurance_renewal_date",
 			"label": "Insurance Renewal Date",
 			"fieldtype": "Date",
 			"insert_after": "inspection_expiry",
+			"hidden": 1,
 		},
 		# --- Documents ----------------------------------------------------------
 		{
