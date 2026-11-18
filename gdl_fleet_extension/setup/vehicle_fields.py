@@ -221,10 +221,21 @@ VEHICLE_CUSTOM_FIELDS = {
 			"insert_after": "gdl_compliance_section",
 		},
 		{
+			# HIDDEN, not deleted - the same duplication as
+			# `insurance_renewal_date` below, and removed for the same reason.
+			# A renewal date is the "renew by" date, by GDL's own definition,
+			# and a registration must be renewed by the day it expires. This
+			# and `registration_expiry` therefore always printed the same
+			# value, side by side on one screen.
+			#
+			# Registration Expiry is the one kept.
+			#
+			# The column and its data stay. Clearing the tick brings it back.
 			"fieldname": "registration_renewal_date",
 			"label": "Registration Renewal Date",
 			"fieldtype": "Date",
 			"insert_after": "registration_expiry",
+			"hidden": 1,
 		},
 		{
 			"fieldname": "gdl_compliance_cb",

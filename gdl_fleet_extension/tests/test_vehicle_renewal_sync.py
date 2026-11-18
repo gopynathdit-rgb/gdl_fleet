@@ -145,28 +145,50 @@ class TestVehicleFeedsTheRenewalRegister(IntegrationTestCase):
 			"RICB", "the vehicle did not save when the register sync failed")
 
 
-class TestTheDuplicateInsuranceDateIsGone(IntegrationTestCase):
+class TestTheDuplicateRenewalDatesAreGone(IntegrationTestCase):
 	"""GDL's client: "There are 2 Insurance Renewals. u can remove one."
 
-	Insurance Expiry and Insurance Renewal Date held the same fact - GDL had
-	already defined a renewal date as the "renew by" date, and a policy must be
-	renewed by the day it expires.
+	Both pairs held the same fact. GDL had already defined a renewal date as
+	the "renew by" date, and a certificate must be renewed by the day it
+	expires - so each renewal date always printed the same value as the expiry
+	beside it, twice on one screen.
+
+	The expiry is kept in each pair. Insurance Expiry belongs beside the
+	company and the policy number; Registration Expiry is the one the
+	reminders and the Insurance / Renewal Due report are written against.
 	"""
 
-	def test_insurance_renewal_date_is_off_the_form(self):
-		field = frappe.get_meta("Vehicle").get_field("insurance_renewal_date")
-		self.assertIsNotNone(field, "the field was deleted rather than hidden")
-		self.assertTrue(field.hidden, "Insurance Renewal Date is still on the form")
+	# hidden field -> the field that holds the same fact and is kept
+	DUPLICATES = {
+		"insurance_renewal_date": "end_date",
+		"registration_renewal_date": "registration_expiry",
+	}
 
-	def test_insurance_expiry_is_the_one_kept(self):
-		"""It belongs with the company and the policy number, which is where
-		somebody looks for it."""
-		field = frappe.get_meta("Vehicle").get_field("end_date")
-		self.assertIsNotNone(field)
-		self.assertFalse(field.hidden, "Insurance Expiry was hidden by mistake")
+	def test_both_renewal_dates_are_off_the_form(self):
+		meta = frappe.get_meta("Vehicle")
+		for fieldname in self.DUPLICATES:
+			with self.subTest(field=fieldname):
+				field = meta.get_field(fieldname)
+				self.assertIsNotNone(field, "the field was deleted rather than hidden")
+				self.assertTrue(field.hidden, f"{field.label} is still on the form")
+
+	def test_the_expiry_of_each_pair_is_kept(self):
+		meta = frappe.get_meta("Vehicle")
+		for hidden, kept in self.DUPLICATES.items():
+			with self.subTest(kept=kept):
+				field = meta.get_field(kept)
+				self.assertIsNotNone(field)
+				self.assertFalse(field.hidden,
+				                 f"{kept} was hidden too - the pair has no visible field left")
 
 	def test_nothing_was_deleted(self):
 		"""Standing constraint on this project: hidden, never dropped."""
-		self.assertTrue(
-			frappe.db.has_column("Vehicle", "insurance_renewal_date"),
-			"the column holding existing data was dropped")
+		for fieldname in self.DUPLICATES:
+			with self.subTest(field=fieldname):
+				self.assertTrue(
+					frappe.db.has_column("Vehicle", fieldname),
+					"the column holding existing data was dropped")
+
+	def test_inspection_expiry_is_untouched(self):
+		"""It has no renewal-date twin, so it was never part of this."""
+		self.assertFalse(frappe.get_meta("Vehicle").get_field("inspection_expiry").hidden)
