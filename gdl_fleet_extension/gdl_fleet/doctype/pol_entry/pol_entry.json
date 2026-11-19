@@ -19,6 +19,7 @@
   "recoupment_bod",
   "recoupment_stcbl",
   "driver",
+  "bill_attachment",
   "remarks"
  ],
  "fields": [
@@ -28,7 +29,7 @@
    "label": "Supply Memo No.",
    "reqd": 1,
    "in_list_view": 1,
-   "columns": 2
+   "columns": 1
   },
   {
    "fieldname": "date",
@@ -139,6 +140,14 @@
    "read_only": 0,
    "description": "Litres x Rate, calculated. An authorised user may override it; the approved figure is then preserved exactly as entered. Which provider it is claimed from follows the Supplier.",
    "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "bill_attachment",
+   "fieldtype": "Attach",
+   "label": "Bill / Memo",
+   "in_list_view": 1,
+   "description": "A scan or photograph of this supply memo. Click the row's pencil to open or replace it.",
    "columns": 2
   }
  ],

@@ -380,3 +380,39 @@ class TestPartIssueStockSetup(IntegrationTestCase):
 		self.assertEqual(doc.docstatus, 1)
 		self.assertTrue(doc.stock_entry, "no Stock Entry was raised")
 		self.assertEqual(frappe.db.get_value("Stock Entry", doc.stock_entry, "docstatus"), 1)
+
+
+class TestVehicleTyreIsOffTheMenu(IntegrationTestCase):
+	"""GDL circled Vehicle Tyre in the breadcrumb: "hide this".
+
+	The LINK ROW is removed - not a permission, and not the `hidden` tick.
+	That tick does nothing: desk/desktop.py get_links() filters workspace
+	entries on is_item_allowed() alone and never reads it. And permission is
+	the wrong lever here, because Fleet Part Issue writes these records and
+	both tyre reports read them.
+	"""
+
+	def workspace(self):
+		return frappe.get_doc("Workspace", "GDL Fleet")
+
+	def links(self):
+		return [l.link_to for l in self.workspace().links if l.type == "Link"]
+
+	def test_vehicle_tyre_has_no_menu_entry(self):
+		self.assertNotIn("Vehicle Tyre", self.links())
+
+	def test_the_tyre_reports_keep_theirs(self):
+		"""The tracking the document asks for is still reachable."""
+		labels = [l.label for l in self.workspace().links]
+		for report in ("Tyre Mileage Report", "Tyre Cost Analysis"):
+			self.assertIn(report, labels, f"{report} lost its menu entry too")
+
+	def test_the_doctype_and_its_records_are_untouched(self):
+		"""Hidden from a menu, never removed."""
+		self.assertTrue(frappe.db.exists("DocType", "Vehicle Tyre"))
+
+	def test_permission_was_not_the_lever(self):
+		"""Taking the right away would break Fleet Part Issue, which creates
+		these records, and both reports, which read them."""
+		roles = {p.role for p in frappe.get_meta("Vehicle Tyre").permissions if p.read}
+		self.assertTrue(roles, "nobody can read Vehicle Tyre any more")

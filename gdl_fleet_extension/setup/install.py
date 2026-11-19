@@ -33,6 +33,9 @@ def after_install():
 	setup()
 
 
+from gdl_fleet_extension.setup.fleet_sidebar import setup_fleet_sidebar
+
+
 def after_migrate():
 	setup()
 
@@ -71,3 +74,8 @@ def setup():
 	# Phase 7: service intervals are configuration, seeded once, editable in the desk.
 	seed_fleet_settings()
 	frappe.db.commit()
+	# LAST. Saving a Workspace deletes its sidebar (Workspace.delete_sidebar),
+	# and frappe then regenerates a default one from the module. Anything that
+	# touches the workspace earlier in this function therefore undoes a sidebar
+	# built before it - which is exactly what happened.
+	setup_fleet_sidebar()

@@ -32,6 +32,7 @@ class POLAbstract(Document):
 		self.validate_entries()
 		self.validate_entry_suppliers()
 		self.validate_supplier_bill()
+		self.set_closing_km_from_entries()
 		self.validate_odometer()
 		self.validate_tank_balances()
 		self.calculate()
@@ -239,13 +240,48 @@ class POLAbstract(Document):
 		"""
 		if not cint(get_pol_setting("pol_abstract_requires_attachment", 1)):
 			return
+		if self.status not in ("Submitted", "Approved") and self.docstatus != 1:
+			return
+
+		# The bill now belongs to the LINE - GDL asked for an attachment on
+		# every entry, because one abstract covers several memos from more than
+		# one provider and a single file at the top could only ever evidence
+		# one of them.
+		missing = [str(row.idx) for row in (self.entries or [])
+		           if not row.get("bill_attachment")]
+		if not missing:
+			return
+
+		# An abstract attached the old way, before the field moved, is still
+		# evidenced. Those are not reopened to be re-attached line by line.
 		if self.supplier_bill_attachment:
 			return
-		if self.status in ("Submitted", "Approved") or self.docstatus == 1:
-			frappe.throw(
-				_("Attach the supplier's fuel bill before sending this abstract for approval."),
-				title=_("Supplier Bill Required"),
-			)
+
+		frappe.throw(
+			_("Attach the supply memo on each POL entry before sending this "
+			  "abstract for approval. Still missing on row {0}.").format(
+				", ".join(missing)),
+			title=_("Supplier Bill Required"),
+		)
+
+	def set_closing_km_from_entries(self):
+		"""Closing KM is the highest reading on the fills.
+
+		GDL: "closing KM need automatily update from line item km". Every fill
+		is recorded with the odometer at the pump, so the last of them IS the
+		closing reading for the period - typing it again by hand only creates
+		a second version of the same fact, and the two drift.
+
+		The HIGHEST, not the last row: rows are entered in whatever order the
+		memos come out of the folder, and an odometer only goes up.
+
+		Left alone when no fill carries a reading, so an abstract for a vehicle
+		whose memos have no odometer on them can still be closed by hand.
+		"""
+		readings = [cint(row.odometer) for row in (self.entries or [])
+		            if cint(row.odometer) > 0]
+		if readings:
+			self.closing_km = max(readings)
 
 	def validate_odometer(self):
 		if to_decimal(self.closing_km) < to_decimal(self.opening_km):

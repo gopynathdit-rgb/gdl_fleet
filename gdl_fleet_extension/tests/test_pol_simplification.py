@@ -206,8 +206,14 @@ class TestProviderAmountsAreDerived(IntegrationTestCase):
 	figures. They are hidden and derived, never typed.
 	"""
 
-	HIDDEN_ON_THE_ABSTRACT = ("total_amount_bod", "total_amount_stcbl",
-	                          "previous_tank_balance", "present_tank_balance")
+	# The two provider amounts only. The tank balances were on this list and
+	# are NOT any more: GDL asked for them back on the form
+	# ("previews tank balance text", "present tank balance text field"), which
+	# restores the reading Total Fuel Consumed was written for - supplied plus
+	# what was in the tank, less what is left. While they were hidden nothing
+	# was ever entered, so consumed always equalled supplied.
+	HIDDEN_ON_THE_ABSTRACT = ("total_amount_bod", "total_amount_stcbl")
+	TYPED_ON_THE_ABSTRACT = ("previous_tank_balance", "present_tank_balance")
 	HIDDEN_ON_THE_LINE = ("amount_bod", "amount_stcbl")
 
 	def test_the_abstract_hides_them(self):
@@ -216,6 +222,24 @@ class TestProviderAmountsAreDerived(IntegrationTestCase):
 			field = meta.get_field(fieldname)
 			self.assertIsNotNone(field, f"{fieldname} must not be deleted")
 			self.assertTrue(field.hidden, f"{fieldname} is still on screen")
+
+	def test_the_tank_balances_are_on_the_form_and_enterable(self):
+		"""Back at GDL's request, and they have to be typeable - a read-only
+		one would leave consumed equal to supplied, which is what hiding them
+		did."""
+		meta = frappe.get_meta("POL Abstract")
+		for fieldname in self.TYPED_ON_THE_ABSTRACT:
+			field = meta.get_field(fieldname)
+			self.assertIsNotNone(field)
+			self.assertFalse(field.hidden, f"{fieldname} is still hidden")
+			self.assertFalse(field.read_only, f"{fieldname} cannot be entered")
+
+	def test_their_description_no_longer_says_they_are_hidden(self):
+		"""GDL read the old note on a field that is now on screen: "remove
+		this"."""
+		meta = frappe.get_meta("POL Abstract")
+		for fieldname in self.TYPED_ON_THE_ABSTRACT:
+			self.assertNotIn("Hidden", meta.get_field(fieldname).description or "")
 
 	def test_the_line_hides_them(self):
 		meta = frappe.get_meta("POL Entry")

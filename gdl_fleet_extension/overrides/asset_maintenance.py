@@ -189,3 +189,48 @@ class GDLAssetMaintenanceLog(AssetMaintenanceLog):
 			# A service with no plan behind it. Nothing to roll forward.
 			return
 		super().update_maintenance_task()
+
+
+# ---------------------------------------------------------------------------
+# What a vehicle brings with it, when one is picked on a service record
+# ---------------------------------------------------------------------------
+@frappe.whitelist()
+def vehicle_defaults(vehicle: str | None = None):
+	"""Everything a service record can take from the vehicle itself.
+
+	GDL: "In asset maintance when i select vechile need fetch all deatils
+	automatily fill like location and all."
+
+	Deliberately a server call rather than `fetch_from` on each field.
+	fetch_from locks a field read-only and re-asserts the source value on every
+	save, and two of these must stay editable: the service LOCATION is where
+	the vehicle was serviced, which is often not the site it belongs to, and
+	the ODOMETER is the reading at service, which is the whole point of the
+	record. These are starting values, not bindings.
+
+	The driver is the one assigned on the day, not a field on the vehicle -
+	a Temporary or Relief assignment outranks the Primary one, which is why
+	this goes through get_active_driver rather than reading a column.
+	"""
+	if not vehicle:
+		return {}
+
+	frappe.has_permission("Vehicle", "read", throw=True)
+
+	values = frappe.db.get_value(
+		"Vehicle", vehicle,
+		["cost_center", "project", "last_odometer"], as_dict=True) or {}
+
+	from gdl_fleet_extension.gdl_fleet.doctype.driver_assignment.driver_assignment import (
+		get_active_driver,
+	)
+
+	# No "location": it is bound to vehicle.site with fetch_from on the field
+	# itself, which fills it and holds it read-only. Setting it here as well
+	# would be a second source for one value.
+	return {
+		"cost_center": values.get("cost_center"),
+		"project": values.get("project"),
+		"odometer": values.get("last_odometer"),
+		"driver": get_active_driver(vehicle),
+	}

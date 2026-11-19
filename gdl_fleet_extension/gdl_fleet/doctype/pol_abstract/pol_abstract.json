@@ -12,11 +12,15 @@
  "field_order": [
   "naming_series",
   "vehicle",
+  "abstract_date",
+  "vehicle_tank_capacity",
+  "previous_tank_balance",
+  "present_tank_balance",
+  "col_head_1",
   "driver",
   "driver_employee",
   "driver_license_no",
-  "abstract_date",
-  "col_head_1",
+  "col_head_2",
   "period_from",
   "period_to",
   "distance_basis",
@@ -26,23 +30,23 @@
   "supplier_bill_attachment",
   "sec_totals",
   "total_fuel_supplied",
-  "total_amount_bod",
-  "total_amount_stcbl",
-  "col_tot_1",
   "opening_book_balance_bod",
   "opening_book_balance_stcbl",
+  "col_tot_1",
   "recoupment_bod",
   "recoupment_stcbl",
+  "col_tot_2",
   "fuel_book_balance_bod",
   "fuel_book_balance_stcbl",
+  "total_amount_bod",
+  "total_amount_stcbl",
   "sec_odometer",
   "opening_km",
   "closing_km",
-  "total_km",
   "col_odo_1",
-  "previous_tank_balance",
-  "present_tank_balance",
+  "total_km",
   "total_fuel_consumed",
+  "col_odo_2",
   "performance_per_litre",
   "sec_mileage",
   "min_mileage",
@@ -129,7 +133,8 @@
    "default": "KM",
    "label": "Distance Basis",
    "reqd": 1,
-   "description": "KM for odometer-metered vehicles, Hours for hour-metered plant. Performance is reported per litre either way."
+   "description": "KM for odometer-metered vehicles, Hours for hour-metered plant. Performance is reported per litre either way.",
+   "hidden": 1
   },
   {
    "fieldname": "status",
@@ -245,7 +250,9 @@
    "fieldtype": "Float",
    "label": "Closing KM",
    "reqd": 1,
-   "precision": "2"
+   "precision": "2",
+   "read_only": 1,
+   "description": "The highest odometer reading on the fills above. Taken from the POL entries, never typed."
   },
   {
    "fieldname": "total_km",
@@ -263,16 +270,16 @@
    "fieldtype": "Float",
    "label": "Previous Tank Balance (Ltr)",
    "precision": "3",
-   "description": "Hidden at GDL's request. The field and its value are retained - Total Fuel Consumed still reads it - but nothing is entered here, so consumed equals supplied.",
-   "hidden": 1
+   "description": "Fuel left in the tank at the start of the period.",
+   "hidden": 0
   },
   {
    "fieldname": "present_tank_balance",
    "fieldtype": "Float",
    "label": "Present Tank Balance (Ltr)",
    "precision": "3",
-   "hidden": 1,
-   "description": "Hidden at GDL's request. The field and its value are retained - Total Fuel Consumed still reads it - but nothing is entered here, so consumed equals supplied."
+   "hidden": 0,
+   "description": "Fuel left in the tank at the end of the period."
   },
   {
    "fieldname": "total_fuel_consumed",
@@ -294,7 +301,8 @@
    "fieldname": "sec_dimensions",
    "fieldtype": "Section Break",
    "label": "Dimensions",
-   "permlevel": 1
+   "permlevel": 1,
+   "hidden": 1
   },
   {
    "fieldname": "site",
@@ -302,38 +310,52 @@
    "options": "Location",
    "label": "Site",
    "in_standard_filter": 1,
-   "permlevel": 1
+   "permlevel": 1,
+   "fetch_from": "vehicle.site",
+   "description": "Follows the Vehicle.",
+   "hidden": 1
   },
   {
    "fieldname": "department",
    "fieldtype": "Link",
    "options": "Department",
    "label": "Department",
-   "permlevel": 1
+   "permlevel": 1,
+   "fetch_from": "vehicle.department",
+   "description": "Follows the Vehicle.",
+   "hidden": 1
   },
   {
    "fieldname": "col_dim_1",
    "fieldtype": "Column Break",
-   "permlevel": 1
+   "permlevel": 1,
+   "hidden": 1
   },
   {
    "fieldname": "cost_center",
    "fieldtype": "Link",
    "options": "Cost Center",
    "label": "Cost Center",
-   "permlevel": 1
+   "permlevel": 1,
+   "fetch_from": "vehicle.cost_center",
+   "description": "Follows the Vehicle.",
+   "hidden": 1
   },
   {
    "fieldname": "project",
    "fieldtype": "Link",
    "options": "Project",
    "label": "Project",
-   "permlevel": 1
+   "permlevel": 1,
+   "fetch_from": "vehicle.project",
+   "description": "Follows the Vehicle.",
+   "hidden": 1
   },
   {
    "fieldname": "sec_approval",
    "fieldtype": "Section Break",
-   "label": "Accountability"
+   "label": "Accountability",
+   "hidden": 1
   },
   {
    "fieldname": "submitted_by",
@@ -341,17 +363,20 @@
    "options": "User",
    "label": "Submitted By",
    "read_only": 1,
-   "no_copy": 1
+   "no_copy": 1,
+   "hidden": 1
   },
   {
    "fieldname": "submitted_by_designation",
    "fieldtype": "Data",
    "label": "Submitted By Designation",
-   "default": "Driver"
+   "default": "Driver",
+   "hidden": 1
   },
   {
    "fieldname": "col_app_1",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "hidden": 1
   },
   {
    "fieldname": "approved_by",
@@ -359,23 +384,27 @@
    "options": "User",
    "label": "Approved By",
    "read_only": 1,
-   "no_copy": 1
+   "no_copy": 1,
+   "hidden": 1
   },
   {
    "fieldname": "approved_by_designation",
    "fieldtype": "Data",
    "label": "Approved By Designation",
-   "default": "Head-HR"
+   "default": "Head-HR",
+   "hidden": 1
   },
   {
    "fieldname": "sec_more",
    "fieldtype": "Section Break",
-   "label": "More"
+   "label": "More",
+   "hidden": 1
   },
   {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
-   "label": "Remarks"
+   "label": "Remarks",
+   "hidden": 1
   },
   {
    "fieldname": "amended_from",
@@ -384,7 +413,8 @@
    "label": "Amended From",
    "read_only": 1,
    "no_copy": 1,
-   "print_hide": 1
+   "print_hide": 1,
+   "hidden": 1
   },
   {
    "fieldname": "sec_mileage",
@@ -446,7 +476,28 @@
    "fieldname": "supplier_bill_attachment",
    "fieldtype": "Attach",
    "label": "Supplier Bill Attachment",
-   "description": "A scan or photograph of the fuel supply memos. Required before the abstract can be submitted for approval."
+   "description": "Superseded by the Bill / Memo on each POL entry. Kept for abstracts attached before that change.",
+   "hidden": 1
+  },
+  {
+   "fieldname": "col_head_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_tot_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "col_odo_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "vehicle_tank_capacity",
+   "fieldtype": "Float",
+   "label": "Vehicle Tank Capacity (Ltr)",
+   "fetch_from": "vehicle.fuel_tank_capacity",
+   "read_only": 1,
+   "description": "A full tank for this vehicle. Follows the Vehicle."
   }
  ],
  "links": [],

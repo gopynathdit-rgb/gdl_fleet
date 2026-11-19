@@ -24,6 +24,34 @@ frappe.ui.form.on("Asset Maintenance Log", {
 		}
 	},
 
+	// Picking a vehicle brings its details with it. GDL: "when i select
+	// vechile need fetch all deatils automatily fill like location and all."
+	//
+	// Location is NOT here: it is bound to vehicle.site with fetch_from, so
+	// frappe fills it and holds it read-only without a round trip.
+	//
+	// These four stay editable on purpose. The odometer is the reading AT
+	// SERVICE and the whole point of the record; cost centre, project and
+	// driver are starting values a workshop visit can legitimately differ on.
+	vehicle(frm) {
+		const vehicle = frm.doc.vehicle;
+		if (!vehicle) return;
+
+		frappe.call({
+			method: "gdl_fleet_extension.overrides.asset_maintenance.vehicle_defaults",
+			args: { vehicle },
+		}).then((r) => {
+			// A slow reply must not land on a form that has since moved to a
+			// different vehicle.
+			if (frm.doc.vehicle !== vehicle) return;
+
+			const values = r.message || {};
+			Object.keys(values).forEach((field) => {
+				if (values[field]) frm.set_value(field, values[field]);
+			});
+		});
+	},
+
 	refresh(frm) {
 		if (frm.is_new()) return;
 		if (frm.doc.docstatus !== 1) return;

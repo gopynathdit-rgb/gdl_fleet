@@ -28,6 +28,15 @@ def load_file():
 	return json.loads(WORKSPACE_FILE.read_text())
 
 
+# DocTypes deliberately left off the menu, and how each is still reached.
+#
+#   Vehicle Tyre - GDL circled it and asked for it to be hidden. A tyre record
+#   is created BY a Fleet Part Issue, and read by Tyre Mileage Report and Tyre
+#   Cost Analysis, all three of which keep their own menu entries. Its own
+#   entry was a fourth way into the same data.
+REACHED_ANOTHER_WAY = {"Vehicle Tyre"}
+
+
 class TestGDLFleetWorkspace(IntegrationTestCase):
 	def setUp(self):
 		self.file = load_file()
@@ -96,8 +105,16 @@ class TestGDLFleetWorkspace(IntegrationTestCase):
 			)
 		)
 		linked = {l.get("link_to") for l in self.file["links"] if l["type"] == "Link"}
-		missing = gdl_doctypes - linked
+		missing = gdl_doctypes - linked - REACHED_ANOTHER_WAY
 		self.assertEqual(missing, set(), f"not reachable from the workspace: {missing}")
+
+	def test_the_exceptions_are_genuinely_reachable(self):
+		"""A doctype left off the menu has to be reachable some other way, or
+		the exception list is just a way of silencing this test."""
+		labels = {l.get("label") for l in self.file["links"]}
+		self.assertIn("Tyre Mileage Report", labels)
+		self.assertIn("Tyre Cost Analysis", labels)
+		self.assertIn("Fleet Part Issue", {l.get("link_to") for l in self.file["links"]})
 
 	def test_all_targets_exist(self):
 		for link in self.file["links"]:
@@ -201,3 +218,46 @@ class TestDeskVisibility(IntegrationTestCase):
 	def test_the_old_app_is_not_on_the_apps_screen(self):
 		from frappe.apps import get_apps
 		self.assertNotIn("gdl_fleet_management", {a["name"] for a in get_apps()})
+
+
+class TestTheSidebarFollowsTheWorkspace(IntegrationTestCase):
+	"""GDL: "left also need change".
+
+	The left sidebar is a Workspace Sidebar record, NOT the workspace. Frappe
+	otherwise auto-generates one from every non-child DocType, Report, Page and
+	Dashboard that declares the module - which is why Asset Repair and Vehicle
+	Tyre were still listed after both came off the workspace cards.
+
+	It is built FROM the cards so the two cannot drift.
+	"""
+
+	SIDEBAR = "GDL Fleet"
+
+	def sidebar(self):
+		if not frappe.db.exists("Workspace Sidebar", self.SIDEBAR):
+			self.skipTest("no Workspace Sidebar on this site")
+		return frappe.get_doc("Workspace Sidebar", self.SIDEBAR)
+
+	def workspace_shape(self):
+		workspace = frappe.get_doc("Workspace", "GDL Fleet")
+		return [(l.label, "Section Break" if l.type == "Card Break" else "Link")
+		        for l in workspace.links if l.type in ("Card Break", "Link")]
+
+	def test_it_matches_the_workspace_card_for_card(self):
+		shape = [(i.label, i.type) for i in self.sidebar().items]
+		self.assertEqual(shape, self.workspace_shape(),
+		                 "the sidebar and the workspace have drifted apart")
+
+	def test_what_came_off_the_menu_is_off_the_sidebar_too(self):
+		labels = {i.label for i in self.sidebar().items}
+		for gone in ("Asset Repair", "Asset Maintenance", "Vehicle Tyre",
+		             "General Ledger", "Budget Variance Report"):
+			self.assertNotIn(gone, labels, f"{gone} is still in the sidebar")
+
+	def test_rebuilding_it_twice_changes_nothing(self):
+		"""It runs on every migrate."""
+		from gdl_fleet_extension.setup.fleet_sidebar import setup_fleet_sidebar
+		setup_fleet_sidebar()
+		before = [(i.label, i.type) for i in self.sidebar().items]
+		self.assertIsNone(setup_fleet_sidebar(), "a second run rewrote the sidebar")
+		self.assertEqual([(i.label, i.type) for i in self.sidebar().items], before)

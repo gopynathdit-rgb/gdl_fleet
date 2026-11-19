@@ -76,12 +76,27 @@ MAINTENANCE_CUSTOM_FIELDS = {
 			"insert_after": "completion_date",
 		},
 		{
+			# Puts Location beside Vehicle instead of under it - GDL: "same
+			# line also". Two fields stacked in a half-width column left the
+			# whole right side of the first section empty.
+			"fieldname": "gdl_vehicle_cb",
+			"fieldtype": "Column Break",
+			"insert_after": "vehicle",
+		},
+		{
+			# Bound to the vehicle and NOT editable - GDL: "and location not
+			# editable". A fetch_from without fetch_if_empty is frappe's own
+			# way of saying that: the value follows vehicle.site, and the
+			# control goes read-only as soon as a vehicle is chosen
+			# (read_only_because_of_fetch_from, base_input.js). It is also
+			# re-asserted server-side on save, so it cannot drift.
 			"fieldname": "location",
 			"label": "Location",
 			"fieldtype": "Link",
 			"options": "Location",
-			"insert_after": "vehicle",
-			"description": "Site the vehicle was serviced at.",
+			"insert_after": "gdl_vehicle_cb",
+			"fetch_from": "vehicle.site",
+			"description": "The vehicle's site. Follows the vehicle.",
 		},
 		{
 			"fieldname": "service_provider",
@@ -95,7 +110,10 @@ MAINTENANCE_CUSTOM_FIELDS = {
 			"fieldname": "labour_cost",
 			"label": "Labour Cost",
 			"fieldtype": "Currency",
-			"insert_after": "gdl_service_cb",
+			# Below the Service Items table, not above it. GDL: "need update below
+			# this fields". Parts Cost is totalled FROM those rows, so reading
+			# the rows and then their totals is the order the form is filled in.
+			"insert_after": "gdl_cost_cb",
 			"permlevel": 1,
 		},
 		{
@@ -120,6 +138,33 @@ MAINTENANCE_CUSTOM_FIELDS = {
 			"insert_after": "service_provider",
 		},
 		{
+			# The costs sit UNDER the table and on the RIGHT - GDL: "that field
+			# need under service item table in right".
+			#
+			# Its own section, because a field cannot be moved out of its
+			# section by insert_after alone: Meta.sort_fields keeps it where
+			# its section puts it. The column break with nothing before it is
+			# what pushes the costs to the right half; Column.refresh only
+			# hides a column whose BREAK is hidden, never one that is merely
+			# empty, so the empty left half renders and holds the space.
+			"fieldname": "gdl_cost_section",
+			"fieldtype": "Section Break",
+			"insert_after": "service_items",
+		},
+		{
+			# Two breaks, so Labour | Parts | Total sit side by side on ONE
+			# line under the table rather than stacked down the page. GDL:
+			# "need same line" and "form will more long need short".
+			"fieldname": "gdl_cost_cb",
+			"fieldtype": "Column Break",
+			"insert_after": "labour_cost",
+		},
+		{
+			"fieldname": "gdl_cost_cb2",
+			"fieldtype": "Column Break",
+			"insert_after": "parts_cost",
+		},
+		{
 			"fieldname": "service_items",
 			"label": "Maintenance Items",
 			"fieldtype": "Table",
@@ -133,7 +178,7 @@ MAINTENANCE_CUSTOM_FIELDS = {
 			"label": "Cost Center",
 			"fieldtype": "Link",
 			"options": "Cost Center",
-			"insert_after": "total_cost",
+			"insert_after": "gdl_service_cb",
 			"permlevel": 1,
 		},
 		{
@@ -243,8 +288,49 @@ def setup_maintenance_customisations():
 	}
 	create_custom_fields(fields, ignore_validate=True, update=True)
 
+	enforce_field_order()
+
 	for doctype, fieldname, prop, value, property_type in MAINTENANCE_PROPERTY_SETTERS:
 		upsert_property_setter(doctype, fieldname, prop, value, property_type)
 
 	for doctype in MAINTENANCE_CUSTOM_FIELDS:
 		frappe.clear_cache(doctype=doctype)
+
+
+# fieldname -> what it must sit after, applied AFTER every field exists.
+#
+# create_custom_fields saves each field in list order, so one pointing at a
+# break defined further down the list is saved while that break does not yet
+# exist and the value does not stick. Enforcing the chain afterwards is
+# order-independent and idempotent.
+FIELD_ORDER = {
+	"Asset Maintenance Log": {
+		"gdl_vehicle_cb": "vehicle",        # Location beside Vehicle, same line
+		"location": "gdl_vehicle_cb",
+		"cost_center": "gdl_service_cb",
+		# The three costs on ONE line under the Service Items table:
+		# section, then a field - break - field - break - field.
+		"gdl_cost_section": "service_items",
+		"labour_cost": "gdl_cost_section",
+		"gdl_cost_cb": "labour_cost",
+		"parts_cost": "gdl_cost_cb",
+		"gdl_cost_cb2": "parts_cost",
+		"total_cost": "gdl_cost_cb2",
+	},
+}
+
+
+def enforce_field_order():
+	for doctype, chain in FIELD_ORDER.items():
+		changed = False
+		for fieldname, after in chain.items():
+			name = frappe.db.get_value(
+				"Custom Field", {"dt": doctype, "fieldname": fieldname}, "name")
+			if not name:
+				continue
+			if frappe.db.get_value("Custom Field", name, "insert_after") == after:
+				continue
+			frappe.db.set_value("Custom Field", name, "insert_after", after)
+			changed = True
+		if changed:
+			frappe.clear_cache(doctype=doctype)

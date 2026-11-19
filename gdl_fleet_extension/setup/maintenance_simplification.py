@@ -175,20 +175,20 @@ def reflow():
 	                     json.dumps(STANDARD_FIELD_ORDER), "Text",
 	                     for_doctype=True, validate_fields_for_doctype=False)
 
-	if frappe.db.exists("Custom Field", {"dt": DOCTYPE, "fieldname": "location"}):
-		frappe.db.set_value("Custom Field", {"dt": DOCTYPE, "fieldname": "location"},
-		                    "insert_after", "vehicle")
-
 	create_custom_field(DOCTYPE, {
 		"fieldname": "gdl_service_cb", "fieldtype": "Column Break",
 		"insert_after": "service_provider", "module": "GDL Fleet",
 	}, ignore_validate=True)
 
-	# labour_cost also asks to sit after service_provider, and two fields
-	# claiming the same anchor fall back on the order they were created in -
-	# which put the break at the far end of the section. Chain them instead.
-	frappe.db.set_value("Custom Field", {"dt": DOCTYPE, "fieldname": "labour_cost"},
-	                    "insert_after", "gdl_service_cb")
+	# Where `location` and `labour_cost` sit is NOT decided here any more.
+	# This function used to pin location after `vehicle` and labour_cost after
+	# `gdl_service_cb`, and because it runs after maintenance_fields it quietly
+	# undid both of GDL's later layout changes - Location beside Vehicle, and
+	# the costs under the Service Items table. One owner for the order:
+	# maintenance_fields.enforce_field_order(), which runs last.
+	from gdl_fleet_extension.setup.maintenance_fields import enforce_field_order
+
+	enforce_field_order()
 
 
 def hide(doctype, fieldname):

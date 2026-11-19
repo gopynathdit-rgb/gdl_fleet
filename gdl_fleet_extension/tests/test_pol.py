@@ -727,12 +727,17 @@ class TestPOLWorkflowAndReports(IntegrationTestCase):
 		doc = self.make_abstract(submit=True)
 		html = frappe.get_print("POL Abstract", doc.name, print_format="POL Abstract")
 		header = html.split("<thead>")[1].split("</thead>")[0]
-		self.assertNotIn("Supplier", header)
+		# Supplier IS printed. It went when the two provider amount columns
+		# did, and that lost which provider each fill came from - something
+		# one Amount column cannot say. GDL asked for it back.
 		self.assertEqual(
 			[" ".join(c.replace("<br>", " ").split())
 			 for c in __import__("re").findall(r"<th[^>]*>(.*?)</th>", header, 16)],
-			["Sl No", "Supply Memo No.", "Date", "HRS Liters", "Rate (Nu)", "Amount (Nu)"],
+			["Sl No", "Supply Memo No.", "Date", "Supplier",
+			 "HRS Liters", "Rate (Nu)", "Amount (Nu)"],
 		)
+		self.assertNotIn("(BOD)", header, "the per-provider amount columns are back")
+		self.assertNotIn("(STCBL)", header)
 
 	def test_each_column_heading_prints_on_one_line(self):
 		"""GDL circled the wrapped headings - "HRS / Liters", "Rate / (Nu)",
@@ -787,3 +792,79 @@ class TestPOLSafety(IntegrationTestCase):
 		daily = frappe.get_hooks("scheduler_events", app_name="gdl_fleet_extension").get("daily", [])
 		self.assertEqual(len(daily), 1, f"an extra scheduled job appeared: {daily}")
 		self.assertNotIn("pol", daily[0].lower())
+
+
+class TestPrintedRecoupmentCarriesTheOpeningBalance(IntegrationTestCase):
+	"""GDL: "Total Fuel recoupment + Opening Book Balance if nagaitve need
+	subtract if plus need addition in pdf formate only".
+
+	One signed addition. An unspent coupon carried in is a positive opening
+	balance and adds; an overdrawn one is negative and subtracts. What prints
+	is therefore what is recoupable this period, not the standing entitlement.
+
+	PRINT ONLY. The stored fields, the form and the closing book balance all
+	keep the standing figure, so nothing downstream moves.
+	"""
+
+	def printed(self, doc, label):
+		import re as _re
+
+		html = frappe.get_print("POL Abstract", doc.name, print_format="POL Abstract")
+		found = _re.search(_re.escape(label) + r'.*?pol-value">([^<]*)<', html, _re.S)
+		self.assertIsNotNone(found, f"{label} is not on the printed sheet")
+		return found.group(1).strip()
+
+	def setUp(self):
+		from gdl_fleet_extension.tests.test_vehicle_extension import new_vehicle
+
+		self.vehicle = new_vehicle(last_odometer=1000)
+		self.vehicle.insert()
+
+	def make(self, recoup_bod, opening_bod, recoup_stcbl=0, opening_stcbl=0):
+		doc = frappe.get_doc({
+			"doctype": "POL Abstract",
+			"vehicle": self.vehicle.name,
+			"abstract_date": nowdate(),
+			"period_from": nowdate(), "period_to": nowdate(),
+			"opening_km": 1000, "closing_km": 1100,
+			"deviation_reason": "test",
+			"supplier_bill_attachment": "/files/test-supplier-bill.pdf",
+			"entries": [{
+				"supply_memo_no": frappe.generate_hash(length=6),
+				"date": nowdate(), "supplier": fuel_supplier("BOD"),
+				"litres": 10, "rate": 100, "odometer": 1100,
+			}],
+		})
+		doc.flags.ignore_permissions = True
+		doc.insert()
+		doc.db_set("recoupment_bod", recoup_bod, update_modified=False)
+		doc.db_set("opening_book_balance_bod", opening_bod, update_modified=False)
+		doc.db_set("recoupment_stcbl", recoup_stcbl, update_modified=False)
+		doc.db_set("opening_book_balance_stcbl", opening_stcbl, update_modified=False)
+		frappe.clear_document_cache("POL Abstract", doc.name)
+		return frappe.get_doc("POL Abstract", doc.name)
+
+	def test_a_negative_opening_balance_is_subtracted(self):
+		doc = self.make(5000, -2000)
+		self.assertEqual(self.printed(doc, "Total Fuel recoupment(BOD)"), "3,000.00")
+
+	def test_a_positive_opening_balance_is_added(self):
+		doc = self.make(5000, 1500)
+		self.assertEqual(self.printed(doc, "Total Fuel recoupment(BOD)"), "6,500.00")
+
+	def test_no_opening_balance_prints_the_recoupment_unchanged(self):
+		doc = self.make(5000, 0)
+		self.assertEqual(self.printed(doc, "Total Fuel recoupment(BOD)"), "5,000.00")
+
+	def test_each_provider_uses_its_own_balance(self):
+		"""BOD's balance must not reach STCBL's line."""
+		doc = self.make(5000, -2000, recoup_stcbl=10000, opening_stcbl=-7000)
+		self.assertEqual(self.printed(doc, "Total Fuel recoupment(BOD)"), "3,000.00")
+		self.assertEqual(self.printed(doc, "Total Fuel recoupment(STCBL)"), "3,000.00")
+
+	def test_the_stored_figures_are_untouched(self):
+		""""in pdf formate only" - the record still holds the standing
+		recoupment, and the closing book balance is worked out from it."""
+		doc = self.make(5000, -2000)
+		self.assertEqual(doc.recoupment_bod, 5000)
+		self.assertEqual(doc.opening_book_balance_bod, -2000)

@@ -11,15 +11,15 @@
 	  both to be corrected, so this prints "km" and "KM/L". That is the one
 	  place the printout deliberately differs from the paper original.
 	* Sl No prints as 1.00, 2.00 - again, as the form does.
-	* ONE Amount column, and no Supplier column - GDL asked for the line table
-	  to show the money and nothing else. The old sheet carried Amount (BOD)
-	  and Amount (STCBL) side by side and one was always empty, because a fill
-	  comes from one provider.
+	* ONE Amount column - GDL asked for the line table to show the money and
+	  nothing else. The old sheet carried Amount (BOD) and Amount (STCBL) side
+	  by side and one was always empty, because a fill comes from one provider.
 
-	  Consequence, recorded so it is a known trade-off and not a surprise: the
-	  summary below still states recoupment and book balance per provider, but
-	  the printed lines no longer say which provider each fill came from. The
-	  split is on screen, in POL Supplier / Book Balance, and on the invoice.
+	* The Supplier column IS printed. It was dropped with the two amount
+	  columns, and that lost something the single Amount column could not say:
+	  which provider each fill came from. GDL asked for it back - "need add
+	  supplier name also" - which restores that without bringing back the
+	  empty second amount column.
 -#}
 {%- set basis = "Hrs" if doc.distance_basis == "Hours" else "Km" -%}
 {%- set perf_precision = frappe.db.get_single_value("GDL Fleet Settings", "pol_performance_precision") or 2 -%}
@@ -29,6 +29,21 @@
     is None whenever the file is not actually on disk, and the wordmark below
     takes over. -#}
 {%- set logo = company_logo_data_uri(company) -%}
+
+{#- The printed recoupment carries the opening book balance into it.
+    GDL: "Total Fuel recoupment + Opening Book Balance if nagaitve need
+    subtract if plus need addition in pdf formate only".
+
+    That is one signed addition. An unspent coupon is carried in as a positive
+    opening balance and adds; an overdrawn one is negative and subtracts. The
+    figure printed is therefore what is actually recoupable this period, not
+    the standing entitlement.
+
+    PRINT ONLY, as asked. doc.recoupment_bod / _stcbl are untouched, the form
+    still shows the standing figure, and the closing book balance is still
+    worked out from the stored values - so nothing downstream moves. -#}
+{%- set net_recoupment_bod = (doc.recoupment_bod or 0) + (doc.opening_book_balance_bod or 0) -%}
+{%- set net_recoupment_stcbl = (doc.recoupment_stcbl or 0) + (doc.opening_book_balance_stcbl or 0) -%}
 
 {#- Header and footer. frappe pulls #header-html and #footer-html out of the
     rendered page and hands them to wkhtmltopdf as --header-html/--footer-html,
@@ -62,12 +77,13 @@
 	<table class="pol-entries">
 		<thead>
 			<tr>
-				<th style="width:8%">Sl No</th>
-				<th style="width:24%">Supply Memo No.</th>
-				<th style="width:15%">Date</th>
-				<th style="width:17%" class="right">HRS Liters</th>
-				<th style="width:14%" class="right">Rate (Nu)</th>
-				<th style="width:22%" class="right">Amount (Nu)</th>
+				<th style="width:7%">Sl No</th>
+				<th style="width:20%">Supply Memo No.</th>
+				<th style="width:13%">Date</th>
+				<th style="width:14%">Supplier</th>
+				<th style="width:15%" class="right">HRS Liters</th>
+				<th style="width:12%" class="right">Rate (Nu)</th>
+				<th style="width:19%" class="right">Amount (Nu)</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -76,13 +92,14 @@
 				<td>{{ "{:.2f}".format(loop.index) }}</td>
 				<td class="center">{{ row.supply_memo_no or "" }}</td>
 				<td>{{ frappe.utils.formatdate(row.date, "dd.MM.yy") }}</td>
+				<td>{{ row.supplier or "" }}</td>
 				<td class="right">{{ "{:,.2f}".format(row.litres or 0) }}</td>
 				<td class="right">{{ "{:,.2f}".format(row.rate or 0) }}</td>
 				<td class="right">{{ "{:,.2f}".format(row.total_amount or 0) }}</td>
 			</tr>
 			{% endfor %}
 			<tr class="pol-total">
-				<td colspan="3" class="right"><b>Total:</b></td>
+				<td colspan="4" class="right"><b>Total:</b></td>
 				<td class="right"><b>{{ "{:,.2f}".format(doc.total_fuel_supplied or 0) }}</b></td>
 				<td></td>
 				<td class="right"><b>{{ "{:,.2f}".format((doc.total_amount_bod or 0) + (doc.total_amount_stcbl or 0)) }}</b></td>
@@ -94,13 +111,13 @@
 		<tr>
 			<td class="pol-label">Total Fuel recoupment(BOD)</td>
 			<td class="pol-colon">:</td>
-			<td class="pol-value">{{ "{:,.2f}".format(doc.recoupment_bod or 0) }}</td>
+			<td class="pol-value">{{ "{:,.2f}".format(net_recoupment_bod) }}</td>
 			<td class="pol-unit">Nu.</td>
 		</tr>
 		<tr>
 			<td class="pol-label">Total Fuel recoupment(STCBL)</td>
 			<td class="pol-colon">:</td>
-			<td class="pol-value">{{ "{:,.2f}".format(doc.recoupment_stcbl or 0) }}</td>
+			<td class="pol-value">{{ "{:,.2f}".format(net_recoupment_stcbl) }}</td>
 			<td class="pol-unit">Nu.</td>
 		</tr>
 		<tr>

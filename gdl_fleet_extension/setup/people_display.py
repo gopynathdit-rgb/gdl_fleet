@@ -22,9 +22,11 @@ from frappe.custom.doctype.property_setter.property_setter import make_property_
 # its title_field; only the display flag is missing.
 SHOW_NAME_IN_LINKS = {
 	"Employee": "employee_name",
-	# Driver is deliberately NOT here. GDL looked at it and said the id is what
-	# they want to see for a driver. Adding "Driver": "full_name" is all it
-	# would take if that changes.
+	# Driver was deliberately left out of this once - GDL looked at it and said
+	# the id was what they wanted for a driver. They have since looked again,
+	# at "HR-DRI-2026-00001" on a POL abstract, and asked for the name:
+	# "Display the driver name". Their call, reversed on their say-so.
+	"Driver": "full_name",
 }
 
 
