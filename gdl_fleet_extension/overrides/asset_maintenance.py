@@ -24,6 +24,7 @@ from gdl_fleet_extension.utils.odometer import get_last_odometer, recalculate_ve
 # ----------------------------------------------------------------------
 def maintenance_log_validate(doc, method=None):
 	set_vehicle_from_asset(doc)
+	fill_from_plan(doc)
 	set_total_cost(doc)
 	set_next_due_from_rules(doc)
 	validate_log_odometer(doc)
@@ -104,6 +105,57 @@ def set_vehicle_from_asset(doc):
 	vehicle = frappe.db.get_value("Vehicle", {"asset": doc.asset_name}, "name")
 	if vehicle:
 		doc.vehicle = vehicle
+
+
+def fill_from_plan(doc):
+	"""A log raised BY a maintenance plan arrives almost empty.
+
+	GDL: "when i create Asset maintance asset maintance log created but some
+	details need update automatily update cost center and need which one is
+	planed like engine oil or air filter like that."
+
+	ERPNext creates one log per scheduled task carrying little more than the
+	task's name, so the record gave no sign of WHICH service was planned and
+	none of the accounting it will eventually need.
+
+	Two things are filled, both only when blank, so nothing anyone types is
+	overwritten:
+
+	  * Cost Center and Project, from the vehicle - the same dimensions a
+	    hand-written service record already picks up.
+	  * One Service Items row naming the planned service, so the form says
+	    "Engine Oil" rather than leaving the reader to open the plan.
+	"""
+	if not doc.get("asset_maintenance"):
+		return
+
+	if doc.get("vehicle"):
+		for field in ("cost_center", "project"):
+			if not doc.get(field):
+				doc.set(field, frappe.db.get_value("Vehicle", doc.vehicle, field))
+
+	if doc.get("service_items"):
+		return		# somebody has already listed what was done
+
+	# Nor invent a line for a visit whose parts cost is already stated.
+	# Parts Cost is the SUM of the service rows, so adding a row costing
+	# nothing would silently zero a figure someone typed - which is exactly
+	# what it did to a 3,500 parts cost the first time round.
+	if flt(doc.get("parts_cost")):
+		return
+
+	service_item = None
+	if doc.get("task"):
+		service_item = frappe.db.get_value(
+			"Asset Maintenance Task", doc.task, "service_item")
+	# A plan written before service_item existed still names the task, and
+	# GDL's task names ARE the service types.
+	if not service_item and doc.get("task_name") and frappe.db.exists(
+			"Vehicle Service Item", doc.task_name):
+		service_item = doc.task_name
+
+	if service_item:
+		doc.append("service_items", {"service_item": service_item, "qty": 1})
 
 
 def set_total_cost(doc):
