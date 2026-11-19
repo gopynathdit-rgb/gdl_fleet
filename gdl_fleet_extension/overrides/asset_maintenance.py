@@ -25,7 +25,56 @@ from gdl_fleet_extension.utils.odometer import get_last_odometer, recalculate_ve
 def maintenance_log_validate(doc, method=None):
 	set_vehicle_from_asset(doc)
 	set_total_cost(doc)
+	set_next_due_from_rules(doc)
 	validate_log_odometer(doc)
+
+
+def set_next_due_from_rules(doc):
+	"""Next service date / KM for a service with no maintenance plan behind it.
+
+	Document §2.1.1.4: "Track the next service date or odometer based on the
+	periodic services selected."
+
+	Until now this only ran for a service raised from an ERPNext Asset
+	Maintenance PLAN - sync_next_due_onto_log below. GDL has no plans and
+	cannot have any: a plan needs an Asset, and none of the 14 vehicles is
+	linked to one, which is why Asset Maintenance came off the menu. So every
+	GDL service record was left with a blank next due, and the Service Due
+	report had nothing to list at all.
+
+	The schedule comes from GDL's own 12 Maintenance Rules instead, matched to
+	the Service Types actually chosen on this visit. Where a visit covers
+	several items the EARLIEST wins - the vehicle is next needed in the
+	workshop when the first item falls due, not the last.
+	"""
+	if doc.get("asset_maintenance") and doc.get("task"):
+		return		# a plan owns the schedule; leave it alone
+	if doc.get("maintenance_status") != "Completed" or not doc.get("vehicle"):
+		return
+
+	from frappe.utils import add_months, getdate
+
+	from gdl_fleet_extension.utils.maintenance import get_maintenance_rules
+
+	vehicle_type = frappe.db.get_value("Vehicle", doc.vehicle, "vehicle_type")
+	rules = {r.service_item: r for r in get_maintenance_rules(vehicle_type)}
+
+	next_date, next_km = None, None
+	for row in doc.get("service_items") or []:
+		rule = rules.get(row.get("service_item"))
+		if not rule:
+			continue
+
+		if cint(rule.interval_months) and doc.get("completion_date"):
+			due = add_months(getdate(doc.completion_date), cint(rule.interval_months))
+			next_date = due if not next_date or getdate(due) < getdate(next_date) else next_date
+
+		if cint(rule.interval_km) and cint(doc.get("odometer")):
+			due_km = cint(doc.odometer) + cint(rule.interval_km)
+			next_km = due_km if not next_km or due_km < next_km else next_km
+
+	doc.next_due_date = next_date
+	doc.next_due_odometer = next_km or 0
 
 
 def set_vehicle_from_asset(doc):

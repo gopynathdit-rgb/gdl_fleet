@@ -35,3 +35,4 @@ gdl_fleet_extension.patches.v2_0.sync_all_renewal_types_to_vehicle
 gdl_fleet_extension.patches.v2_0.costs_below_the_service_items
 gdl_fleet_extension.patches.v2_0.vehicle_tyre_off_the_menu
 gdl_fleet_extension.patches.v2_0.workspace_in_gdl_order
+gdl_fleet_extension.patches.v2_0.backfill_next_service_due

@@ -208,8 +208,7 @@ def get_due_maintenance(vehicle=None, include_upcoming=1) -> list[dict]:
 		filters=filters,
 		fields=["name", "vehicle", "asset_name", "company"],
 	)
-	if not plans:
-		return []
+	planned_vehicles = {p.vehicle for p in plans if p.vehicle}
 
 	odometers = {}
 	results = []
@@ -273,6 +272,86 @@ def get_due_maintenance(vehicle=None, include_upcoming=1) -> list[dict]:
 					"status": "Overdue" if overdue else "Due",
 				}
 			)
+
+	# Vehicles with no maintenance PLAN carry their schedule on the service
+	# records instead - which is every GDL vehicle, since a plan needs an
+	# Asset and none is linked to one. Added to the plan rows rather than
+	# replacing them, so a site running both is covered either way.
+	results.extend(due_from_service_records(
+		vehicle, include_upcoming, notice_days, notice_km, today,
+		skip_vehicles=planned_vehicles))
+
+	results.sort(key=lambda r: (r["status"] != "Overdue", r["vehicle"]))
+	return results
+
+
+def due_from_service_records(vehicle, include_upcoming, notice_days, notice_km,
+                             today, skip_vehicles=None):
+	"""The due list built from service records, with no maintenance plan.
+
+	Document §2.1.1.4: "The system should produce 'Service Due Soon' and
+	'Service Overdue' lists based on either date or odometer threshold."
+
+	One row per vehicle - its LATEST submitted service carries the next due,
+	worked out from the Maintenance Rules when it was recorded. An older
+	service is already superseded, so only the most recent one is asked.
+	"""
+	filters = {"docstatus": 1, "maintenance_status": "Completed"}
+	if vehicle:
+		filters["vehicle"] = vehicle
+
+	logs = frappe.get_all(
+		"Asset Maintenance Log",
+		filters=filters,
+		fields=["name", "vehicle", "completion_date", "odometer",
+		        "next_due_date", "next_due_odometer"],
+		order_by="completion_date desc, creation desc",
+	)
+
+	skip_vehicles = skip_vehicles or set()
+	latest, results = {}, []
+	for log in logs:
+		if log.vehicle and log.vehicle not in latest and log.vehicle not in skip_vehicles:
+			latest[log.vehicle] = log
+
+	for vehicle_name, log in latest.items():
+		if not (log.next_due_date or cint(log.next_due_odometer)):
+			continue
+
+		current_km = cint(frappe.db.get_value("Vehicle", vehicle_name, "last_odometer"))
+		days_remaining = km_remaining = None
+		due_by_date = due_by_km = False
+
+		if log.next_due_date:
+			days_remaining = (getdate(log.next_due_date) - today).days
+			due_by_date = days_remaining <= (0 if not include_upcoming else notice_days)
+
+		if cint(log.next_due_odometer):
+			km_remaining = cint(log.next_due_odometer) - current_km
+			due_by_km = km_remaining <= (0 if not include_upcoming else notice_km)
+
+		if not (due_by_date or due_by_km):
+			continue
+
+		overdue = (days_remaining is not None and days_remaining < 0) or (
+			km_remaining is not None and km_remaining < 0
+		)
+
+		results.append({
+			"asset_maintenance": None,
+			"asset": None,
+			"vehicle": vehicle_name,
+			"task": log.name,
+			"service_item": None,
+			"current_odometer": current_km,
+			"next_due_date": log.next_due_date,
+			"next_due_odometer": log.next_due_odometer,
+			"days_remaining": days_remaining,
+			"km_remaining": km_remaining,
+			"due_by_date": due_by_date,
+			"due_by_km": due_by_km,
+			"status": "Overdue" if overdue else "Due",
+		})
 
 	results.sort(key=lambda r: (r["status"] != "Overdue", r["vehicle"]))
 	return results
