@@ -105,7 +105,8 @@
    "fieldtype": "Date",
    "label": "Abstract Date",
    "reqd": 1,
-   "description": "The date the abstract itself is raised (workbook cell C2)."
+   "description": "The date the abstract itself is raised (workbook cell C2).",
+   "default": "Today"
   },
   {
    "fieldname": "col_head_1",
