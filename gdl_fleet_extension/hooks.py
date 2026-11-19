@@ -45,6 +45,12 @@ doc_events = {
 		"on_update": "gdl_fleet_extension.overrides.vehicle_renewals.on_update",
 	},
 	# Phase 7 - preventive service record (standard erpnext Assets module)
+	"Asset Maintenance": {
+		# before_validate, not validate: a doc_event "validate" runs AFTER the
+		# controller's own, and ERPNext's throws on a task with no assignee
+		# before we would ever get the chance to fill one in.
+		"before_validate": "gdl_fleet_extension.overrides.asset_maintenance.maintenance_plan_validate",
+	},
 	"Asset Maintenance Log": {
 		"validate": "gdl_fleet_extension.overrides.asset_maintenance.maintenance_log_validate",
 		"on_submit": "gdl_fleet_extension.overrides.asset_maintenance.maintenance_log_on_submit",

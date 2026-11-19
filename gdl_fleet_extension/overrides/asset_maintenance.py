@@ -78,7 +78,28 @@ def set_next_due_from_rules(doc):
 
 
 def set_vehicle_from_asset(doc):
-	if doc.get("vehicle") or not doc.get("asset_name"):
+	"""Fill the Vehicle on a log that did not come from the fleet forms.
+
+	`vehicle` is mandatory on a service record - a record with no vehicle joins
+	no service history and appears on no due list. But ERPNext's own
+	Asset Maintenance.sync_maintenance_tasks() creates a log for every
+	scheduled task without one, so raising a maintenance plan failed outright:
+	"Value missing for Asset Maintenance Log: Vehicle".
+
+	The plan knows the vehicle, so take it from there. The asset route stays
+	for a log raised against an Asset directly.
+	"""
+	if doc.get("vehicle"):
+		return
+
+	if doc.get("asset_maintenance"):
+		vehicle = frappe.db.get_value(
+			"Asset Maintenance", doc.asset_maintenance, "vehicle")
+		if vehicle:
+			doc.vehicle = vehicle
+			return
+
+	if not doc.get("asset_name"):
 		return
 	vehicle = frappe.db.get_value("Vehicle", {"asset": doc.asset_name}, "name")
 	if vehicle:
@@ -283,3 +304,47 @@ def vehicle_defaults(vehicle: str | None = None):
 		"odometer": values.get("last_odometer"),
 		"driver": get_active_driver(vehicle),
 	}
+
+
+# ---------------------------------------------------------------------------
+# The maintenance PLAN
+# ---------------------------------------------------------------------------
+def maintenance_plan_validate(doc, method=None):
+	"""Assign each task to the team, so nobody has to name a person per line.
+
+	GDL: "i done need assign some one in line item just select maintance team
+	only."
+
+	ERPNext refuses a plan whose task has no assignee - "Row #1: Please assign
+	task to a member" (asset_maintenance.py). The rule is not pointless: the
+	assignee is who its reminder emails, so switching it off would leave the
+	alerts with nobody to reach.
+
+	So the TEAM answers for its tasks. A blank assignee is filled from the
+	team's manager, or its first member if no manager is named. Anyone who
+	does want a particular person on a line can still type one, and it is
+	left alone.
+	"""
+	if not doc.get("maintenance_team"):
+		return
+
+	team = frappe.get_cached_doc("Asset Maintenance Team", doc.maintenance_team)
+	members = [m.team_member for m in (team.get("maintenance_team_members") or [])
+	           if m.team_member]
+
+	# A named manager first, then a real member. Administrator is skipped
+	# unless it is the only one: ERPNext hands the assignee to frappe's own
+	# assignment, which resolves Administrator to its email address and then
+	# cannot find a User by that name - "Could not find Allocated To: ...".
+	candidates = [team.get("maintenance_manager")]
+	candidates += [m for m in members if m != "Administrator"]
+	candidates += members
+
+	fallback = next((c for c in candidates
+	                 if c and frappe.db.exists("User", c)), None)
+	if not fallback:
+		return
+
+	for row in doc.get("asset_maintenance_tasks") or []:
+		if not row.get("assign_to"):
+			row.assign_to = fallback

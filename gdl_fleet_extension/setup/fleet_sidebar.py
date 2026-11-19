@@ -45,6 +45,49 @@ def sidebar_doctype():
 	return None
 
 
+def setup_fleet_workspace():
+	"""Replay the shipped workspace links and layout onto the site.
+
+	A Workspace is a document, so a site that already has one keeps whatever
+	it has - shipping a new JSON only reaches a fresh install. This ran as a
+	one-off patch, which meant the next card change did not reach any site
+	that had already run it. Run on every migrate instead; it is a no-op when
+	the two already agree.
+	"""
+	import json
+	import os
+
+	import gdl_fleet_extension
+
+	if not frappe.db.exists("Workspace", WORKSPACE):
+		return
+
+	path = os.path.join(os.path.dirname(gdl_fleet_extension.__file__),
+	                    "gdl_fleet", "workspace", "gdl_fleet", "gdl_fleet.json")
+	if not os.path.isfile(path):
+		return
+
+	with open(path, encoding="utf-8") as f:
+		shipped = json.load(f)
+
+	doc = frappe.get_doc("Workspace", WORKSPACE)
+	links_match = ([(l.type, l.label) for l in doc.links]
+	               == [(l["type"], l["label"]) for l in shipped["links"]])
+	content_match = (doc.content or "") == shipped["content"]
+	if links_match and content_match:
+		return
+
+	doc.links = []
+	for row in shipped["links"]:
+		doc.append("links", row)
+	# The layout names the cards it draws; a card with no block never appears.
+	doc.content = shipped["content"]
+	doc.flags.ignore_permissions = True
+	doc.save()
+	frappe.clear_cache()
+	return len(doc.links)
+
+
 def setup_fleet_sidebar():
 	"""Idempotent. Safe on install and on every migrate."""
 	doctype = sidebar_doctype()

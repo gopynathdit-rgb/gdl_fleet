@@ -277,7 +277,11 @@ class TestTheSidebarFollowsTheWorkspace(IntegrationTestCase):
 
 	def test_what_came_off_the_menu_is_off_the_sidebar_too(self):
 		labels = {i.label for i in self.sidebar().items}
-		for gone in ("Asset Repair", "Asset Maintenance", "Vehicle Tyre",
+		# Asset Maintenance is NOT on this list any more. It came off with
+		# Asset Repair, and GDL have since started raising plans against the
+		# vehicle and asked for it back: "need this menu in under Vehicle
+		# Service and Maintenance".
+		for gone in ("Asset Repair", "Vehicle Tyre",
 		             "General Ledger", "Budget Variance Report"):
 			self.assertNotIn(gone, labels, f"{gone} is still in the sidebar")
 

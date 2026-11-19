@@ -91,6 +91,20 @@ FLEET_PERMISSIONS = {
             "Fleet Maintenance User": ["read"],
         },
     },
+    # The maintenance PLAN. Withdrawn once as unusable - it needs an Asset and
+    # no GDL vehicle had one - but GDL now raise plans against the vehicle
+    # directly, so the people who service the fleet need to reach it. Without
+    # this the menu entry is invisible to everyone but Administrator:
+    # desktop.get_links() filters on permission alone.
+    "Asset Maintenance": {
+        0: {
+            "Fleet Maintenance User": ["read", "write", "create"],
+            # No delete. RT-14 holds across this app: no GDL role deletes a
+            # fleet document, because cancel-and-amend keeps the history.
+            "Fleet Administrator":    ["read", "write", "create"],
+            "Fleet Manager":          ["read"],
+        }
+    },
     "Asset Maintenance Log": {
         0: {
             "Fleet Driver":           ["read", "write", "create", "submit"],
@@ -197,6 +211,8 @@ FLEET_PERMISSIONS = {
 # to the core doctypes named here. frappe.permissions.reset_perms(doctype)
 # undoes it for any one of them.
 LINK_SELECT = {
+    # --- the maintenance plan's own form ------------------------------------
+    "Asset Maintenance Team":  ["Fleet Maintenance User", "Fleet Administrator"],
     # --- the service record and the fuel abstract ---------------------------
     "Location":                ["Fleet Driver", "Fleet User", "Fleet Approver",
                                 "Fleet HR Approver", "Fleet Maintenance User",
@@ -218,7 +234,10 @@ LINK_SELECT = {
     "Employee":                ["Fleet Driver", "Fleet User", "Fleet Approver",
                                 "Fleet Administrator"],
     "Driver":                  ["Fleet User", "Fleet HR Approver", "Fleet Store User"],
-    "User":                    ["Fleet User", "Fleet Approver", "Fleet Administrator"],
+    # Fleet Maintenance User joins this for the maintenance plan's task
+    # assignee - without it the Assign To link on a task is dead to them.
+    "User":                    ["Fleet User", "Fleet Approver", "Fleet Administrator",
+                                "Fleet Maintenance User"],
     "Fleet Vehicle Type":      ["Fleet Approver"],
     # --- parts, tyres and repairs -------------------------------------------
     "Item":                    ["Fleet Store User", "Fleet Maintenance User",
@@ -251,7 +270,10 @@ for _doctype, _roles in LINK_SELECT.items():
 #
 # Only rows for the roles listed above are touched. A role that already had a
 # row keeps it untouched: this never reaches outside the fleet.
-EXACT_RIGHTS = {"Supplier"} | set(LINK_SELECT)
+# Asset Maintenance is listed so its rights are set EXACTLY. It was granted
+# `delete` for one revision; without this the row would keep that right for
+# ever, because a grant only ever adds. RT-14 forbids it.
+EXACT_RIGHTS = {"Supplier", "Asset Maintenance"} | set(LINK_SELECT)
 
 # ALL_RIGHTS is frappe's own `rights` tuple, imported under another name on
 # purpose: the loop below binds `rights` to each role's own list, so importing
