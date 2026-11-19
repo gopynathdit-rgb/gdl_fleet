@@ -234,9 +234,36 @@ class TestTheSidebarFollowsTheWorkspace(IntegrationTestCase):
 	SIDEBAR = "GDL Fleet"
 
 	def sidebar(self):
-		if not frappe.db.exists("Workspace Sidebar", self.SIDEBAR):
-			self.skipTest("no Workspace Sidebar on this site")
-		return frappe.get_doc("Workspace Sidebar", self.SIDEBAR)
+		"""Whichever doctype this frappe uses.
+
+		frappe renamed it mid-v16: `Workspace Sidebar` up to ~16.32, `Sidebar`
+		by 16.56. GDL's server runs the newer one and this machine the older,
+		which is how a sidebar that looked right here changed nothing there.
+		"""
+		from gdl_fleet_extension.setup.fleet_sidebar import sidebar_doctype
+
+		doctype = sidebar_doctype()
+		if not doctype or not frappe.db.exists(doctype, self.SIDEBAR):
+			self.skipTest("no sidebar doctype on this site")
+		return frappe.get_doc(doctype, self.SIDEBAR)
+
+	def test_the_builder_targets_a_doctype_this_frappe_has(self):
+		"""The whole failure was writing to a table the running frappe no
+		longer reads."""
+		from gdl_fleet_extension.setup.fleet_sidebar import (
+			SIDEBAR_DOCTYPES,
+			sidebar_doctype,
+		)
+		chosen = sidebar_doctype()
+		self.assertIsNotNone(chosen, "no sidebar doctype found at all")
+		self.assertIn(chosen, SIDEBAR_DOCTYPES)
+		self.assertTrue(frappe.db.exists("DocType", chosen))
+
+	def test_the_newer_doctype_wins_when_both_exist(self):
+		"""A site mid-upgrade can carry both. The desk reads the new one."""
+		from gdl_fleet_extension.setup.fleet_sidebar import SIDEBAR_DOCTYPES
+
+		self.assertEqual(SIDEBAR_DOCTYPES[0], "Sidebar")
 
 	def workspace_shape(self):
 		workspace = frappe.get_doc("Workspace", "GDL Fleet")
