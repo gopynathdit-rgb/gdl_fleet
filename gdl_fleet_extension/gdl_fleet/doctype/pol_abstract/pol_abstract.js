@@ -5,7 +5,6 @@ frappe.ui.form.on("POL Abstract", {
 		set_performance_help(frm);
 		add_fuel_claim_buttons(frm);
 		add_bulk_entry_button(frm);
-		show_bill_requirement(frm);
 		restrict_fuel_suppliers(frm);
 	},
 
@@ -145,23 +144,22 @@ function raise_claim(frm, provider) {
 }
 
 
-function show_bill_requirement(frm) {
-	// The server refuses the abstract without it as soon as it leaves Draft.
-	// Marking the field here means the driver finds out while filling the
-	// form, not after clicking Submit for Approval.
-	// There is nothing to mark on a document that can no longer be edited, and
-	// the call was what greeted anyone opening an approved abstract.
-	if (frm.doc.docstatus !== 0) return;
-
-	// Asked of the server as a single flag. Reading the setting from here goes
-	// through frappe.client.get_value, which demands read on the whole of GDL
-	// Fleet Settings - which a driver has not got, and does not need.
-	frappe
-		.call({
-			method: "gdl_fleet_extension.gdl_fleet.doctype.pol_abstract.pol_abstract.bill_attachment_required",
-		})
-		.then((r) => frm.toggle_reqd("supplier_bill_attachment", !!r.message));
-}
+// show_bill_requirement() lived here. It asked the server whether the bill was
+// required and then ran
+//
+//     frm.toggle_reqd("supplier_bill_attachment", ...)
+//
+// which kept marking the ABSTRACT-level attachment mandatory long after the
+// bill moved onto each POL entry. The field is hidden now, so the form could
+// not be saved and the message named a field nobody could see:
+// "Supplier Bill Attachment is required."
+//
+// toggle_reqd beats the doctype's own reqd = 0, which is why clearing that
+// flag and deleting a stray Property Setter both appeared to change nothing.
+//
+// The rule itself has not gone anywhere - validate_supplier_bill() on the
+// server checks every line as the abstract leaves Draft, and names the rows
+// still missing a memo.
 
 function add_bulk_entry_button(frm) {
 	if (frm.doc.docstatus !== 0) return;

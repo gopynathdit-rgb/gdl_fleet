@@ -9,6 +9,8 @@ One abstract covers several memos from more than one provider, so a single
 file at the top could only ever evidence one of them.
 """
 
+import re
+
 import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import nowdate
@@ -152,6 +154,28 @@ class TestANewAbstractCanBeSaved(IntegrationTestCase):
 			if unfillable and not (field.default or field.fetch_from):
 				self.fail(f"{field.fieldname} is mandatory but cannot be filled: "
 				          f"read_only={field.read_only} hidden={field.hidden}")
+
+	def test_nothing_marks_the_hidden_bill_field_mandatory_in_the_browser(self):
+		"""The doctype says reqd = 0, but a client script was still calling
+		frm.toggle_reqd on it - which wins in the browser. The form then
+		refused to save and named a field nobody could see.
+
+		Reading the script is the only way to catch this: the server has no
+		idea what toggle_reqd did, so every server-side test passed while the
+		form was unusable.
+		"""
+		import os
+
+		import gdl_fleet_extension
+		path = os.path.join(os.path.dirname(gdl_fleet_extension.__file__),
+		                    "gdl_fleet", "doctype", "pol_abstract", "pol_abstract.js")
+		with open(path, encoding="utf-8") as f:
+			source = f.read()
+		source = re.sub(r"//.*", "", source)		# the comment explains it
+
+		self.assertNotIn("toggle_reqd", source,
+		                 "a client script is making a field mandatory behind "
+		                 "the doctype's back")
 
 	def test_a_new_abstract_saves(self):
 		"""The thing GDL could not do."""
