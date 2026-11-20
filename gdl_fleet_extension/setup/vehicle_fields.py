@@ -26,6 +26,15 @@ VEHICLE_CUSTOM_FIELDS = {
 	"Vehicle": [
 		# --- GDL identification -------------------------------------------------
 		{
+			# Third column in the header. GDL: "make this proper alignment like
+			# split 3 column and need look good" - it read Registration/Make on
+			# the left and Model/Company on the right, leaving a gap under Make.
+			# Registration | Make and Model | Company instead.
+			"fieldname": "gdl_head_cb2",
+			"fieldtype": "Column Break",
+			"insert_after": "model",
+		},
+		{
 			"fieldname": "gdl_identification_section",
 			"label": "GDL Fleet Identification",
 			"fieldtype": "Section Break",
@@ -133,6 +142,13 @@ VEHICLE_CUSTOM_FIELDS = {
 			"fieldtype": "Float",
 			"insert_after": "uom",
 			"description": "A full tank, in the Fuel UOM above.",
+		},
+		{
+			# Third column of GDL Fleet Identification, which was three fields
+			# against seven.
+			"fieldname": "gdl_identification_cb2",
+			"fieldtype": "Column Break",
+			"insert_after": "engine_no",
 		},
 		{
 			"fieldname": "manufacturing_year",
@@ -336,7 +352,59 @@ def setup_vehicle_customisations():
 	for doctype, fieldname, prop, value, property_type in VEHICLE_PROPERTY_SETTERS:
 		upsert_property_setter(doctype, fieldname, prop, value, property_type)
 
+	reflow_vehicle_header()
+
 	frappe.clear_cache(doctype="Vehicle")
+
+
+def reflow_vehicle_header():
+	"""Three columns across the top of the Vehicle form.
+
+	GDL: "make this proper alignment like split 3 column and need look good".
+	ERPNext ships the header as license_plate, make, BREAK, model, company -
+	the break falls between Make and Model, so Make sat alone with a gap under
+	it while Model and Company stacked on the right.
+
+	    Registration | Make, Model | Company
+	    Vehicle ID, Type, Status | Ownership, Lessor, Asset | Engine, Capacity...
+
+	Every move goes through the field_order property setter, including the two
+	custom Column Breaks. insert_after cannot do it: Meta.sort_fields
+	deliberately relocates a Section or Column Break to the END of its
+	section, so a break aimed at the middle of one lands at the far end -
+	which is exactly where gdl_head_cb2 went on the first attempt, leaving an
+	empty third column. field_order is read before any of that and is the one
+	thing sort_fields does not second-guess.
+
+	Computed from the live order rather than written out, so a field ERPNext
+	adds or drops in a later version needs no change here.
+	"""
+	import json
+
+	meta = frappe.get_meta("Vehicle")
+	order = [f.fieldname for f in meta.fields]
+	present = set(order)
+
+	# (field to move, the field it must sit immediately BEFORE)
+	moves = [
+		("column_break_3", "make"),              # keep Make and Model together
+		("gdl_head_cb2", "company"),             # Company into a third column
+		("gdl_identification_cb2", "capacity"),  # split the long second column
+	]
+
+	changed = False
+	for fieldname, before in moves:
+		if fieldname not in present or before not in present:
+			continue
+		if order.index(fieldname) + 1 == order.index(before):
+			continue		# already there
+		order.remove(fieldname)
+		order.insert(order.index(before), fieldname)
+		changed = True
+
+	if changed:
+		upsert_property_setter("Vehicle", None, "field_order",
+		                       json.dumps(order), "Text")
 
 
 def upsert_property_setter(doctype, fieldname, prop, value, property_type):

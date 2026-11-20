@@ -266,3 +266,65 @@ class TestFuelTankCapacity(IntegrationTestCase):
 		vehicle.insert()
 		self.assertEqual(
 			frappe.db.get_value("Vehicle", vehicle.name, "fuel_tank_capacity"), 62.5)
+
+
+class TestVehicleHeaderLayout(IntegrationTestCase):
+	"""GDL: "make this proper alignment like split 3 column and need look
+	good".
+
+	ERPNext ships the header as license_plate, make, BREAK, model, company -
+	the break falls between Make and Model, so Make sat alone on the left with
+	a gap under it while Model and Company stacked on the right.
+	"""
+
+	def rows(self):
+		"""The form as frappe lays it out: columns per section."""
+		out, cols = [], [[]]
+		for field in frappe.get_meta("Vehicle").fields:
+			if field.hidden:
+				continue
+			if field.fieldtype == "Section Break":
+				if any(cols):
+					out.append(cols)
+				cols = [[]]
+				continue
+			if field.fieldtype == "Column Break":
+				cols.append([])
+				continue
+			cols[-1].append(field.fieldname)
+		if any(cols):
+			out.append(cols)
+		return out
+
+	def section_with(self, fieldname):
+		for cols in self.rows():
+			if any(fieldname in c for c in cols):
+				return cols
+		return []
+
+	def test_the_header_has_three_columns(self):
+		header = self.section_with("license_plate")
+		self.assertEqual(len(header), 3,
+		                 f"the header has {len(header)} column(s), not 3")
+
+	def test_make_and_model_stay_together(self):
+		"""The shipped break split the pair."""
+		header = self.section_with("license_plate")
+		column = next(c for c in header if "make" in c)
+		self.assertIn("model", column, "Make and Model are in different columns")
+
+	def test_no_column_is_left_empty(self):
+		"""A break aimed at the middle of a section lands at the END of it -
+		Meta.sort_fields relocates it - which left an empty third column on
+		the first attempt."""
+		for cols in self.rows():
+			with self.subTest(section=cols[0][:1]):
+				self.assertTrue(all(cols), "a column on the Vehicle form is empty")
+
+	def test_the_identification_section_is_split_three_ways(self):
+		section = self.section_with("gdl_vehicle_id")
+		self.assertEqual(len(section), 3)
+		longest = max(len(c) for c in section)
+		shortest = min(len(c) for c in section)
+		self.assertLessEqual(longest - shortest, 2,
+		                     "the columns are lopsided again")
