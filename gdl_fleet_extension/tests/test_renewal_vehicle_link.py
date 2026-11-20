@@ -124,56 +124,30 @@ class TestRenewalSyncsToVehicle(IntegrationTestCase):
 		self.assertEqual(len(held), 2, "a renewal replaced its predecessor")
 
 
-class TestVehicleConnectsToItsRenewals(IntegrationTestCase):
-	"""The Vehicle form must lead to the register, not just mirror it.
+class TestTheRenewalsConnectionIsGone(IntegrationTestCase):
+	"""GDL asked for the Connections strip entry back off the Vehicle form:
+	"remove Renewals".
 
-	These go through frappe's OWN call path - Meta.get_dashboard_data() - and
-	not through the hook function directly. Calling the function directly is
-	what let a broken signature ship: frappe calls the hook as get_data(data=...)
-	and the first version took no arguments, so every Vehicle list and form
-	died with "TypeError: get_data() got an unexpected keyword argument 'data'"
-	while the tests stayed green.
+	It was added so a vehicle led to its renewals. GDL have since linked the
+	two in the other direction - saving a Vehicle writes the register - and
+	did not want the strip. The LINK between the records is untouched; only
+	the box at the top of the form is gone.
 	"""
 
-	def dashboard(self):
-		return frappe.get_meta("Vehicle").get_dashboard_data()
-
-	def linked_doctypes(self):
-		data = self.dashboard()
-		return [item for group in data["transactions"] for item in (group.get("items") or [])]
-
-	def test_the_vehicle_dashboard_builds_at_all(self):
-		"""The regression itself: this is the call that was failing."""
-		self.assertTrue(self.dashboard(), "the Vehicle dashboard could not be built")
-
-	def test_renewal_register_is_on_the_vehicle_dashboard(self):
-		self.assertIn("Renewal Register", self.linked_doctypes())
-
-	def test_it_links_on_the_vehicle_field(self):
-		"""Renewal Register points at a vehicle with `vehicle`, not ERPNext's
-		`license_plate`, so it needs a non-standard fieldname or the strip
-		would come back empty."""
-		self.assertEqual(
-			self.dashboard()["non_standard_fieldnames"]["Renewal Register"], "vehicle")
-
-	def test_erpnexts_own_links_are_kept(self):
-		"""The dashboard is extended, not replaced."""
-		self.assertIn("Vehicle Log", self.linked_doctypes())
-
-	def test_it_is_not_added_twice(self):
-		"""get_dashboard_data() is called on every form load."""
-		self.assertEqual(self.linked_doctypes().count("Renewal Register"), 1)
-
-	def test_the_hook_accepts_the_keyword_frappe_passes(self):
-		"""frappe calls it as get_data(data=...). Nothing else is supported."""
-		import inspect
-
-		from gdl_fleet_extension.overrides.vehicle_dashboard import get_data
-		self.assertIn("data", inspect.signature(get_data).parameters)
-
-	def test_the_hook_points_at_it(self):
+	def test_the_dashboard_override_is_not_registered(self):
 		from gdl_fleet_extension import hooks
-		self.assertEqual(
-			hooks.override_doctype_dashboards["Vehicle"],
-			"gdl_fleet_extension.overrides.vehicle_dashboard.get_data",
-		)
+
+		self.assertFalse(getattr(hooks, "override_doctype_dashboards", None),
+		                 "the Vehicle dashboard is being overridden again")
+
+	def test_the_vehicle_form_still_builds(self):
+		"""Removing a hook must not take the form with it."""
+		self.assertTrue(frappe.get_meta("Vehicle").get_dashboard_data())
+
+	def test_the_records_are_still_linked(self):
+		"""Only the strip went. A renewal still points at its vehicle, and
+		saving a vehicle still writes the register."""
+		self.assertTrue(frappe.get_meta("Renewal Register").get_field("vehicle"))
+		from gdl_fleet_extension.overrides.vehicle_renewals import RENEWAL_SOURCES
+
+		self.assertIn("Insurance", RENEWAL_SOURCES)

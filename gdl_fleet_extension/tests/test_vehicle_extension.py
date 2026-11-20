@@ -307,11 +307,22 @@ class TestVehicleHeaderLayout(IntegrationTestCase):
 		self.assertEqual(len(header), 3,
 		                 f"the header has {len(header)} column(s), not 3")
 
-	def test_make_and_model_stay_together(self):
-		"""The shipped break split the pair."""
+	def test_the_first_column_is_not_empty_on_a_saved_record(self):
+		"""license_plate does NOT render on a saved Vehicle - it is the
+		document's name and shows in the breadcrumb instead. A first column
+		holding only that field looks empty on every existing vehicle, which
+		is what GDL photographed. Something else has to share it."""
 		header = self.section_with("license_plate")
-		column = next(c for c in header if "make" in c)
-		self.assertIn("model", column, "Make and Model are in different columns")
+		first = header[0]
+		self.assertTrue([f for f in first if f != "license_plate"],
+		                "the first column holds only the record's name, so it "
+		                "renders empty on a saved vehicle")
+
+	def test_each_of_the_three_columns_carries_something(self):
+		header = self.section_with("license_plate")
+		self.assertEqual(len(header), 3)
+		for index, column in enumerate(header, start=1):
+			self.assertTrue(column, f"header column {index} is empty")
 
 	def test_no_column_is_left_empty(self):
 		"""A break aimed at the middle of a section lands at the END of it -
@@ -320,6 +331,16 @@ class TestVehicleHeaderLayout(IntegrationTestCase):
 		for cols in self.rows():
 			with self.subTest(section=cols[0][:1]):
 				self.assertTrue(all(cols), "a column on the Vehicle form is empty")
+
+	def test_every_section_across_the_top_is_split_three_ways(self):
+		"""GDL: "Site and Accounting Dimensions also make 3 column and Details
+		also Insurance Details, Additional Details make 3 column"."""
+		for anchor in ("site", "last_odometer", "insurance_company", "fuel_type"):
+			with self.subTest(section=anchor):
+				section = self.section_with(anchor)
+				self.assertEqual(len(section), 3,
+				                 f"the section holding {anchor} has "
+				                 f"{len(section)} column(s), not 3")
 
 	def test_the_identification_section_is_split_three_ways(self):
 		section = self.section_with("gdl_vehicle_id")

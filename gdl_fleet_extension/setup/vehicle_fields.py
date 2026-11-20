@@ -35,6 +35,30 @@ VEHICLE_CUSTOM_FIELDS = {
 			"insert_after": "model",
 		},
 		{
+			# Third columns. GDL asked for every section across the top of the
+			# Vehicle form to read in three: "Site and Accounting Dimensions
+			# also make 3 column and Details also Insurance Details,
+			# Additional Details make 3 column".
+			"fieldname": "gdl_organisation_cb2",
+			"fieldtype": "Column Break",
+			"insert_after": "cost_center",
+		},
+		{
+			"fieldname": "gdl_details_cb2",
+			"fieldtype": "Column Break",
+			"insert_after": "chassis_no",
+		},
+		{
+			"fieldname": "gdl_insurance_cb2",
+			"fieldtype": "Column Break",
+			"insert_after": "policy_no",
+		},
+		{
+			"fieldname": "gdl_additional_cb2",
+			"fieldtype": "Column Break",
+			"insert_after": "color",
+		},
+		{
 			"fieldname": "gdl_identification_section",
 			"label": "GDL Fleet Identification",
 			"fieldtype": "Section Break",
@@ -386,10 +410,30 @@ def reflow_vehicle_header():
 	present = set(order)
 
 	# (field to move, the field it must sit immediately BEFORE)
+	# (field to move, the field it must sit immediately BEFORE)
+	#
+	# The header starts with license_plate, which frappe does NOT render on a
+	# saved record - it is the document's name and shows in the breadcrumb
+	# instead. Putting the first break after it therefore left an empty first
+	# column on every existing vehicle, which is what GDL photographed. Make
+	# shares the first column with it so that column always has something in
+	# it, and Model moves beside rather than under it.
 	moves = [
-		("column_break_3", "make"),              # keep Make and Model together
-		("gdl_head_cb2", "company"),             # Company into a third column
-		("gdl_identification_cb2", "capacity"),  # split the long second column
+		("column_break_3", "model"),
+		("gdl_head_cb2", "company"),
+		("gdl_identification_cb2", "capacity"),
+		# Site | Department | Cost Center, Project
+		("gdl_organisation_cb", "department"),
+		("gdl_organisation_cb2", "cost_center"),
+		# odometers | mileage and purchase | the rest
+		("column_break_8", "min_mileage"),
+		("gdl_details_cb2", "vehicle_value"),
+		# company | policy | the period
+		("column_break_15", "policy_no"),
+		("gdl_insurance_cb2", "start_date"),
+		# fuel | carbon check and colour | the body
+		("column_break_21", "carbon_check_date"),
+		("gdl_additional_cb2", "wheels"),
 	]
 
 	changed = False
