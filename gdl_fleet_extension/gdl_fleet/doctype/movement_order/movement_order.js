@@ -1,6 +1,24 @@
 // Copyright (c) 2026, GDL and contributors
 
 frappe.ui.form.on("Movement Order", {
+	setup(frm) {
+		// Only drivers free over this order's window. GDL: "if the Driver is
+		// Assigned to another vehicle at the same time, it shouldnt show in
+		// the Driver selection."
+		//
+		// The times go with the query, so the list narrows as soon as they
+		// are set and widens again if they move. The server applies the same
+		// rule on save - a filtered list is a convenience, not the guard.
+		frm.set_query("driver", () => ({
+			query: "gdl_fleet_extension.gdl_fleet.doctype.movement_order.movement_order.driver_query",
+			filters: {
+				departure_datetime: frm.doc.departure_datetime,
+				expected_return: frm.doc.expected_return,
+				name: frm.doc.name,
+			},
+		}));
+	},
+
 	movement_order_request(frm) {
 		// Selecting the request fills in everything already captured on it, so
 		// the same information is not keyed twice. Vehicle and driver are left

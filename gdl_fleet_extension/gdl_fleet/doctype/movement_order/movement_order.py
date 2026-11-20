@@ -28,6 +28,7 @@ class MovementOrder(Document):
 		self.set_driver_from_assignment()
 		self.validate_vehicle_available()
 		self.validate_no_overlap()
+		self.validate_driver_available()
 		self.validate_location_approver()
 		self.validate_departure_odometer()
 		self.sync_status()
@@ -37,6 +38,7 @@ class MovementOrder(Document):
 		self.validate_schedule()
 		self.validate_vehicle_available()
 		self.validate_no_overlap()
+		self.validate_driver_available()
 		# The reading is entered at the gate, which is always after approval -
 		# so this check only ever runs here in practice.
 		self.validate_departure_odometer()
@@ -215,6 +217,35 @@ class MovementOrder(Document):
 					frappe.format(row.expected_return, {"fieldtype": "Datetime"}),
 				),
 				title=_("Vehicle Already Committed"),
+			)
+
+	def validate_driver_available(self):
+		"""One driver cannot be out on two movement orders at once.
+
+		GDL: "if the Driver is Assigned to another vehicle at the same time,
+		it shouldnt show in the Driver selection."
+
+		The dropdown is filtered by driver_query below, but a filter is only
+		a convenience - the value can arrive from a request, from an older
+		draft whose times have since moved, or from the API. This is the rule.
+		"""
+		if not (self.driver and self.departure_datetime and self.expected_return):
+			return
+		if self.docstatus == 2 or self.status in ("Cancelled", "Completed"):
+			return
+
+		clash = driver_clash(self.driver, self.departure_datetime,
+		                     self.expected_return, exclude=self.name)
+		if clash:
+			frappe.throw(
+				_("Driver {0} is already out on Movement Order {1} ({2}) with "
+				  "{3}, from {4} to {5}.").format(
+					frappe.bold(self.driver), frappe.bold(clash.name), clash.status,
+					frappe.bold(clash.vehicle or _("another vehicle")),
+					frappe.format(clash.departure_datetime, {"fieldtype": "Datetime"}),
+					frappe.format(clash.expected_return, {"fieldtype": "Datetime"}),
+				),
+				title=_("Driver Already Committed"),
 			)
 
 	def sync_status(self):
@@ -396,3 +427,73 @@ def fetch_request_details(movement_order_request: str) -> dict:
 	validate_request_is_usable(movement_order_request)
 	return get_request_details(movement_order_request)
 
+
+
+def driver_clash(driver, departure, expected_return, exclude=None):
+	"""The movement order that already has this driver over that window."""
+	rows = frappe.db.sql(
+		"""
+		select name, status, vehicle, departure_datetime, expected_return
+		from `tabMovement Order`
+		where driver = %(driver)s
+		  and name != %(name)s
+		  and docstatus < 2
+		  and status in %(statuses)s
+		  and departure_datetime < %(expected_return)s
+		  and coalesce(expected_return, departure_datetime) > %(departure_datetime)s
+		limit 1
+		""",
+		{
+			"driver": driver,
+			"name": exclude or "",
+			"statuses": OCCUPYING_STATUSES,
+			"departure_datetime": departure,
+			"expected_return": expected_return,
+		},
+		as_dict=True,
+	)
+	return rows[0] if rows else None
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def driver_query(doctype, txt, searchfield, start, page_len, filters):
+	"""Drivers free over the window this order covers.
+
+	A driver already out on another movement order for any part of it is left
+	out of the list entirely, so nobody has to notice the clash themselves.
+	With no window given yet, every driver is offered - there is nothing to
+	judge against.
+	"""
+	filters = filters or {}
+	departure = filters.get("departure_datetime")
+	expected_return = filters.get("expected_return")
+	exclude = filters.get("name") or ""
+
+	conditions = ["(d.name like %(txt)s or d.full_name like %(txt)s)"]
+	values = {"txt": f"%{txt or ''}%", "start": start, "page_len": page_len}
+
+	if departure and expected_return:
+		conditions.append("""
+			d.name not in (
+				select driver from `tabMovement Order`
+				where driver is not null
+				  and name != %(exclude)s
+				  and docstatus < 2
+				  and status in %(statuses)s
+				  and departure_datetime < %(expected_return)s
+				  and coalesce(expected_return, departure_datetime) > %(departure)s
+			)""")
+		values.update({"exclude": exclude, "statuses": OCCUPYING_STATUSES,
+		               "departure": departure, "expected_return": expected_return})
+
+	return frappe.db.sql(
+		f"""
+		select d.name, d.full_name
+		from `tabDriver` d
+		where {" and ".join(conditions)}
+		order by d.full_name
+		limit %(start)s, %(page_len)s
+		""",
+		values,
+	)

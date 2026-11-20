@@ -28,7 +28,12 @@ class TestMovementOrder(IntegrationTestCase):
 	def setUp(self):
 		self.vehicle = new_vehicle()
 		self.vehicle.insert()
-		self.driver = make_driver("MO", "DL-MO-900")
+		# A driver of this test's own. One shared across the class collided
+		# once a driver could no longer be out on two orders at the same time
+		# - these orders all run in the same window by default.
+		self.driver = make_driver(
+			f"MO{frappe.generate_hash(length=4)}",
+			f"DL-MO-{frappe.generate_hash(length=5)}")
 
 	def assign_driver(self, vehicle=None, driver=None, from_date=None):
 		doc = frappe.get_doc({
