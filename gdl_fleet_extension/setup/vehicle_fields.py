@@ -194,6 +194,7 @@ VEHICLE_CUSTOM_FIELDS = {
 			"options": "Location",
 			"insert_after": "gdl_organisation_section",
 			"in_standard_filter": 1,
+			"in_list_view": 1,
 			"description": "Standard ERPNext Location is the GDL Site master. Must be a leaf node.",
 		},
 		{
@@ -338,6 +339,16 @@ VEHICLE_CUSTOM_FIELDS = {
 
 # (doctype, fieldname, property, value, property_type) - fieldname None = DocType level
 VEHICLE_PROPERTY_SETTERS = [
+	# The Vehicle list already declared seven columns, and frappe shows six on
+	# an ordinary screen - so Site would have been added and never seen.
+	# Two earn their place least:
+	#   vehicle_value is permlevel 1, so most users cannot read it at all, and
+	#     it is 0.00 on all 14 vehicles;
+	#   uom (Fuel UOM) repeats what Fuel Type already says, and was the
+	#     seventh column, already invisible.
+	# That leaves exactly six: Model, Vehicle ID, Status, Site, Odometer, Fuel.
+	("Vehicle", "vehicle_value", "in_list_view", "0", "Check"),
+	("Vehicle", "uom", "in_list_view", "0", "Check"),
 	# Approved decision 2: license_plate IS the registration number.
 	("Vehicle", "license_plate", "label", "Registration Number", "Data"),
 	("Vehicle", "employee", "label", "Responsible Employee", "Data"),

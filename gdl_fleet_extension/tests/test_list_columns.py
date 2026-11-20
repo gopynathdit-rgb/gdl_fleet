@@ -16,6 +16,7 @@ ASKED_FOR = {
 	"Renewal Register": ["location"],
 	"Movement Order Request": ["site"],
 	"Movement Order": ["site"],
+	"Vehicle": ["site"],
 }
 
 # frappe shows this many columns before the rest need the list's own
@@ -54,3 +55,27 @@ class TestFleetListColumns(IntegrationTestCase):
 						f"{doctype}.{fieldname} is column "
 						f"{self.columns(doctype).index(fieldname) + 1} and "
 						f"would be cut off below a 1920px screen")
+
+
+class TestTheVehicleListFitsOnScreen(IntegrationTestCase):
+	"""The Vehicle list already declared seven columns before Site was asked
+	for, and frappe shows six - so it would have been added and never seen.
+	"""
+
+	def columns(self):
+		return [f.fieldname for f in frappe.get_meta("Vehicle").fields if f.in_list_view]
+
+	def test_it_declares_no_more_than_a_screen_can_show(self):
+		shown = self.columns()
+		self.assertLessEqual(
+			len(shown), COLUMNS_ON_A_MEDIUM_SCREEN,
+			f"the Vehicle list declares {len(shown)} columns; the ones past "
+			f"{COLUMNS_ON_A_MEDIUM_SCREEN} are dropped without a word")
+
+	def test_nothing_behind_a_permission_level_takes_a_column(self):
+		"""vehicle_value is permlevel 1 - most users cannot read it, so it
+		would occupy a column showing them nothing."""
+		meta = frappe.get_meta("Vehicle")
+		for fieldname in self.columns():
+			with self.subTest(field=fieldname):
+				self.assertEqual(meta.get_field(fieldname).permlevel, 0)
