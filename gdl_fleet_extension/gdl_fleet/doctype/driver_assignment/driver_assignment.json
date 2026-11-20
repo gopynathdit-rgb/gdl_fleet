@@ -130,9 +130,8 @@
    "fieldtype": "Link",
    "options": "Location",
    "label": "Location",
-   "description": "Site the assignment applies to.",
-   "fetch_from": "driver.site",
-   "fetch_if_empty": 1
+   "description": "The vehicle's site. Follows the vehicle.",
+   "fetch_from": "vehicle.site"
   },
   {
    "fieldname": "purpose",

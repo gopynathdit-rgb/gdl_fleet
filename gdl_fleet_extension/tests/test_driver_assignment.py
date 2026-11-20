@@ -196,3 +196,50 @@ class TestDriverAssignment(IntegrationTestCase):
 		for key in ("vehicle", "driver", "license_no", "assignment_type",
 		            "from_date", "to_date", "status"):
 			self.assertIn(key, rows[0])
+
+
+class TestLocationFollowsTheVehicle(IntegrationTestCase):
+	"""GDL: "New Driver Assignment, The location is not showing. fetch
+	location automatily in vehicle location."
+
+	It was fetched from `driver.site`, so an assignment filled in vehicle-first
+	- which is how the form reads, Vehicle above Driver - showed nothing at
+	all until a driver was chosen. The vehicle is what has a site.
+	"""
+
+	def field(self):
+		return frappe.get_meta("Driver Assignment").get_field("location")
+
+	def test_it_comes_from_the_vehicle(self):
+		self.assertEqual(self.field().fetch_from, "vehicle.site")
+
+	def test_it_follows_the_vehicle_rather_than_filling_once(self):
+		"""fetch_if_empty would fill it once and then keep a stale site after
+		the vehicle changed."""
+		self.assertFalse(self.field().fetch_if_empty)
+
+	def test_it_is_filled_on_save_without_anyone_typing_it(self):
+		site = frappe.db.get_value("Location", {"is_group": 0}, "name")
+		if not site:
+			self.skipTest("no leaf Location on this site")
+
+		vehicle = new_vehicle()
+		vehicle.site = site
+		vehicle.insert()
+
+		# license_no is fetched from the driver and overwrites anything set
+		# here, so the driver must actually carry one or the record cannot save.
+		driver = frappe.db.get_value(
+			"Driver", {"license_number": ("is", "set")}, "name")
+		if not driver:
+			self.skipTest("no Driver with a licence number on this site")
+
+		doc = frappe.get_doc({
+			"doctype": "Driver Assignment", "vehicle": vehicle.name,
+			"driver": driver, "assignment_type": "Primary",
+			"from_date": nowdate(), "license_no": "TEST-LIC",
+		})
+		doc.flags.ignore_permissions = True
+		doc.insert()
+		self.assertEqual(doc.location, site,
+		                 "Location did not follow the vehicle")
