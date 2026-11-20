@@ -109,3 +109,65 @@ class TestTheBillBelongsToTheLine(IntegrationTestCase):
 			settings.flags.ignore_permissions = True
 			settings.save()
 			frappe.clear_document_cache("GDL Fleet Settings", "GDL Fleet Settings")
+
+
+class TestANewAbstractCanBeSaved(IntegrationTestCase):
+	"""GDL, on the server: "Cannot Submit POL in the server" - a new abstract
+	refused to save at all, naming two fields.
+
+	    Supplier Bill Attachment is required.
+	    Closing KM is required.
+
+	Both were mine. The bill moved to the POL lines and its old field was
+	hidden while still mandatory; Closing KM became read-only and derived from
+	the fills while still mandatory. A field that is mandatory AND cannot be
+	typed is a form nobody can save.
+	"""
+
+	def field(self, fieldname):
+		return frappe.get_meta("POL Abstract").get_field(fieldname)
+
+	def test_the_hidden_bill_field_is_not_mandatory(self):
+		field = self.field("supplier_bill_attachment")
+		self.assertTrue(field.hidden)
+		self.assertFalse(field.reqd,
+		                 "a hidden field is still mandatory, so nothing saves")
+
+	def test_closing_km_is_not_mandatory_because_nobody_can_type_it(self):
+		field = self.field("closing_km")
+		self.assertTrue(field.read_only)
+		self.assertFalse(field.reqd,
+		                 "Closing KM is read-only AND mandatory - unsaveable")
+
+	def test_no_field_is_both_mandatory_and_unfillable(self):
+		"""The rule behind both faults, asserted once for the whole form.
+
+		A field that is mandatory and read-only can only be saved if something
+		fills it in - a default, or a fetch from another record.
+		"""
+		for field in frappe.get_meta("POL Abstract").fields:
+			if not field.reqd:
+				continue
+			unfillable = field.read_only or field.hidden
+			if unfillable and not (field.default or field.fetch_from):
+				self.fail(f"{field.fieldname} is mandatory but cannot be filled: "
+				          f"read_only={field.read_only} hidden={field.hidden}")
+
+	def test_a_new_abstract_saves(self):
+		"""The thing GDL could not do."""
+		vehicle = new_vehicle(last_odometer=100)
+		vehicle.insert()
+		doc = frappe.get_doc({
+			"doctype": "POL Abstract", "vehicle": vehicle.name,
+			"abstract_date": nowdate(),
+			"period_from": nowdate(), "period_to": nowdate(),
+			"opening_km": 100, "deviation_reason": "test",
+			"entries": [{
+				"supply_memo_no": "M1", "date": nowdate(), "supplier": "BOD",
+				"litres": 10, "rate": 100, "odometer": 600,
+				"bill_attachment": "/files/m1.pdf",
+			}],
+		})
+		doc.flags.ignore_permissions = True
+		doc.insert()
+		self.assertEqual(doc.closing_km, 600, "Closing KM did not come from the fill")

@@ -250,7 +250,7 @@
    "fieldname": "closing_km",
    "fieldtype": "Float",
    "label": "Closing KM",
-   "reqd": 1,
+   "reqd": 0,
    "precision": "2",
    "read_only": 1,
    "description": "The highest odometer reading on the fills above. Taken from the POL entries, never typed."
@@ -478,7 +478,8 @@
    "fieldtype": "Attach",
    "label": "Supplier Bill Attachment",
    "description": "Superseded by the Bill / Memo on each POL entry. Kept for abstracts attached before that change.",
-   "hidden": 1
+   "hidden": 1,
+   "reqd": 0
   },
   {
    "fieldname": "col_head_2",
