@@ -83,6 +83,7 @@ doc_events = {
 # ---------------------------------------------------------------------------
 doctype_js = {
 	"Asset Maintenance Log": "public/js/asset_maintenance_log.js",
+	"Vehicle Log": "public/js/vehicle_log.js",
 }
 
 
