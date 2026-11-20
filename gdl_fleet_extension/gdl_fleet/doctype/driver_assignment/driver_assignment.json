@@ -94,7 +94,8 @@
    "fieldname": "to_date",
    "fieldtype": "Date",
    "label": "To Date",
-   "description": "Leave blank while the assignment is open-ended."
+   "description": "Leave blank while the assignment is open-ended.",
+   "in_list_view": 1
   },
   {
    "fieldname": "status",
@@ -131,7 +132,8 @@
    "options": "Location",
    "label": "Location",
    "description": "The vehicle's site. Follows the vehicle.",
-   "fetch_from": "vehicle.site"
+   "fetch_from": "vehicle.site",
+   "in_list_view": 1
   },
   {
    "fieldname": "purpose",

@@ -175,7 +175,8 @@
    "fieldname": "location",
    "fieldtype": "Link",
    "options": "Location",
-   "label": "Location"
+   "label": "Location",
+   "in_list_view": 1
   },
   {
    "fieldname": "sec_purchasing",

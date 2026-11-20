@@ -27,6 +27,7 @@ DRIVER_CUSTOM_FIELDS = {
 			"options": "Location",
 			"insert_after": "gdl_fleet_section",
 			"in_standard_filter": 1,
+			"in_list_view": 1,
 			"description": "Standard ERPNext Location is the GDL site master.",
 		},
 		{
@@ -40,6 +41,7 @@ DRIVER_CUSTOM_FIELDS = {
 			"fieldtype": "Link",
 			"options": "Vehicle",
 			"insert_after": "gdl_fleet_cb",
+			"in_list_view": 1,
 		},
 		{
 			# GDL: "Can u show the Drive assignment if the drivers name is

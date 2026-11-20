@@ -115,7 +115,8 @@
    "options": "Location",
    "label": "Site",
    "in_standard_filter": 1,
-   "description": "Standard ERPNext Location is the GDL site master."
+   "description": "Standard ERPNext Location is the GDL site master.",
+   "in_list_view": 1
   },
   {
    "fieldname": "project",

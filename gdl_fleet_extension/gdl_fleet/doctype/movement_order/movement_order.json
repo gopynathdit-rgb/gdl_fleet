@@ -240,7 +240,8 @@
    "fieldtype": "Link",
    "options": "Location",
    "label": "Location",
-   "description": "Carried from the request. The site the movement belongs to."
+   "description": "Carried from the request. The site the movement belongs to.",
+   "in_list_view": 1
   },
   {
    "fieldname": "vehicle_type",
