@@ -30,10 +30,12 @@ class DriverAssignment(Document):
 	def on_submit(self):
 		self.set_status()
 		self.push_current_driver_to_vehicle()
+		push_current_vehicle_to_driver(self.driver)
 
 	def on_cancel(self):
 		self.db_set("status", "Cancelled")
 		self.push_current_driver_to_vehicle()
+		push_current_vehicle_to_driver(self.driver)
 
 	# ------------------------------------------------------------------
 	def validate_dates(self):
@@ -168,6 +170,57 @@ def get_active_driver(vehicle: str, on_date=None, assignment_type=None):
 		as_dict=True,
 	)
 	return rows[0].driver if rows else None
+
+
+@frappe.whitelist()
+def get_active_assignment(driver: str, on_date=None):
+	"""The assignment a DRIVER is under today, and the vehicle it is for.
+
+	The mirror of get_active_driver, and it resolves a clash the same way: a
+	Temporary or Relief assignment covering the date outranks the Primary one,
+	because that is the point of raising it.
+	"""
+	if not driver:
+		return None
+
+	on_date = on_date or nowdate()
+	rows = frappe.db.sql(
+		"""
+		select name, vehicle, assignment_type
+		from `tabDriver Assignment`
+		where driver = %(driver)s
+		  and docstatus = 1
+		  and status != 'Cancelled'
+		  and from_date <= %(on_date)s
+		  and coalesce(to_date, %(open_ended)s) >= %(on_date)s
+		order by field(assignment_type, 'Temporary', 'Relief', 'Primary'), from_date desc
+		limit 1
+		""",
+		{"driver": driver, "on_date": on_date, "open_ended": OPEN_ENDED},
+		as_dict=True,
+	)
+	return rows[0] if rows else None
+
+
+def push_current_vehicle_to_driver(driver: str):
+	"""Show on the Driver which vehicle they are on, if any.
+
+	Derived, never typed - the Driver Assignment stays the record. Written
+	with db.set_value so saving an assignment does not also re-save the
+	Driver and fire its own hooks.
+	"""
+	if not driver:
+		return
+
+	live = get_active_assignment(driver)
+	frappe.db.set_value(
+		"Driver", driver,
+		{
+			"gdl_current_vehicle": live.vehicle if live else None,
+			"gdl_current_assignment": live.name if live else None,
+		},
+		update_modified=False,
+	)
 
 
 @frappe.whitelist()

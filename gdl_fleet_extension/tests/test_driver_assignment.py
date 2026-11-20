@@ -243,3 +243,90 @@ class TestLocationFollowsTheVehicle(IntegrationTestCase):
 		doc.insert()
 		self.assertEqual(doc.location, site,
 		                 "Location did not follow the vehicle")
+
+
+class TestTheDriverPageShowsItsVehicle(IntegrationTestCase):
+	"""GDL: "Can u show the Drive assignment if the drivers name is assigned
+	to any vehicle, in the drivers page."
+
+	Derived and read-only, exactly as Vehicle.driver already is. The Driver
+	Assignment stays the record; these two only report whichever one is live.
+	"""
+
+	def setUp(self):
+		self.driver = make_driver(f"DP{frappe.generate_hash(length=4)}",
+		                          f"DL-DP-{frappe.generate_hash(length=5)}")
+		self.vehicle = new_vehicle()
+		self.vehicle.insert()
+
+	def assign(self, vehicle=None, assignment_type="Primary", from_date=None,
+	           to_date=None, submit=True):
+		doc = frappe.get_doc({
+			"doctype": "Driver Assignment",
+			"vehicle": (vehicle or self.vehicle).name,
+			"driver": self.driver,
+			"assignment_type": assignment_type,
+			"from_date": from_date or add_days(nowdate(), -5),
+			"to_date": to_date,
+		})
+		doc.flags.ignore_permissions = True
+		doc.insert()
+		if submit:
+			doc.submit()
+		return doc
+
+	def shown(self):
+		return frappe.db.get_value(
+			"Driver", self.driver,
+			["gdl_current_vehicle", "gdl_current_assignment"], as_dict=True)
+
+	def test_the_fields_are_read_only(self):
+		"""The assignment is the record; these only report it."""
+		meta = frappe.get_meta("Driver")
+		for fieldname in ("gdl_current_vehicle", "gdl_current_assignment"):
+			with self.subTest(field=fieldname):
+				self.assertTrue(meta.get_field(fieldname).read_only)
+
+	def test_an_unassigned_driver_shows_nothing(self):
+		shown = self.shown()
+		self.assertIsNone(shown.gdl_current_vehicle)
+		self.assertIsNone(shown.gdl_current_assignment)
+
+	def test_assigning_shows_the_vehicle_on_the_driver(self):
+		assignment = self.assign()
+		shown = self.shown()
+		self.assertEqual(shown.gdl_current_vehicle, self.vehicle.name)
+		self.assertEqual(shown.gdl_current_assignment, assignment.name)
+
+	def test_cancelling_clears_it(self):
+		assignment = self.assign()
+		assignment.cancel()
+		self.assertIsNone(self.shown().gdl_current_vehicle)
+
+	def test_an_expired_assignment_does_not_show(self):
+		"""Yesterday's assignment is not today's."""
+		self.assign(from_date=add_days(nowdate(), -30),
+		            to_date=add_days(nowdate(), -1))
+		self.assertIsNone(self.shown().gdl_current_vehicle)
+
+	def test_a_relief_assignment_outranks_the_primary_one(self):
+		"""The same rule the vehicle side already uses - that is the point of
+		raising a relief."""
+		other = new_vehicle()
+		other.insert()
+		self.assign()		# Primary, open ended
+		relief = self.assign(vehicle=other, assignment_type="Relief",
+		                     from_date=add_days(nowdate(), -1),
+		                     to_date=add_days(nowdate(), 1))
+		shown = self.shown()
+		self.assertEqual(shown.gdl_current_vehicle, other.name)
+		self.assertEqual(shown.gdl_current_assignment, relief.name)
+
+	def test_the_backfill_agrees_with_the_live_assignment(self):
+		"""setup runs it on every migrate; it must be a no-op once correct."""
+		from gdl_fleet_extension.setup.driver_fields import (
+			refresh_current_vehicle_on_drivers,
+		)
+		assignment = self.assign()
+		refresh_current_vehicle_on_drivers()
+		self.assertEqual(self.shown().gdl_current_assignment, assignment.name)
